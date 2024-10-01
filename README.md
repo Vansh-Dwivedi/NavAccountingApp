@@ -26,7 +26,7 @@
 
 ## Installation Instructions
 
-To set up and run this MERN stack application, follow these steps:
+To set up and run this Application made in MERN Stack, follow these steps:
 
 1. Clone the repository:
    ```
