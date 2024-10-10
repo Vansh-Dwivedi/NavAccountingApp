@@ -17,6 +17,7 @@ const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const chatRoutes = require("./routes/chatRoutes");
+const formRoutes = require("./routes/formRoutes");
 const logRoutes = require("./routes/logRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const { generalLimiter } = require("./middleware/rateLimiter");
@@ -114,14 +115,6 @@ if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Basic rate limiting
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
-});
-
-app.use(limiter);
-
 // Serve static files from the 'uploads' directory
 app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
   setHeaders: (res, path, stat) => {
@@ -182,6 +175,8 @@ function sendMessageToUser(receiverId, message) {
 
 // Make sendMessageToUser available to other parts of your application
 app.set("sendMessageToUser", sendMessageToUser);
+
+app.use('/api/forms', formRoutes);
 
 // Example of how to use sendMessageToUser in a route
 app.post("/api/messages", async (req, res) => {

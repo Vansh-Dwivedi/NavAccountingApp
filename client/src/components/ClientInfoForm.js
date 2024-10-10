@@ -98,11 +98,11 @@ const ClientInfoForm = () => {
     e.preventDefault();
     if (validateForm()) {
       try {
-        await api.post('/api/client-info', formData);
+        await api.post('/api/users/client-info', formData);
         alert('Form submitted successfully');
 
         // Notify all admins about the submission
-        await api.post('/api/notify-admins', { message: 'New Client Info Form Submission' });
+        await api.post('/api/users/notify-admins', { message: 'New Client Info Form Submission' });
 
         // Reset form or redirect user
       } catch (error) {

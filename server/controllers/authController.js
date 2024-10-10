@@ -119,3 +119,16 @@ exports.resetPassword = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.verifyPassword = async (req, res) => {
+  try {
+    const { password } = req.body;
+    const user = await User.findOne({ email: req.user.email });
+    if (!user || !(await user.comparePassword(password))) {
+      return res.status(401).json({ isValid: false });
+    }
+    res.json({ isValid: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};

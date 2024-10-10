@@ -28,7 +28,7 @@ router.get('/all', auth, userController.getAllUsers);
 router.put('/update-role/:userId', auth, roleCheck(['admin']), userController.updateUserRole);
 router.put('/:userId/assign-manager', auth, roleCheck(['admin', 'manager']), userController.assignManager);
 router.put('/:managerId/assign-client', auth, roleCheck(['admin', 'manager']), userController.assignClient);
-router.get('/assigned-clients', auth, roleCheck(['manager']), userController.getAssignedClients);
+router.get('/:managerId/assigned-clients', auth, roleCheck(['manager']), userController.getAssignedClients);
 
 // Routes for the updated role hierarchy
 router.get('/users/role/:role', auth, roleCheck(['admin', 'office_head', 'head_director']), userController.getUsersByRole);
@@ -46,5 +46,8 @@ router.delete('/:userId', auth, roleCheck(['admin']), userController.deleteUser)
 
 // New route to fetch the admin user
 router.get('/admin', auth, userController.getAdminUser);
+
+router.post("/client-info", auth, roleCheck(["client"]), userController.submitClientInfo);
+router.get("/client-info/:userId", auth, roleCheck(["client"]), userController.getClientInfo);
 
 module.exports = router;

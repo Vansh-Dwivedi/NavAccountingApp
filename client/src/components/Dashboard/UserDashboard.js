@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../../utils/api';
 import Header from '../Header';
+import "./Dashboard.css";
 
 const UserDashboard = () => {
   const [profilePic, setProfilePic] = useState(null);

@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import AdminDashboard from './AdminDashboard';
+import ClientDashboard from './ClientDashboard';
 import ManagerDashboard from './ManagerDashboard';
 import UserDashboard from './UserDashboard';
 
@@ -12,6 +13,8 @@ const Dashboard = () => {
       return <AdminDashboard />;
     case 'manager':
       return <ManagerDashboard />;
+    case 'client':
+      return <ClientDashboard />;
     default:
       return <UserDashboard />;
   }

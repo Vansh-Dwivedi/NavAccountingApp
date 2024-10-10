@@ -395,8 +395,6 @@
     min-width: 300px;
     min-height: 400px;
     transition: all 0.3s ease;
-    max-width: 90vw;
-    max-height: 90vh;
 }
 
 .chat-component.minimized {
@@ -405,7 +403,7 @@
 }
 
 .chat-component.fullscreen {
-    top: 0;
+    top: 60px;
     left: 0;
     right: 0;
     bottom: 0;

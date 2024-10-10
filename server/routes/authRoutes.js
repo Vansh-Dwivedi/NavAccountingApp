@@ -10,6 +10,7 @@ router.post('/login', authController.login);
 router.post('/logout', auth, authController.logout);
 router.post('/forgot-password', forgotPasswordLimiter, validateForgotPassword, authController.forgotPassword);
 router.post('/reset-password/:resetToken', validateResetPassword, authController.resetPassword);
+router.post('/verify-password', authController.verifyPassword);
 
 router.get('/test', (req, res) => {
   res.json({ message: 'Auth routes are working' });
