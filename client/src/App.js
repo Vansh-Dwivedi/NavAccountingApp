@@ -6,6 +6,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import Home from "./components/Home";
+import FormSubmissionPage from "./components/FormSubmissionPage";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import RoleBasedRoute from "./components/RoleBasedRoute";
@@ -32,7 +33,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          {/* Existing routes */}
+          <Route path="/form-submissions/:id" element={<FormSubmissionPage />} />
           <Route
             path="/admin-dashboard"
             element={

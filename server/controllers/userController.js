@@ -12,7 +12,6 @@ exports.submitClientInfo = async (req, res) => {
     });
     await clientInfo.save();
 
-
     res.status(201).json({ message: "Client info submitted successfully" });
   } catch (error) {
     console.error("Error submitting client info:", error);
@@ -32,7 +31,6 @@ exports.getClientInfo = async (req, res) => {
     res.status(500).json({ error: "Server error" });
   }
 };
-
 
 exports.getProfile = async (req, res) => {
   try {
@@ -73,11 +71,13 @@ exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find({})
       .select("username _id role email profilePic assignedClients isBlocked")
-      .populate('assignedManager', 'username');
-    
-    const formattedUsers = users.map(user => ({
+      .populate("assignedManager", "username");
+
+    const formattedUsers = users.map((user) => ({
       ...user.toObject(),
-      assignedManager: user.assignedManager ? user.assignedManager.username : null
+      assignedManager: user.assignedManager
+        ? user.assignedManager.username
+        : null,
     }));
 
     res.json(formattedUsers);
@@ -446,5 +446,18 @@ exports.getUserProfileById = async (req, res) => {
   } catch (error) {
     console.error("Error fetching user profile:", error);
     res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.getClientsAndManagers = async (req, res) => {
+  try {
+    const clientsAndManagers = await User.find(
+      { role: { $in: ["client", "manager"] } },
+      "username _id role email profilePic"
+    );
+    res.json(clientsAndManagers);
+  } catch (error) {
+    console.error("Error fetching clients and managers:", error);
+    res.status(500).json({ error: "Server error" });
   }
 };

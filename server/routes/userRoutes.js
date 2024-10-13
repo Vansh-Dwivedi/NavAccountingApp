@@ -29,6 +29,7 @@ router.put('/update-role/:userId', auth, roleCheck(['admin']), userController.up
 router.put('/:userId/assign-manager', auth, roleCheck(['admin', 'manager']), userController.assignManager);
 router.put('/:managerId/assign-client', auth, roleCheck(['admin', 'manager']), userController.assignClient);
 router.get('/:managerId/assigned-clients', auth, roleCheck(['manager']), userController.getAssignedClients);
+router.get('/clients-and-managers', auth, userController.getClientsAndManagers);
 
 // Routes for the updated role hierarchy
 router.get('/users/role/:role', auth, roleCheck(['admin', 'office_head', 'head_director']), userController.getUsersByRole);

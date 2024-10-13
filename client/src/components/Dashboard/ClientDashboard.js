@@ -8,6 +8,7 @@ import { AuthContext } from "../../context/AuthContext";
 import Header from "../Header";
 import io from "socket.io-client";
 import NotificationBubble from "../NotificationBubble";
+import FormPopupModal from "../FormPopupModal";
 
 const ClientDashboard = () => {
   const { user } = useContext(AuthContext);
@@ -23,6 +24,10 @@ const ClientDashboard = () => {
   const [openChats, setOpenChats] = useState({});
   const [unreadCounts, setUnreadCounts] = useState({});
   const socketRef = useRef(null);
+  const [forms, setForms] = useState([]);
+  const [currentForm, setCurrentForm] = useState(null);
+  const [selectedForm, setSelectedForm] = useState(null);
+  const [receivedForms, setReceivedForms] = useState([]);
 
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
@@ -30,13 +35,17 @@ const ClientDashboard = () => {
     document.body.classList.toggle("sidebar-open");
   };
 
+
   useEffect(() => {
     fetchClientData();
     fetchAdminUser();
+    fetchForms();
+    fetchReceivedForms();
 
     socketRef.current = io(
       process.env.REACT_APP_API_URL || "http://localhost:5000"
     );
+
 
     return () => {
       if (socketRef.current) {
@@ -44,6 +53,7 @@ const ClientDashboard = () => {
       }
     };
   }, []);
+
 
   useEffect(() => {
     if (clientData && socketRef.current) {
@@ -63,6 +73,7 @@ const ClientDashboard = () => {
       };
     }
   }, [clientData]);
+
 
   const fetchClientData = async () => {
     try {
@@ -147,6 +158,39 @@ const ClientDashboard = () => {
     });
   };
 
+  const fetchForms = async () => {
+    try {
+      const response = await api.get("/api/forms/user");
+      setForms(response.data);
+    } catch (error) {
+      console.error("Error fetching forms:", error);
+    }
+  };
+
+  const fetchReceivedForms = async () => {
+    try {
+      const response = await api.get('/api/forms/user');
+      setReceivedForms(response.data);
+    } catch (error) {
+      console.error('Error fetching received forms:', error);
+    }
+  };
+
+  const handleFormClick = (form) => {
+    setSelectedForm(form);
+  };
+
+  const handleFormSubmit = async (formId, formData) => {
+    try {
+      await api.post(`/api/forms/${formId}/submit`, formData);
+      alert('Form submitted successfully');
+      fetchReceivedForms();
+    } catch (error) {
+      console.error('Error submitting form:', error);
+      alert('Failed to submit form');
+    }
+  };
+
   if (!user) {
     return <div>Loading...</div>;
   }
@@ -163,14 +207,12 @@ const ClientDashboard = () => {
         <div className={`sidebar ${isDrawerOpen ? "active" : ""}`}>
           <div className="profile-section">
             {profilePic ? (
-              <div className="profile-pic-container">
-                <img
-                  src={`${process.env.REACT_APP_API_URL}/uploads/${profilePic}`}
-                  alt="Profile"
-                  className="profile-pic"
-                  crossOrigin="anonymous"
-                />
-              </div>
+              <img
+                src={`${process.env.REACT_APP_API_URL}/uploads/${profilePic}`}
+                alt="Profile"
+                className="profile-pic"
+                crossOrigin="anonymous"
+              />
             ) : (
               <div className="profile-pic-placeholder">No file chosen</div>
             )}
@@ -191,7 +233,9 @@ const ClientDashboard = () => {
             </div>
           )}
           <button onClick={() => setActiveTab("dashboard")}>Dashboard</button>
-          <button onClick={() => setActiveTab("submitInfo")}>Submit Info</button>
+          <button onClick={() => setActiveTab("submitInfo")}>
+            Submit Info
+          </button>
           <button onClick={() => setActiveTab("chat")}>Chat</button>
           <button onClick={handleLogout} className="logout-button">
             Logout
@@ -217,18 +261,27 @@ const ClientDashboard = () => {
                   <p>Full Name: {clientData.clientInfo.fullName}</p>
                   <p>Occupation: {clientData.clientInfo.occupation}</p>
                   <p>Spouse Name: {clientData.clientInfo.spouseName}</p>
-                  <p>Spouse Occupation: {clientData.clientInfo.spouseOccupation}</p>
+                  <p>
+                    Spouse Occupation: {clientData.clientInfo.spouseOccupation}
+                  </p>
                   <p>Email: {clientData.clientInfo.email}</p>
                   <p>Cell No: {clientData.clientInfo.cellNo}</p>
                   <p>SSN: {clientData.clientInfo.ssn}</p>
                   <p>Spouse SSN: {clientData.clientInfo.spouseSSN}</p>
                   <p>Date of Birth: {clientData.clientInfo.dob}</p>
                   <p>Spouse Date of Birth: {clientData.clientInfo.spouseDOB}</p>
-                  <p>Address: {clientData.clientInfo.addressLine1} {clientData.clientInfo.addressLine2}</p>
-                  <p>How did you find us: {clientData.clientInfo.howDidYouFindUs}</p>
+                  <p>
+                    Address: {clientData.clientInfo.addressLine1}{" "}
+                    {clientData.clientInfo.addressLine2}
+                  </p>
+                  <p>
+                    How did you find us: {clientData.clientInfo.howDidYouFindUs}
+                  </p>
                   <p>Referred by: {clientData.clientInfo.referredName}</p>
                   <p>Filing Status: {clientData.clientInfo.filingStatus}</p>
-                  <p>Total Dependents: {clientData.clientInfo.totalDependents}</p>
+                  <p>
+                    Total Dependents: {clientData.clientInfo.totalDependents}
+                  </p>
 
                   <h4>Dependents</h4>
                   {clientData.clientInfo.dependents.map((dep, index) => (
@@ -243,17 +296,36 @@ const ClientDashboard = () => {
                   <h4>Business Information</h4>
                   <p>Business Name: {clientData.clientInfo.businessName}</p>
                   <p>Business Phone: {clientData.clientInfo.businessPhone}</p>
-                  <p>Business Address: {clientData.clientInfo.businessAddressLine1} {clientData.clientInfo.businessAddressLine2}</p>
-                  <p>Business Entity Type: {clientData.clientInfo.businessEntityType}</p>
+                  <p>
+                    Business Address:{" "}
+                    {clientData.clientInfo.businessAddressLine1}{" "}
+                    {clientData.clientInfo.businessAddressLine2}
+                  </p>
+                  <p>
+                    Business Entity Type:{" "}
+                    {clientData.clientInfo.businessEntityType}
+                  </p>
                   <p>Business TIN: {clientData.clientInfo.businessTIN}</p>
                   <p>Business SOS: {clientData.clientInfo.businessSOS}</p>
                   <p>Business EDD: {clientData.clientInfo.businessEDD}</p>
-                  <p>Business Accounting Method: {clientData.clientInfo.businessAccountingMethod}</p>
+                  <p>
+                    Business Accounting Method:{" "}
+                    {clientData.clientInfo.businessAccountingMethod}
+                  </p>
                   <p>Business Year: {clientData.clientInfo.businessYear}</p>
                   <p>Business Email: {clientData.clientInfo.businessEmail}</p>
-                  <p>Contact Person Name: {clientData.clientInfo.contactPersonName}</p>
-                  <p>Number of Active Employees: {clientData.clientInfo.noOfEmployeesActive}</p>
-                  <p>Business Referred By: {clientData.clientInfo.businessReferredBy}</p>
+                  <p>
+                    Contact Person Name:{" "}
+                    {clientData.clientInfo.contactPersonName}
+                  </p>
+                  <p>
+                    Number of Active Employees:{" "}
+                    {clientData.clientInfo.noOfEmployeesActive}
+                  </p>
+                  <p>
+                    Business Referred By:{" "}
+                    {clientData.clientInfo.businessReferredBy}
+                  </p>
 
                   <h4>Members/Shareholders</h4>
                   {clientData.clientInfo.members.map((mem, index) => (
@@ -282,7 +354,9 @@ const ClientDashboard = () => {
                   <button
                     onClick={() => handleChatSelect(clientData.assignedManager)}
                     className={`chat-button ${
-                      openChats[clientData.assignedManager._id] ? "selected" : ""
+                      openChats[clientData.assignedManager._id]
+                        ? "selected"
+                        : ""
                     }`}
                   >
                     Chat with Manager
@@ -312,9 +386,10 @@ const ClientDashboard = () => {
               <div className="chat-windows">
                 {Object.entries(openChats).map(([userId, isOpen]) => {
                   if (!isOpen) return null;
-                  const chatPartner = userId === adminUser?._id
-                    ? adminUser
-                    : clientData?.assignedManager;
+                  const chatPartner =
+                    userId === adminUser?._id
+                      ? adminUser
+                      : clientData?.assignedManager;
                   if (!chatPartner) return null;
                   return (
                     <div key={userId} className="chat-window">
@@ -330,6 +405,33 @@ const ClientDashboard = () => {
               </div>
             </div>
           )}
+          <div className="forms-section">
+            <h3>Forms to Complete</h3>
+            {forms.map((form) => (
+              <div key={form._id} className="form-item" onClick={() => handleFormClick(form)}>
+                <h4>{form.title}</h4>
+                <p>Deadline: {form.deadline} days</p>
+                {form.isCompulsory && <span className="compulsory-tag">Compulsory</span>}
+              </div>
+            ))}
+          </div>
+          <div className="received-forms">
+            <h3>Received Forms</h3>
+            {receivedForms.map((form) => (
+              <div key={form._id} className="form-item">
+                <h4>{form.title}</h4>
+                <p>Deadline: {form.deadline} days</p>
+                <button onClick={() => handleFormClick(form)}>Fill Out Form</button>
+              </div>
+            ))}
+          </div>
+          {selectedForm && (
+            <FormPopupModal
+              form={selectedForm}
+              onClose={() => setSelectedForm(null)}
+              onSubmit={handleFormSubmit}
+            />
+          )}
         </div>
       </div>
       <div
@@ -339,5 +441,6 @@ const ClientDashboard = () => {
     </>
   );
 };
+
 
 export default ClientDashboard;

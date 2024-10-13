@@ -5,28 +5,35 @@ const NotificationSchema = new mongoose.Schema(
     user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
+      required: false,
     },
     title: {
+      type: String,
+      required: false,
+    },
+    message: {
       type: String,
       required: true,
     },
     sender: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
-    message: {
+    senderProfilePic: {
       type: String,
-      required: true,
+    },
+    formData: {
+      formId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Form",
+      },
+      formTitle: {
+        type: String,
+      },
     },
     read: {
       type: Boolean,
       default: false,
-    },
-    senderProfilePic: {
-      type: String,
-      required: true,
     },
     createdAt: {
       type: Date,

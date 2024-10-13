@@ -140,12 +140,7 @@ const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
 
   useEffect(() => {
     if (chatMessagesRef.current) {
-      const { scrollHeight, clientHeight, scrollTop } = chatMessagesRef.current;
-      const isScrolledToBottom = scrollHeight - clientHeight <= scrollTop + 1;
-
-      if (isScrolledToBottom) {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-      }
+      chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
     }
   }, [messages]);
 
@@ -225,7 +220,10 @@ const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
 
         // Scroll to bottom after sending message
         setTimeout(() => {
-          messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+          if (chatMessagesRef.current) {
+            chatMessagesRef.current.scrollTop =
+              chatMessagesRef.current.scrollHeight;
+          }
         }, 100);
       } catch (error) {
         console.error(
@@ -476,16 +474,16 @@ const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
             {showFilterMenu && (
               <div className="filter-menu">
                 <button onClick={() => handleFilterSelect("All")}>All</button>
-                <button onClick={() => handleFilterSelect("Tax File")}>Tax File</button>
+                <button onClick={() => handleFilterSelect("Tax File")}>
+                  Tax File
+                </button>
                 <button onClick={() => handleFilterSelect("Payroll File")}>
                   Payroll File
                 </button>
                 <button onClick={() => handleFilterSelect("Compliance File")}>
                   Compliance File
                 </button>
-                <button onClick={() => handleFilterSelect("File")}>
-                  File
-                </button>
+                <button onClick={() => handleFilterSelect("File")}>File</button>
               </div>
             )}
           </div>
@@ -611,7 +609,11 @@ const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
           <form onSubmit={sendMessage} className="message-input">
             {file && (
               <div className="selected-file-type">
-                <span>{file.name.length > 20 ? file.name.slice(0, 17) + '...' : file.name}</span>
+                <span>
+                  {file.name.length > 20
+                    ? file.name.slice(0, 17) + "..."
+                    : file.name}
+                </span>
                 <FaTimes onClick={removeSelectedFile} className="remove-file" />
               </div>
             )}
@@ -630,10 +632,14 @@ const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
                       <button onClick={() => handleFileTypeSelect("Tax File")}>
                         Tax File
                       </button>
-                      <button onClick={() => handleFileTypeSelect("Payroll File")}>
+                      <button
+                        onClick={() => handleFileTypeSelect("Payroll File")}
+                      >
                         Payroll File
                       </button>
-                      <button onClick={() => handleFileTypeSelect("Compliance File")}>
+                      <button
+                        onClick={() => handleFileTypeSelect("Compliance File")}
+                      >
                         Compliance File
                       </button>
                     </div>

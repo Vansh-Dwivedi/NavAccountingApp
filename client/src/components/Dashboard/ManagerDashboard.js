@@ -6,6 +6,7 @@ import ChatComponent from "../Chat/ChatComponent";
 import io from "socket.io-client";
 import NotificationBubble from "../NotificationBubble";
 import Header from "../Header";
+import { FaSearch, FaPaperPlane } from 'react-icons/fa';
 
 const ManagerDashboard = () => {
   const [managerData, setManagerData] = useState(null);
@@ -19,8 +20,11 @@ const ManagerDashboard = () => {
   const [unreadCounts, setUnreadCounts] = useState({});
   const [socket, setSocket] = useState(null);
   const socketRef = useRef(null);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false); // Drawer state
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [forms, setForms] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedForm, setSelectedForm] = useState(null);
 
   const toggleDrawer = () => {
     setIsDrawerOpen(!isDrawerOpen);
@@ -32,10 +36,9 @@ const ManagerDashboard = () => {
 
   useEffect(() => {
     fetchManagerData();
-    fetchAssignedClients();
     fetchAdminUser();
+    fetchForms();
 
-    // Set up socket connection
     socketRef.current = io(
       process.env.REACT_APP_API_URL || "http://localhost:5000"
     );
@@ -46,6 +49,7 @@ const ManagerDashboard = () => {
       }
     };
   }, []);
+
 
   useEffect(() => {
     if (managerData && socketRef.current) {
@@ -66,6 +70,12 @@ const ManagerDashboard = () => {
     }
   }, [managerData]);
 
+  useEffect(() => {
+    if (managerData) {
+      fetchAssignedClients();
+    }
+  }, [managerData]);
+
   const fetchManagerData = async () => {
     try {
       const response = await api.get("/api/users/profile");
@@ -81,8 +91,11 @@ const ManagerDashboard = () => {
   };
 
   const fetchAssignedClients = async () => {
+    if (!managerData) return;
     try {
-      const response = await api.get("/api/users/assigned-clients");
+      const response = await api.get(
+        `/api/users/${managerData._id}/assigned-clients`
+      );
       setAssignedClients(response.data);
     } catch (err) {
       console.error("Error fetching assigned clients:", err);
@@ -122,6 +135,7 @@ const ManagerDashboard = () => {
     navigate("/login");
   };
 
+
   const handleProfilePicUpload = async (e) => {
     const file = e.target.files[0];
     const formData = new FormData();
@@ -146,6 +160,38 @@ const ManagerDashboard = () => {
     }
   };
 
+  const fetchForms = async () => {
+    try {
+      const response = await api.get('/api/forms/all');
+      setForms(response.data);
+    } catch (error) {
+      console.error('Error fetching forms:', error);
+    }
+  };
+
+  const handleSearchChange = (e) => {
+    setSearchTerm(e.target.value);
+  };
+
+  const filteredForms = forms.filter((form) =>
+    form.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const handleFormSelect = (form) => {
+    setSelectedForm(form);
+  };
+
+  const handleSendForm = async (clientId) => {
+    if (!selectedForm) return;
+    try {
+      await api.post('/api/forms/send', { formId: selectedForm._id, clientId });
+      alert('Form sent to client successfully');
+    } catch (error) {
+      console.error('Error sending form to client:', error);
+      alert('Failed to send form to client');
+    }
+  };
+
   if (error) return <div className="error">{error}</div>;
   if (!managerData) return <div className="loading">Loading...</div>;
 
@@ -162,14 +208,12 @@ const ManagerDashboard = () => {
         <div className={`sidebar ${isDrawerOpen ? "active" : ""}`}>
           <div className="profile-section">
             {profilePic ? (
-              <div className="profile-pic-container">
-                <img
-                  src={`${process.env.REACT_APP_API_URL}/uploads/${profilePic}`}
-                  alt="Profile"
-                  className="profile-pic"
-                  crossOrigin="anonymous"
-                />
-              </div>
+              <img
+                src={`${process.env.REACT_APP_API_URL}/uploads/${profilePic}`}
+                alt="Profile"
+                className="profile-pic"
+                crossOrigin="anonymous"
+              />
             ) : (
               <div className="profile-pic-placeholder">No Image</div>
             )}
@@ -184,10 +228,10 @@ const ManagerDashboard = () => {
           </div>
           <button onClick={() => setActiveTab("dashboard")}>Dashboard</button>
           <button onClick={() => setActiveTab("chat")}>Chat</button>
-          <button onClick={handleLogout}>Logout</button>
           <button onClick={() => setActiveTab("adminChat")}>
             Chat with Admin
           </button>
+          <button onClick={handleLogout}>Logout</button>
         </div>
 
         <div className="main-content">
@@ -255,6 +299,47 @@ const ManagerDashboard = () => {
               onClose={() => setActiveTab("dashboard")}
             />
           )}
+          <div className="form-management">
+            <h3>Form Management</h3>
+            <div className="search-bar">
+              <FaSearch />
+              <input
+                type="text"
+                placeholder="Search forms..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+              />
+            </div>
+            <div className="form-list">
+              {filteredForms.map((form) => (
+                <div
+                  key={form._id}
+                  className={`form-item ${selectedForm?._id === form._id ? 'selected' : ''}`}
+                  onClick={() => handleFormSelect(form)}
+                >
+                  <h4>{form.title}</h4>
+                  <p>Status: {form.status}</p>
+                </div>
+              ))}
+            </div>
+            {selectedForm && (
+              <div className="selected-form">
+                <h4>{selectedForm.title}</h4>
+                <p>Send to client:</p>
+                <select onChange={(e) => handleSendForm(e.target.value)}>
+                  <option value="">Select a client</option>
+                  {assignedClients.map((client) => (
+                    <option key={client._id} value={client._id}>
+                      {client.username}
+                    </option>
+                  ))}
+                </select>
+                <button onClick={() => handleSendForm()}>
+                  <FaPaperPlane /> Send Form
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
       <div
@@ -264,5 +349,6 @@ const ManagerDashboard = () => {
     </>
   );
 };
+
 
 export default ManagerDashboard;

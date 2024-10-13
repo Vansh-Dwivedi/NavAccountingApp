@@ -17,32 +17,32 @@ const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const chatRoutes = require("./routes/chatRoutes");
-const formRoutes = require("./routes/formRoutes");
 const logRoutes = require("./routes/logRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const { generalLimiter } = require("./middleware/rateLimiter");
 const rateLimit = require("express-rate-limit");
+const formRoutes = require('./routes/formRoutes');
 
 const app = express();
 
 // CORS configuration
 const corsOptions = {
-  origin: 'http://localhost:3000', // Replace with your frontend URL
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  origin: "http://localhost:3000", // Replace with your frontend URL
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));
 
 // Add headers manually for more control
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', 'http://localhost:3000'); // Replace with your frontend URL
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-  res.header('Access-Control-Allow-Credentials', true);
-  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // Replace with your frontend URL
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Credentials", true);
+  res.header("Cross-Origin-Resource-Policy", "cross-origin");
   next();
 });
 
@@ -106,6 +106,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/forms", formRoutes);
 app.use("/api/logs", logRoutes);
 app.use("/api/notifications", notificationRoutes);
 
@@ -116,22 +117,25 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // Serve static files from the 'uploads' directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads'), {
-  setHeaders: (res, path, stat) => {
-    res.set('Cross-Origin-Resource-Policy', 'cross-origin');
-  }
-}));
+app.use(
+  "/uploads",
+  express.static(path.join(__dirname, "uploads"), {
+    setHeaders: (res, path, stat) => {
+      res.set("Cross-Origin-Resource-Policy", "cross-origin");
+    },
+  })
+);
 
 // Handle 404 for /uploads
-app.use('/uploads', (req, res) => {
-  res.status(404).send('File not found');
+app.use("/uploads", (req, res) => {
+  res.status(404).send("File not found");
 });
 
 // Socket.IO
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
-    origin: process.env.SOCKET_CORS_ORIGIN || "http://localhost:3000",
+    origin: process.env.CLIENT_URL || "http://localhost:3000",
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -175,8 +179,6 @@ function sendMessageToUser(receiverId, message) {
 
 // Make sendMessageToUser available to other parts of your application
 app.set("sendMessageToUser", sendMessageToUser);
-
-app.use('/api/forms', formRoutes);
 
 // Example of how to use sendMessageToUser in a route
 app.post("/api/messages", async (req, res) => {

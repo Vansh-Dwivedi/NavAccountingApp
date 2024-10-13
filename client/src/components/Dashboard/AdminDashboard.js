@@ -6,6 +6,9 @@ import AuditLogs from "../AuditLogs";
 import ChatComponent from "../Chat/ChatComponent";
 import Header from "../Header";
 import Modal from "../Modal";
+import SendFormTab from "../SendFormTab";
+import FormSubmissionPage from "../FormSubmissionPage";
+import FormSubmissionsList from "../FormSubmissionsList";
 import {
   FaTrash,
   FaBan,
@@ -13,6 +16,7 @@ import {
   FaUserPlus,
   FaUsers,
   FaFilter,
+  FaFileAlt,
   FaTimes,
   FaUserShield,
   FaChartLine,
@@ -49,6 +53,7 @@ const AdminDashboard = () => {
   const [modalContent, setModalContent] = useState(null);
   const [roleFilter, setRoleFilter] = useState("All");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedFormId, setSelectedFormId] = useState(null);
   const sidebarRef = useRef(null);
   const [columnFilters, setColumnFilters] = useState({
     username: true,
@@ -292,11 +297,20 @@ const AdminDashboard = () => {
               {response.data.map((client) => (
                 <li key={client._id}>
                   <img
-                    src={client.profilePic ? `${process.env.REACT_APP_API_URL}/uploads/${client.profilePic}` : process.env.DEPROPIC}
+                    src={
+                      client.profilePic
+                        ? `${process.env.REACT_APP_API_URL}/uploads/${client.profilePic}`
+                        : process.env.DEPROPIC
+                    }
                     alt={client.username}
                     className="profile-pic-small"
                     crossOrigin="anonymous"
-                    onClick={() => handleEnlargeProfilePic(client.profilePic, client.username)}
+                    onClick={() =>
+                      handleEnlargeProfilePic(
+                        client.profilePic,
+                        client.username
+                      )
+                    }
                   />
                   {client.username}
                 </li>
@@ -324,7 +338,7 @@ const AdminDashboard = () => {
 
   const filteredUsers = users.filter((user) => {
     const roleMatch = roleFilter === "All" || user.role === roleFilter;
-    const searchMatch = 
+    const searchMatch =
       user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase());
     return roleMatch && searchMatch;
@@ -348,9 +362,13 @@ const AdminDashboard = () => {
       <div>
         <h3>{username}'s Profile Picture</h3>
         <img
-          src={profilePic ? `${process.env.REACT_APP_API_URL}/uploads/${profilePic}` : process.env.DEPROPIC}
+          src={
+            profilePic
+              ? `${process.env.REACT_APP_API_URL}/uploads/${profilePic}`
+              : process.env.DEPROPIC
+          }
           alt={username}
-          style={{ width: '100%', maxWidth: '400px' }}
+          style={{ width: "100%", maxWidth: "400px" }}
           crossOrigin="anonymous"
         />
       </div>
@@ -359,9 +377,9 @@ const AdminDashboard = () => {
   };
 
   const handleColumnFilterChange = (column) => {
-    setColumnFilters(prev => ({
+    setColumnFilters((prev) => ({
       ...prev,
-      [column]: !prev[column]
+      [column]: !prev[column],
     }));
   };
 
@@ -390,31 +408,46 @@ const AdminDashboard = () => {
     { icon: <FaUserShield />, label: "Users", value: "users" },
     { icon: <FaChartLine />, label: "Logs", value: "logs" },
     { icon: <FaUserCircle />, label: "Dashboard", value: "dashboard" },
+    { icon: <FaFileAlt />, label: "Send Form", value: "sendForm" },
+    {
+      icon: <FaFileAlt />,
+      label: "Form Submissions",
+      value: "formSubmissions",
+    },
   ];
 
   const filterStyle = {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: '10px',
-    marginBottom: '20px',
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "10px",
+    marginBottom: "20px",
   };
 
   const checkboxStyle = {
-    display: 'flex',
-    alignItems: 'center',
-    gap: '5px',
+    display: "flex",
+    alignItems: "center",
+    gap: "5px",
   };
 
   if (isSleepMode) {
     return (
-      <div style={{ backgroundColor: 'white', height: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
+      <div
+        style={{
+          backgroundColor: "white",
+          height: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
         <FaLock size={48} />
         <input
           type="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           placeholder="Enter password"
-          style={{ margin: '20px 0' }}
+          style={{ margin: "20px 0" }}
         />
         <button onClick={handleLogin}>Login</button>
       </div>
@@ -434,11 +467,17 @@ const AdminDashboard = () => {
         >
           <div className="profile-section">
             <img
-              src={profilePic ? `${process.env.REACT_APP_API_URL}/uploads/${profilePic}` : process.env.DEPROPIC}
+              src={
+                profilePic
+                  ? `${process.env.REACT_APP_API_URL}/uploads/${profilePic}`
+                  : process.env.DEPROPIC
+              }
               alt="Profile"
               className="profile-pic"
               crossOrigin="anonymous"
-              onClick={() => handleEnlargeProfilePic(profilePic, adminData?.username)}
+              onClick={() =>
+                handleEnlargeProfilePic(profilePic, adminData?.username)
+              }
             />
             <input
               type="file"
@@ -483,6 +522,17 @@ const AdminDashboard = () => {
           <h2>Admin Dashboard</h2>
           {message && <div className="message">{message}</div>}
 
+          {activeTab === "formSubmissions" && (
+            <div>
+              <h3>Form Submissions</h3>
+              {selectedFormId ? (
+                <FormSubmissionPage formId={selectedFormId} />
+              ) : (
+                <FormSubmissionsList onSelectForm={setSelectedFormId} />
+              )}
+            </div>
+          )}
+
           {activeTab === "users" && (
             <div className="user-management">
               <h3>User Management</h3>
@@ -519,7 +569,7 @@ const AdminDashboard = () => {
                     type="checkbox"
                     id="username"
                     checked={columnFilters.username}
-                    onChange={() => handleColumnFilterChange('username')}
+                    onChange={() => handleColumnFilterChange("username")}
                   />
                   <label htmlFor="username">Username</label>
                 </div>
@@ -528,7 +578,7 @@ const AdminDashboard = () => {
                     type="checkbox"
                     id="email"
                     checked={columnFilters.email}
-                    onChange={() => handleColumnFilterChange('email')}
+                    onChange={() => handleColumnFilterChange("email")}
                   />
                   <label htmlFor="email">Email</label>
                 </div>
@@ -537,7 +587,7 @@ const AdminDashboard = () => {
                     type="checkbox"
                     id="role"
                     checked={columnFilters.role}
-                    onChange={() => handleColumnFilterChange('role')}
+                    onChange={() => handleColumnFilterChange("role")}
                   />
                   <label htmlFor="role">Role</label>
                 </div>
@@ -546,7 +596,7 @@ const AdminDashboard = () => {
                     type="checkbox"
                     id="assignedManager"
                     checked={columnFilters.assignedManager}
-                    onChange={() => handleColumnFilterChange('assignedManager')}
+                    onChange={() => handleColumnFilterChange("assignedManager")}
                   />
                   <label htmlFor="assignedManager">Assigned Manager</label>
                 </div>
@@ -555,7 +605,7 @@ const AdminDashboard = () => {
                     type="checkbox"
                     id="assignedClients"
                     checked={columnFilters.assignedClients}
-                    onChange={() => handleColumnFilterChange('assignedClients')}
+                    onChange={() => handleColumnFilterChange("assignedClients")}
                   />
                   <label htmlFor="assignedClients">Assigned Clients</label>
                 </div>
@@ -564,7 +614,7 @@ const AdminDashboard = () => {
                     type="checkbox"
                     id="actions"
                     checked={columnFilters.actions}
-                    onChange={() => handleColumnFilterChange('actions')}
+                    onChange={() => handleColumnFilterChange("actions")}
                   />
                   <label htmlFor="actions">Actions</label>
                 </div>
@@ -572,11 +622,31 @@ const AdminDashboard = () => {
               <table>
                 <thead>
                   <tr>
-                    {columnFilters.username && <th><FaUserCircle /> Username</th>}
-                    {columnFilters.email && <th><FaEnvelope /> Email</th>}
-                    {columnFilters.role && <th><FaIdBadge /> Role</th>}
-                    {columnFilters.assignedManager && <th><FaUserTie /> Assigned Manager</th>}
-                    {columnFilters.assignedClients && <th><FaUserFriends /> Assigned Clients</th>}
+                    {columnFilters.username && (
+                      <th>
+                        <FaUserCircle /> Username
+                      </th>
+                    )}
+                    {columnFilters.email && (
+                      <th>
+                        <FaEnvelope /> Email
+                      </th>
+                    )}
+                    {columnFilters.role && (
+                      <th>
+                        <FaIdBadge /> Role
+                      </th>
+                    )}
+                    {columnFilters.assignedManager && (
+                      <th>
+                        <FaUserTie /> Assigned Manager
+                      </th>
+                    )}
+                    {columnFilters.assignedClients && (
+                      <th>
+                        <FaUserFriends /> Assigned Clients
+                      </th>
+                    )}
                     {columnFilters.actions && <th>Actions</th>}
                   </tr>
                 </thead>
@@ -586,11 +656,20 @@ const AdminDashboard = () => {
                       {columnFilters.username && (
                         <td>
                           <img
-                            src={user.profilePic ? `${process.env.REACT_APP_API_URL}/uploads/${user.profilePic}` : process.env.DEPROPIC}
+                            src={
+                              user.profilePic
+                                ? `${process.env.REACT_APP_API_URL}/uploads/${user.profilePic}`
+                                : process.env.DEPROPIC
+                            }
                             alt={user.username}
                             className="profile-pic-small"
                             crossOrigin="anonymous"
-                            onClick={() => handleEnlargeProfilePic(user.profilePic, user.username)}
+                            onClick={() =>
+                              handleEnlargeProfilePic(
+                                user.profilePic,
+                                user.username
+                              )
+                            }
                           />
                           {user.username}
                         </td>
@@ -625,11 +704,20 @@ const AdminDashboard = () => {
                           {user.assignedManager ? (
                             <>
                               <img
-                                src={user.assignedManager.profilePic ? `${process.env.REACT_APP_API_URL}/uploads/${user.assignedManager.profilePic}` : process.env.DEPROPIC}
+                                src={
+                                  user.assignedManager.profilePic
+                                    ? `${process.env.REACT_APP_API_URL}/uploads/${user.assignedManager.profilePic}`
+                                    : process.env.DEPROPIC
+                                }
                                 alt="Assigned Manager"
                                 className="profile-pic-small"
                                 crossOrigin="anonymous"
-                                onClick={() => handleEnlargeProfilePic(user.assignedManager.profilePic, user.assignedManager)}
+                                onClick={() =>
+                                  handleEnlargeProfilePic(
+                                    user.assignedManager.profilePic,
+                                    user.assignedManager
+                                  )
+                                }
                               />
                               {user.assignedManager}
                             </>
@@ -711,6 +799,7 @@ const AdminDashboard = () => {
 
           {activeTab === "logs" && <AuditLogs />}
           {activeTab === "dashboard" && <div>Dashboard content goes here</div>}
+          {activeTab === "sendForm" && <SendFormTab />}
 
           {showChat && selectedUser && (
             <div className="chat-window">
