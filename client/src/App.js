@@ -22,6 +22,7 @@ import MasterDeptDashboard from "./components/Dashboard/MasterDeptDashboard";
 import OperatorDashboard from "./components/Dashboard/OperatorDashboard";
 import HelperDashboard from "./components/Dashboard/HelperDashboard";
 import EmployeeDashboard from "./components/Dashboard/EmployeeDashboard";
+import dayjs from "./utils/dayjsConfig";
 import Unauthorized from "./components/Unauthorized";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";

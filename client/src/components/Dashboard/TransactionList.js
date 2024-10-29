@@ -1,27 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import dayjs from "../../utils/dayjsConfig";
+import { DatePicker } from "antd";
 
 const TransactionList = ({ transactions, onApprove, onReject }) => {
-  const [dateFilter, setDateFilter] = useState({ start: '', end: '' });
+  const [dateFilter, setDateFilter] = useState({ start: "", end: "" });
 
-  const filteredTransactions = transactions.filter(transaction => {
+  const filteredTransactions = transactions.filter((transaction) => {
     if (!dateFilter.start || !dateFilter.end) return true;
     const transactionDate = new Date(transaction.date);
-    return transactionDate >= new Date(dateFilter.start) && transactionDate <= new Date(dateFilter.end);
+    return (
+      transactionDate >= new Date(dateFilter.start) &&
+      transactionDate <= new Date(dateFilter.end)
+    );
   });
 
   return (
     <div className="transaction-list">
       <h2>Transactions</h2>
       <div className="date-filter">
-        <input 
-          type="date" 
-          value={dateFilter.start} 
-          onChange={e => setDateFilter({...dateFilter, start: e.target.value})}
+        <DatePicker
+          value={dateFilter.start ? dayjs(dateFilter.start) : null}
+          onChange={(date) =>
+            setDateFilter({
+              ...dateFilter,
+              start: date ? date.format("DD-MM-YYYY") : "",
+            })
+          }
         />
-        <input 
-          type="date" 
-          value={dateFilter.end} 
-          onChange={e => setDateFilter({...dateFilter, end: e.target.value})}
+        <DatePicker
+          value={dateFilter.end ? dayjs(dateFilter.end) : null}
+          onChange={(date) =>
+            setDateFilter({
+              ...dateFilter,
+              end: date ? date.format("DD-MM-YYYY") : "",
+            })
+          }
         />
       </div>
       <table>
@@ -36,7 +49,7 @@ const TransactionList = ({ transactions, onApprove, onReject }) => {
           </tr>
         </thead>
         <tbody>
-          {filteredTransactions.map(transaction => (
+          {filteredTransactions.map((transaction) => (
             <tr key={transaction._id}>
               <td>{new Date(transaction.date).toLocaleDateString()}</td>
               <td>{transaction.description}</td>
@@ -44,12 +57,17 @@ const TransactionList = ({ transactions, onApprove, onReject }) => {
               <td>{transaction.type}</td>
               <td>{transaction.status}</td>
               <td>
-                {transaction.needsAdminApproval && transaction.status === 'pending' && (
-                  <>
-                    <button onClick={() => onApprove(transaction._id)}>Approve</button>
-                    <button onClick={() => onReject(transaction._id)}>Reject</button>
-                  </>
-                )}
+                {transaction.needsAdminApproval &&
+                  transaction.status === "pending" && (
+                    <>
+                      <button onClick={() => onApprove(transaction._id)}>
+                        Approve
+                      </button>
+                      <button onClick={() => onReject(transaction._id)}>
+                        Reject
+                      </button>
+                    </>
+                  )}
               </td>
             </tr>
           ))}

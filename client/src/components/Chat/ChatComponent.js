@@ -28,8 +28,9 @@ import {
   FaCaretDown,
 } from "react-icons/fa";
 import { Tooltip } from "react-tooltip";
-import DatePicker from "react-datepicker";
+import { DatePicker } from "antd";
 import "react-datepicker/dist/react-datepicker.css";
+import moment from "moment";
 
 const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
   const { user: authUser } = useContext(AuthContext);
@@ -549,14 +550,21 @@ const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
                 placeholderText="Start Date"
               />
               <DatePicker
-                selected={detailedSearchParams.endDate}
+                value={
+                  detailedSearchParams.endDate
+                    ? dayjs(detailedSearchParams.endDate)
+                    : null
+                }
                 onChange={(date) =>
                   setDetailedSearchParams((prev) => ({
                     ...prev,
-                    endDate: date,
+                    endDate: date?.toDate() ?? null,
                   }))
                 }
-                placeholderText="End Date"
+                disabledDate={(current) =>
+                  current && current > dayjs().endOf("day")
+                }
+                format="DD-MM-YYYY"
               />
               <select
                 value={detailedSearchParams.fileType}
