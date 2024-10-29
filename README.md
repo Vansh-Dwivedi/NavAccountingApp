@@ -17,6 +17,12 @@
 - 🚀 Real-time messaging implemented successfully
 - 🔔 Unread message notification bubble working as expected
 
+### 📝 Forms
+- ✅ Forms are now fully functional
+- 📄 Forms are now styled
+- 🖊️ Admin can save forms
+- 📩 Manager can send it to client
+
 ### 🎨 UI/UX Improvements
 - ✅ Enhanced application styles for a more polished look
 - 📱 Maintained responsiveness across various devices
@@ -30,8 +36,8 @@ To set up and run this Application made in MERN Stack, follow these steps:
 
 1. Clone the repository:
    ```
-   git clone https://github.com/Vansh-Dwivedi/AccountsManagement.git
-   cd AccountsManagement
+   git clone https://github.com/Vansh-Dwivedi/NavAccountingApp.git
+   cd NavAccountingApp
    ```
 
 2. Install dependencies for both client and server:
@@ -62,20 +68,10 @@ To set up and run this Application made in MERN Stack, follow these steps:
 
 - The Socket.io connection for real-time chat is now correctly configured. Ensure that the server is running on the expected port (default: 5000) for the chat functionality to work properly.
 
-- The passwords for all users are:
-   ```
-   managerfirst: man (email: man@man.com)
-   cli5: cli5 (email: cli5@cli5.com)
-   cli4: cli4 (email: cli4@cli4.com)
-   adminfirst: adi (email: adi@adi.com)
-
-   Pattern: {username}{password}{email}
-   ```
-
 ## Next Steps
 
-1. Implement additional features for each user role using React and Express
-2. Optimize performance and scalability of the chat system
-3. Continue to refine and enhance the user interface and experience
+1. Improve Employee dashboard
+2. Improve Manager dashboard
+3. Improve Client dashboard
 
 We're excited to announce that the chat functionality, including the unread message notification bubble, is now fully operational. The application's styles have been significantly improved while maintaining responsiveness across various devices. These enhancements contribute to a more polished and user-friendly experience. Thank you for your patience, and we hope you enjoy using our enhanced MERN stack application!

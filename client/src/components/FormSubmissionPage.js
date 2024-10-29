@@ -1,52 +1,103 @@
-import React, { useState, useEffect } from 'react';
-import api from '../utils/api';
-import FormPopupModal from './FormPopupModal';
+import React, { useState, useEffect } from "react";
+import { Card, Avatar, Typography, List, Image } from "antd";
+import { UserOutlined } from "@ant-design/icons";
+import "antd/dist/reset.css";
+import api from "../utils/api";
+import "./components.css";
+
+const { Title, Text } = Typography;
 
 const FormSubmissionPage = ({ formId }) => {
-  const [form, setForm] = useState(null);
+  const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     if (formId) {
-      fetchForm(formId);
+      fetchSubmissions(formId);
+    } else {
+      setLoading(false);
+      setError("No form ID provided");
     }
   }, [formId]);
 
-  const fetchForm = async (id) => {
+  const fetchSubmissions = async (id) => {
     try {
-      const response = await api.get(`/api/forms/${id}`);
-      setForm(response.data);
-      setLoading(false);
+      console.log("Fetching submissions for form id:", id);
+      const response = await api.get(`/api/forms/${id}/submissions`);
+      console.log("Fetched submissions:", response.data);
+      setSubmissions(response.data);
     } catch (error) {
-      console.error('Error fetching form:', error);
-      setError('Failed to load form. Please try again later.');
+      console.error("Error fetching submissions:", error);
+      setError("Failed to load submissions. Please try again later.");
+    } finally {
       setLoading(false);
     }
   };
 
-  const handleFormSubmit = async (formData) => {
-    try {
-      await api.post(`/api/forms/${formId}/submit`, formData);
-      alert('Form submitted successfully');
-      // Redirect to dashboard or show a success message
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      alert('Error submitting form. Please try again.');
-    }
-  };
-
-  if (loading) return <div>Loading form...</div>;
+  if (loading) return <div>Loading submissions...</div>;
   if (error) return <div className="error">{error}</div>;
-  if (!form) return <div>Form not found</div>;
+  if (submissions.length === 0) return <div>No submissions found</div>;
 
   return (
     <div className="form-submission-page">
-      <h2>Form Submission</h2>
-      <FormPopupModal
-        form={form}
-        onClose={() => {/* Handle close */}}
-        onSubmit={handleFormSubmit}
+      <Title level={2}>Form Submissions</Title>
+      <List
+        itemLayout="vertical"
+        dataSource={submissions}
+        renderItem={(submission, index) => (
+          <Card
+            key={submission._id || index}
+            style={{ marginBottom: 16 }}
+            title={
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <Avatar
+                  src={
+                    submission.user.profilePic
+                      ? `${process.env.REACT_APP_API_URL}/uploads/${submission.user.profilePic}`
+                      : null
+                  }
+                  icon={!submission.user.profilePic && <UserOutlined />}
+                />
+                <Text strong style={{ marginLeft: 8 }}>
+                  {submission.user.username}
+                </Text>
+              </div>
+            }
+          >
+            <List
+              itemLayout="horizontal"
+              dataSource={submission.responses}
+              renderItem={(response) => (
+                <List.Item>
+                  <List.Item.Meta
+                    title={response.fieldLabel}
+                    description={
+                      response.value === "digitalSignature" ? (
+                        <div>
+                          <Text>Digital Signature:</Text>
+                          <Image
+                            width={200}
+                            src={response.value}
+                            alt="Digital Signature"
+                          />
+                        </div>
+                      ) : (
+                        <Text>{response.value}</Text>
+                      )
+                    }
+                  />
+                </List.Item>
+              )}
+            />
+            <div style={{ marginTop: 16 }}>
+              <Text type="secondary">
+                Submitted at:{" "}
+                {new Date(submission.submittedAt).toLocaleString()}
+              </Text>
+            </div>
+          </Card>
+        )}
       />
     </div>
   );

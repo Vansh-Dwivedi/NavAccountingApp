@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
 import io from 'socket.io-client';
-import './NotificationBubble.css';
+import './components.css';
 
 const NotificationBubble = () => {
   const [unreadCount, setUnreadCount] = useState(0);

@@ -10,7 +10,7 @@ const FormSchema = new mongoose.Schema(
       {
         type: {
           type: String,
-          enum: ["text", "file", "dropdown"],
+          enum: ["text", "file", "dropdown", "digitalSignature"],
           required: true,
         },
         label: {
@@ -24,13 +24,17 @@ const FormSchema = new mongoose.Schema(
         options: [String], // For dropdown fields
       },
     ],
+    category: {
+      type: String,
+      required: true,
+    },
     isCompulsory: {
       type: Boolean,
       default: false,
     },
     deadline: {
       type: Number,
-      default: 3,
+      required: true,
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -39,21 +43,14 @@ const FormSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["draft", "active", "deleted"],
+      enum: ["draft", "saved", "sent", "in_progress", "submitted", "deleted"],
       default: "draft",
     },
-    recipients: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
-    submittedBy: [
-      {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-      },
-    ],
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+    assignedTo: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
   },
   { timestamps: true }
 );

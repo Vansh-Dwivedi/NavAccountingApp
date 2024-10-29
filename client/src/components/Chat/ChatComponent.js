@@ -7,7 +7,7 @@ import React, {
 } from "react";
 import io from "socket.io-client";
 import api from "../../utils/api";
-import "./ChatComponent.css";
+import "../components.css";
 import { AuthContext } from "../../context/AuthContext";
 import { toast } from "react-toastify";
 import {

@@ -6,7 +6,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBell } from "@fortawesome/free-solid-svg-icons";
 import { FaBell } from 'react-icons/fa';
 import io from "socket.io-client";
-import "./Header.css";
+import "./components.css";
 import NotificationBubble from "./NotificationBubble";
 
 const Header = () => {

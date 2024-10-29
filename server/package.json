@@ -4,7 +4,8 @@
   "scripts": {
     "start": "node index.js",
     "seed": "node scripts/seedUsers.js",
-    "build": "echo 'No build step required for server'"
+    "build": "echo 'No build step required for server'",
+    "dev": "nodemon index.js"
   },
   "keywords": [],
   "author": "",
@@ -23,11 +24,14 @@
     "fs": "^0.0.1-security",
     "helmet": "^7.1.0",
     "https": "^1.0.0",
+    "json2csv": "^6.0.0-alpha.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.7.1",
     "mongoose-paginate-v2": "^1.8.3",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.9.15",
+    "nodemon": "^3.1.7",
+    "pdfkit": "^0.15.0",
     "socket.io": "^4.7.5"
   }
 }

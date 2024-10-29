@@ -1,5 +1,5 @@
 import React from "react";
-import "./FormSubmissionModal.css";
+import "./components.css";
 
 const FormSubmissionModal = ({ submission, onClose }) => {
   if (!submission) {
@@ -46,20 +46,29 @@ const FormSubmissionModal = ({ submission, onClose }) => {
           </div>
         )}
         <div className="submission-details">
-          {submission.responses && submission.responses.map((response) => (
-            <div key={response._id} className="response-item">
-              <p className="question">{response.fieldLabel}</p>
-              <p className="answer">
-                {response.value.endsWith('.png') || response.value.endsWith('.jpg') || response.value.endsWith('.pdf') ? (
-                  <button onClick={() => handleDownload(response.value)}>
-                    Download {response.fieldLabel}
-                  </button>
-                ) : (
-                  response.value
-                )}
-              </p>
-            </div>
-          ))}
+          <h2>{submission.formTitle || 'Untitled Form'}</h2>
+          {submission.responses.map((response, index) => {
+            const field = submission.form.fields.find(f => f._id.toString() === response.fieldId.toString());
+            if (!field) {
+              return null; // Skip if field is not found
+            }
+            return (
+              <div key={index} className="response-item">
+                <p className="question">{field.label}</p>
+                <p className="answer">
+                  {field.type === 'digitalSignature' ? (
+                    <img src={response.value} alt="Digital Signature" style={{maxWidth: '200px'}} />
+                  ) : field.type === 'file' ? (
+                    <button onClick={() => handleDownload(response.value)}>
+                      Download {field.label}
+                    </button>
+                  ) : (
+                    <span>{response.value}</span>
+                  )}
+                </p>
+              </div>
+            );
+          })}
           <p className="submission-date">Submitted on: {new Date(submission.submittedAt).toLocaleString()}</p>
         </div>
       </div>

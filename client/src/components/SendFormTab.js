@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaPlus, FaSave, FaPaperPlane } from 'react-icons/fa';
 import api from '../utils/api';
-import './SendFormTab.css';
+import './components.css';
 
 const SendFormTab = () => {
   const [formFields, setFormFields] = useState([]);

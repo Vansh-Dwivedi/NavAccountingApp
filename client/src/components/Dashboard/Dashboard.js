@@ -4,6 +4,7 @@ import AdminDashboard from './AdminDashboard';
 import ClientDashboard from './ClientDashboard';
 import ManagerDashboard from './ManagerDashboard';
 import UserDashboard from './UserDashboard';
+import EmployeeDashboard from './EmployeeDashboard';
 
 const Dashboard = () => {
   const { authState } = useContext(AuthContext);
@@ -15,6 +16,8 @@ const Dashboard = () => {
       return <ManagerDashboard />;
     case 'client':
       return <ClientDashboard />;
+    case 'employee':
+      return <EmployeeDashboard />;
     default:
       return <UserDashboard />;
   }

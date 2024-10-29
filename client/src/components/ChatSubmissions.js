@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
-import './ChatSubmissions.css';
+import './components.css';
 
 const ChatSubmissions = () => {
   const [submissions, setSubmissions] = useState([]);

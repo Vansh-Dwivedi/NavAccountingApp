@@ -1,25 +1,7 @@
 body {
-    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-    font-size: 15.6px;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif !important;
+    font-size: 1.04rem !important;
     background-color: #f4f4f4;
     margin: 0;
     padding: 0;
-}
-
-div {
-    border-radius: 10px;
-}
-
-@media (max-width: 768px) {
-    .client-main-content {
-        margin-left: 60px;
-    }
-
-    .admin-main-content {
-        margin-left: 60px;
-    }
-
-    .main-content {
-        margin-left: 60px;
-    }
 }

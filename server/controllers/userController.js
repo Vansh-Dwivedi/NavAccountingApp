@@ -3,6 +3,9 @@ const fs = require("fs");
 const path = require("path");
 const ClientInfo = require("../models/ClientInfo"); // You'll need to create this model
 const { sendNotificationToAdmins } = require("../utils/notifications"); // You'll need to create this utility
+const FormSubmission = require("../models/FormSubmission");
+const Message = require("../models/Message");
+const FinancialData = require("../models/FinancialData"); // You'll need to create this model
 
 exports.submitClientInfo = async (req, res) => {
   try {
@@ -19,13 +22,96 @@ exports.submitClientInfo = async (req, res) => {
   }
 };
 
+exports.getClientData = async (req, res) => {
+  try {
+    const clientId = req.params.clientId;
+    const client = await User.findById(clientId).select("-password");
+
+    if (!client) {
+      return res.status(404).json({ message: "Client not found" });
+    }
+
+    // Fetch form submissions
+    const formSubmissions = await FormSubmission.find({ user: clientId });
+
+    // Fetch chat messages
+    const chatMessages = await Message.find({
+      $or: [{ sender: clientId }, { receiver: clientId }],
+    }).sort({ timestamp: 1 });
+
+    res.json({
+      client,
+      formSubmissions,
+      chatMessages,
+    });
+  } catch (error) {
+    console.error("Error fetching client data:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.submitFinancialData = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const financialData = {
+      revenue: req.body.revenue,
+      expenses: req.body.expenses,
+      employeeSalary: req.body.employeeSalary,
+      clientData: req.body.clientData,
+      taxCollected: req.body.taxCollected,
+      projectCompletion: req.body.projectCompletion,
+      complianceStatus: req.body.complianceStatus,
+      dateRange: req.body.dateRange,
+    };
+
+    for (const [key, value] of Object.entries(financialData)) {
+      if (value === undefined) {
+        return res.status(400).json({ error: `Field ${key} is required` });
+      }
+    }
+
+    for (const [key, value] of Object.entries(financialData)) {
+      user[key] = value;
+    }
+
+    await user.save({ validateBeforeSave: false });
+    res.status(201).json({ message: "Financial data submitted successfully" });
+  } catch (error) {
+    console.error("Error submitting financial data:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
 exports.getClientInfo = async (req, res) => {
   try {
     const clientInfo = await ClientInfo.findOne({ userId: req.params.userId });
     if (!clientInfo) {
       return res.status(404).json({ error: "Client info not found" });
     }
-    res.json(clientInfo);
+
+    // Fetch additional financial data
+    const financialData = await FinancialData.findOne({ userId: req.params.userId });
+    if (!financialData) {
+      return res.status(404).json({ error: "Financial data not found" });
+    }
+
+    const response = {
+      ...clientInfo.toObject(),
+      totalBalance: financialData.totalBalance,
+      monthlyRevenue: financialData.monthlyRevenue,
+      monthlyExpenses: financialData.monthlyExpenses,
+      monthlyData: financialData.monthlyData,
+      cashFlow: financialData.cashFlow,
+      invoices: financialData.invoices,
+      totalOutstandingInvoices: financialData.totalOutstandingInvoices,
+      profitLossSummary: financialData.profitLossSummary
+    };
+
+    res.json(response);
   } catch (error) {
     console.error("Error fetching client info:", error);
     res.status(500).json({ error: "Server error" });
@@ -111,6 +197,7 @@ exports.updateUserRole = async (req, res) => {
       "operator_c",
       "operator_d",
       "helper",
+      "employee",
     ];
 
     if (!validRoles.includes(role)) {
@@ -376,6 +463,7 @@ exports.getRoleHierarchy = async (req, res) => {
     manager: ["manager", "client", "user"],
     client: ["client"],
     user: ["user"],
+    employee: ["employee"],
   };
   res.json(roleHierarchy);
 };
@@ -400,6 +488,7 @@ exports.getAllRoles = async (req, res) => {
       "operator_c",
       "operator_d",
       "helper",
+      "employee",
     ];
     res.json(roles);
   } catch (error) {
@@ -458,6 +547,121 @@ exports.getClientsAndManagers = async (req, res) => {
     res.json(clientsAndManagers);
   } catch (error) {
     console.error("Error fetching clients and managers:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.getManagersCount = async (req, res) => {
+  try {
+    const managersCount = await User.countDocuments({ role: "manager" });
+    res.json({ count: managersCount });
+  } catch (error) {
+    console.error("Error fetching managers count:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.getClientsCount = async (req, res) => {
+  try {
+    const clientsCount = await User.countDocuments({ role: "client" });
+    res.json({ count: clientsCount });
+  } catch (error) {
+    console.error("Error fetching clients count:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.getAdminsCount = async (req, res) => {
+  try {
+    const adminsCount = await User.countDocuments({ role: "admin" });
+    res.json({ count: adminsCount });
+  } catch (error) {
+    console.error("Error fetching admins count:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.getFormSubmissionsWithStructure = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const user = await User.findById(userId).populate({
+      path: "formSubmissions",
+      populate: {
+        path: "form",
+        model: "Form",
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const formSubmissionsWithStructure = user.formSubmissions.map(
+      (submission) => {
+        const formStructure = submission.form;
+        const responses = submission.responses.map((response) => {
+          const field = formStructure.fields.find(
+            (f) => f._id.toString() === response.fieldId.toString()
+          );
+          return {
+            ...response,
+            fieldLabel: field ? field.label : "Unknown Field",
+          };
+        });
+
+        return {
+          ...submission.toObject(),
+          responses,
+          formStructure,
+        };
+      }
+    );
+
+    res.json(formSubmissionsWithStructure);
+  } catch (error) {
+    console.error("Error fetching form submissions with structure:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+exports.getManagers = async (req, res) => {
+  try {
+    const managers = await User.find({ role: "manager" });
+    res.json(managers);
+  } catch (error) {
+    console.error("Error fetching managers:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.assignClientToManager = async (req, res) => {
+  try {
+    const { selectedUserId } = req.params;
+    const { clientId } = req.body;
+
+    const manager = await User.findByIdAndUpdate(
+      selectedUserId,
+      { $addToSet: { assignedClients: clientId } },
+      { new: true }
+    );
+
+    if (!manager) {
+      return res.status(404).json({ error: "Manager not found" });
+    }
+
+    const client = await User.findByIdAndUpdate(
+      clientId,
+      { assignedManager: selectedUserId },
+      { new: true }
+    );
+
+    if (!client) {
+      return res.status(404).json({ error: "Client not found" });
+    }
+
+    res.status(200).json({ message: "Client assigned to manager successfully" });
+  } catch (error) {
+    console.error("Error assigning client to manager:", error);
     res.status(500).json({ error: "Server error" });
   }
 };

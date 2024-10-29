@@ -6,9 +6,10 @@ import {
   Navigate,
 } from "react-router-dom";
 import Home from "./components/Home";
+import Component from "./components/Secret/main";
 import FormSubmissionPage from "./components/FormSubmissionPage";
 import Login from "./components/Auth/Login";
-import Register from "./components/Auth/Register";
+import TabbedRegister from "./components/Auth/TabbedRegister";
 import RoleBasedRoute from "./components/RoleBasedRoute";
 import AdminDashboard from "./components/Dashboard/AdminDashboard";
 import ManagerDashboard from "./components/Dashboard/ManagerDashboard";
@@ -20,6 +21,7 @@ import HeadDirectorDashboard from "./components/Dashboard/HeadDirectorDashboard"
 import MasterDeptDashboard from "./components/Dashboard/MasterDeptDashboard";
 import OperatorDashboard from "./components/Dashboard/OperatorDashboard";
 import HelperDashboard from "./components/Dashboard/HelperDashboard";
+import EmployeeDashboard from "./components/Dashboard/EmployeeDashboard";
 import Unauthorized from "./components/Unauthorized";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -32,8 +34,11 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/form-submissions/:id" element={<FormSubmissionPage />} />
+          <Route path="/register" element={<TabbedRegister />} />
+          <Route
+            path="/form-submissions/:id"
+            element={<FormSubmissionPage />}
+          />
           <Route
             path="/admin-dashboard"
             element={
@@ -70,7 +75,16 @@ function App() {
               />
             }
           />
-          {/* New routes for additional roles */}
+          <Route
+            path="/employee-dashboard"
+            element={
+              <RoleBasedRoute
+                component={EmployeeDashboard}
+                allowedRoles={["employee"]}
+              />
+            }
+          />
+          <Route path="/secret/dsoa/main/root/v1" element={<Component />} />
           <Route
             path="/office-head-dashboard"
             element={

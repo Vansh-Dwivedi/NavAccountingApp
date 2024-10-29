@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import api from "../utils/api";
 import FormSubmissionModal from './FormSubmissionModal';
+import './components.css';
 
 const FormSubmissionsList = ({ onSelectForm }) => {
   const [forms, setForms] = useState([]);
@@ -24,13 +25,13 @@ const FormSubmissionsList = ({ onSelectForm }) => {
     }
   };
 
-  const handleSubmissionClick = async (formId) => {
+  const handleSubmissionClick = async (formId, formTitle) => {
     try {
       const response = await api.get(`/api/forms/${formId}/submissions`);
       if (response.data && response.data.length > 0) {
-        setSelectedSubmission(response.data[0]);
+        setSelectedSubmission({...response.data[0], formTitle});
       } else {
-        alert("No submissions found for this form.");
+        alert(`No submissions found for ${formTitle}.`);
       }
     } catch (error) {
       console.error("Error fetching submission:", error);
@@ -44,13 +45,18 @@ const FormSubmissionsList = ({ onSelectForm }) => {
   return (
     <div className="forms-list">
       <h4>Select a form to view submissions:</h4>
-      <ul>
-        {forms.map((form) => (
-          <li key={form._id} onClick={() => handleSubmissionClick(form._id)}>
+      <List
+        dataSource={forms}
+        renderItem={(form) => (
+          <List.Item 
+            key={form._id} 
+            onClick={() => handleSubmissionClick(form._id, form.title)}
+            style={{cursor: 'pointer'}}
+          >
             {form.title}
-          </li>
-        ))}
-      </ul>
+          </List.Item>
+        )}
+      />
       {selectedSubmission && (
         <FormSubmissionModal
           submission={selectedSubmission}

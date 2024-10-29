@@ -2,15 +2,17 @@ const Form = require("../models/Form");
 const FormSubmission = require("../models/FormSubmission");
 const User = require("../models/User");
 const { sendNotification } = require("../utils/notifications");
+const Notification = require("../models/Notification");
 
 exports.createDraft = async (req, res) => {
   try {
-    const { title, fields, isCompulsory, deadline } = req.body;
+    const { title, fields, isCompulsory, deadline, category } = req.body;
     const form = new Form({
       title,
       fields,
       isCompulsory,
       deadline,
+      category,
       createdBy: req.user.id,
       status: "draft",
     });
@@ -22,86 +24,109 @@ exports.createDraft = async (req, res) => {
   }
 };
 
-
-
-exports.getDrafts = async (req, res) => {
+exports.saveForm = async (req, res) => {
   try {
-    const drafts = await Form.find({ createdBy: req.user.id, status: "draft" });
-    res.json(drafts);
+    const { title, fields, isCompulsory, deadline, category } = req.body;
+    const form = new Form({
+      title,
+      fields,
+      isCompulsory,
+      deadline,
+      createdBy: req.user.id,
+      status: "saved",
+      category,
+    });
+    await form.save();
+    res.status(201).json(form);
   } catch (error) {
-    console.error("Error fetching draft forms:", error);
+    console.error("Error saving form:", error);
     res.status(500).json({ error: "Server error" });
   }
 };
 
-exports.updateDraft = async (req, res) => {
+exports.getSavedForms = async (req, res) => {
   try {
-    const { title, fields, isCompulsory, deadline } = req.body;
-    const form = await Form.findOneAndUpdate(
-      { _id: req.params.id, createdBy: req.user.id, status: "draft" },
-      { title, fields, isCompulsory, deadline },
-      { new: true }
-    );
+    const forms = await Form.find({ status: "saved" });
+    res.json(forms);
+  } catch (error) {
+    console.error("Error fetching saved forms:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.sendFormToUser = async (req, res) => {
+  try {
+    const { formId } = req.body;
+    const userId = req.params.userId;
+    const form = await Form.findById(formId);
     if (!form) {
       return res.status(404).json({ error: "Form not found" });
     }
-    res.json(form);
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Create a new form submission
+    const formSubmission = new FormSubmission({
+      form: formId,
+      user: userId,
+      status: "pending",
+    });
+    await formSubmission.save();
+
+    const newNotification = new Notification({
+      userId: userId,
+      sender: req.user.id, // Set the sender field to the authenticated user's ID
+      message: `${req.user.username}`,
+      senderProfilePic: req.user.profilePic || "default-profile-pic.jpg",
+      createdAt: new Date(),
+    });
+
+    await newNotification.save();
+
+    res.json({ message: "Form sent successfully" });
   } catch (error) {
-    console.error("Error updating draft form:", error);
+    console.error("Error sending form to user:", error);
     res.status(500).json({ error: "Server error" });
   }
 };
 
-
-exports.sendForm = async (req, res) => {
+exports.getSentForms = async (req, res) => {
   try {
-    const { id, recipients } = req.body;
+    // Find all forms where the status is 'sent'
+    const forms = await Form.find({ status: "sent" });
 
-    // Check if id is provided and valid
-    if (!id || typeof id !== 'string' || id.length !== 24) {
-      return res.status(400).json({ error: 'Invalid form ID provided' });
-    }
-
-    const form = await Form.findOneAndUpdate(
-      { _id: id, createdBy: req.user.id, status: 'draft' },
-      { status: 'sent', recipients },
-      { new: true }
-    );
-
-    if (!form) {
-      return res.status(404).json({ error: 'Form not found or not in draft status' });
-    }
-
-    // Send notifications to recipients
-    for (const recipientId of recipients) {
-      const recipient = await User.findById(recipientId);
-      if (recipient) {
-        await sendNotification(
-          recipientId,
-          'New Form',
-          `You have a new form to complete: ${form.title}`,
-          req.user.id,
-          req.user.profilePic,
-          { formId: form._id }
-        );
-      }
-    }
-
-    res.json(form);
+    // Send the array of forms back as a response
+    res.json(forms);
   } catch (error) {
-    console.error('Error sending form:', error);
-    if (error.name === 'CastError') {
-      res.status(400).json({ error: 'Invalid form ID format' });
-    } else {
-      res.status(500).json({ error: 'Server error' });
-    }
+    console.error("Error fetching sent forms:", error);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
+exports.deleteForm = async (req, res) => {
+  try {
+    const form = await Form.findById(req.params.id);
+    if (!form) {
+      return res.status(404).json({ error: "Form not found" });
+    }
+    await FormSubmission.deleteMany({ form: req.params.id });
+    await form.deleteOne();
+    res.json({ message: "Form and its submissions deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting form and its submissions:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
 
 exports.getUserForms = async (req, res) => {
   try {
-    const forms = await Form.find({ recipients: req.user.id, status: "sent" });
+    const formSubmissions = await FormSubmission.find({
+      user: req.user.id,
+      status: "pending",
+    }).populate("form");
+    const forms = formSubmissions.map((submission) => submission.form);
     res.json(forms);
   } catch (error) {
     console.error("Error fetching user forms:", error);
@@ -111,42 +136,64 @@ exports.getUserForms = async (req, res) => {
 
 exports.submitForm = async (req, res) => {
   try {
-    const form = await Form.findById(req.params.id);
-    if (!form) {
-      return res.status(404).json({ error: 'Form not found' });
+    const formSubmission = await FormSubmission.findOne({
+      form: req.params.id,
+      user: req.user.id,
+      status: "pending",
+    });
+    if (!formSubmission) {
+      return res.status(404).json({ error: "Form submission not found" });
     }
 
-    const responses = form.fields.map(field => ({
-      fieldId: field._id,
-      value: req.body[field._id] || '',
-    }));
+    const form = await Form.findById(req.params.id);
+    if (!form) {
+      return res.status(404).json({ error: "Form not found" });
+    }
 
+    const responses = await Promise.all(
+      form.fields.map(async (field) => {
+        let value = req.body[field._id] || "";
+        if (field.type === "file" && req.files && req.files[field._id]) {
+          const file = req.files[field._id];
+          const fileName = `${Date.now()}-${file.name}`;
+          const uploadPath = path.join(__dirname, "..", "uploads", fileName);
+          await file.mv(uploadPath);
+          value = fileName;
+        }
+        return {
+          fieldId: field._id,
+          value: value,
+        };
+      })
+    );
 
-    const submission = new FormSubmission({
-      form: form._id,
-      user: req.user.id,
-      responses: responses
-    });
+    formSubmission.responses = responses;
+    formSubmission.status = "submitted";
+    formSubmission.submittedAt = Date.now();
 
-    await submission.save();
-    res.status(201).json(submission);
+    await formSubmission.save();
+
+    // Update the status in the Form model
+    form.status = "submitted";
+    await form.save();
+
+    res.status(201).json(formSubmission);
   } catch (error) {
-    console.error('Error submitting form:', error);
-    res.status(500).json({ error: 'Server error', details: error.message });
+    console.error("Error submitting form:", error);
+    res.status(500).json({ error: "Server error", details: error.message });
   }
 };
-
 
 exports.getFormSubmissions = async (req, res) => {
   try {
     const form = await Form.findById(req.params.id).lean();
     if (!form) {
-      return res.status(404).json({ error: 'Form not found' });
+      return res.status(404).json({ error: "Form not found" });
     }
 
     const submissions = await FormSubmission.find({ form: req.params.id })
-      .populate('user', 'username email profilePic')
-      .select('user responses submittedAt')
+      .populate("user", "username email profilePic")
+      .select("user responses submittedAt status category")
       .lean();
 
     // Create a map of field IDs to their labels
@@ -156,69 +203,40 @@ exports.getFormSubmissions = async (req, res) => {
     }, {});
 
     // Add field labels to each submission
-    const submissionsWithLabels = submissions.map(submission => ({
+    const submissionsWithLabels = submissions.map((submission) => ({
       ...submission,
-      responses: submission.responses.map(response => ({
+      responses: submission.responses.map((response) => ({
         ...response,
-        fieldLabel: fieldMap[response.fieldId.toString()] || 'Unknown Field'
-      }))
+        fieldLabel: fieldMap[response.fieldId.toString()] || "Unknown Field",
+        value: typeof response.value === 'object' ? JSON.stringify(response.value) : response.value
+      })),
     }));
 
     res.json(submissionsWithLabels);
   } catch (error) {
-    console.error('Error fetching form submissions:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error("Error fetching form submissions:", error);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
+exports.getFormPDF = async (req, res) => {
+  try {
+    const form = await Form.findById(req.params.id);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.send(form.pdf);
+  } catch (error) {
+    console.error("Error fetching form PDF:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
 
 exports.getAllForms = async (req, res) => {
   try {
-    const forms = await Form.find({ status: { $ne: 'deleted' } });
+    const forms = await Form.find();
     res.json(forms);
   } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-exports.getFormById = async (req, res) => {
-  try {
-    const form = await Form.findById(req.params.id);
-    if (!form) {
-      return res.status(404).json({ error: 'Form not found' });
-    }
-    res.json(form);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-exports.deleteForm = async (req, res) => {
-  try {
-    const form = await Form.findByIdAndUpdate(req.params.id, { status: 'deleted' }, { new: true });
-    if (!form) {
-      return res.status(404).json({ error: 'Form not found' });
-    }
-    res.json({ message: 'Form deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
-
-exports.sendFormToClient = async (req, res) => {
-  try {
-    const { formId, clientId } = req.body;
-    const form = await Form.findByIdAndUpdate(
-      formId,
-      { $addToSet: { recipients: clientId } },
-      { new: true }
-    );
-    if (!form) {
-      return res.status(404).json({ error: 'Form not found' });
-    }
-    res.json({ message: 'Form sent to client successfully', form });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error("Error fetching all forms:", error);
+    res.status(500).json({ error: "Server error" });
   }
 };
 
@@ -231,6 +249,89 @@ exports.getForm = async (req, res) => {
     res.json(form);
   } catch (error) {
     console.error("Error fetching form:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.getAllFormSubmissions = async (req, res) => {
+  try {
+    const submissions = await FormSubmission.find()
+      .populate("form")
+      .populate("user", "username email")
+      .sort("-submittedAt");
+    res.json(submissions);
+  } catch (error) {
+    console.error("Error fetching all form submissions:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.deleteSubmission = async (req, res) => {
+  try {
+    const submission = await FormSubmission.findById(req.params.id);
+    if (!submission) {
+      return res.status(404).json({ error: "Submission not found" });
+    }
+    submission.status = "deleted";
+    await submission.save();
+    res.json({ message: "Submission deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting submission:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.resendForm = async (req, res) => {
+  try {
+    const { submissionId } = req.params;
+    const submission = await FormSubmission.findById(submissionId);
+    if (!submission) {
+      return res.status(404).json({ error: "Submission not found" });
+    }
+    submission.status = "raw";
+    await submission.save();
+    res.json({ message: "Form resent successfully" });
+  } catch (error) {
+    console.error("Error resending form:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.updateForm = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updatedForm = await Form.findByIdAndUpdate(id, req.body, {
+      new: true,
+    });
+    if (!updatedForm) {
+      return res.status(404).json({ error: "Form not found" });
+    }
+    res.json(updatedForm);
+  } catch (error) {
+    console.error("Error updating form:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.getAssignedForms = async (req, res) => {
+  console.log("getAssignedForms function called");
+  try {
+    const userId = req.params.userId;
+    console.log("User ID:", userId);
+    
+    const formSubmissions = await FormSubmission.find({ user: userId, status: 'pending' })
+      .populate('form');
+    console.log("Form submissions found:", formSubmissions.length);
+    
+    const validSubmissions = formSubmissions.filter(submission => submission.form !== null);
+    console.log("Valid submissions:", validSubmissions.length);
+
+    const forms = validSubmissions.map(submission => submission.form);
+    console.log("Forms extracted:", forms.length);
+    
+    res.json(forms);
+  } catch (error) {
+    console.error("Error fetching assigned forms:", error);
     res.status(500).json({ error: "Server error" });
   }
 };

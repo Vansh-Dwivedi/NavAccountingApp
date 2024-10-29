@@ -24,12 +24,28 @@ const FormSubmissionSchema = new mongoose.Schema(
         },
       },
     ],
+    status: {
+      type: String,
+      enum: ['pending', 'submitted', 'deleted'],
+      default: 'pending'
+    },
     submittedAt: {
+      type: Date,
+    },
+    createdAt: {
       type: Date,
       default: Date.now,
     },
   },
   { timestamps: true }
 );
+
+FormSubmissionSchema.pre('save', function(next) {
+  if (this.form === null) {
+    next(new Error('FormSubmission cannot be saved with a null form field'));
+  } else {
+    next();
+  }
+});
 
 module.exports = mongoose.model("FormSubmission", FormSubmissionSchema);

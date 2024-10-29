@@ -1,25 +1,20 @@
 import React, { useState } from 'react';
 import api from '../utils/api';
-import './ClientInfoForm.css';
+import './components.css';
 
 const ClientInfoForm = () => {
   const [formData, setFormData] = useState({
-    // Personal Information
-    fullName: '', occupation: '', spouseName: '', spouseOccupation: '',
-    email: '', cellNo: '', ssn: '', spouseSSN: '', dob: '', spouseDOB: '',
-    addressLine1: '', addressLine2: '', howDidYouFindUs: '', referredName: '',
-    filingStatus: '', totalDependents: '',
-    dependents: [{ name: '', ssn: '', dob: '', relation: '' }],
-
-    // Business Information
-    businessName: '', businessPhone: '', businessAddressLine1: '', businessAddressLine2: '',
-    businessEntityType: '', businessTIN: '', businessSOS: '', businessEDD: '',
-    businessAccountingMethod: '', businessYear: '', businessEmail: '',
-    contactPersonName: '', noOfEmployeesActive: '', businessReferredBy: '',
-    members: [{ name: '', ssn: '', cellPhone: '', position: '' }],
-
-    // Service Requested
-    serviceRequested: []
+    fullName: '',
+    email: '',
+    phoneNumber: '',
+    address: '',
+    dateOfBirth: '',
+    ssn: '',
+    accountType: '',
+    annualIncome: '',
+    employmentStatus: '',
+    taxFilingStatus: '',
+    // Add more fields as needed
   });
 
   const [errors, setErrors] = useState({});

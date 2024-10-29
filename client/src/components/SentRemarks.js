@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
-import './SentRemarks.css';
+import './components.css';
 
 const SentRemarks = () => {
   const [remarks, setRemarks] = useState([]);

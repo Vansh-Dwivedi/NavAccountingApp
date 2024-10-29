@@ -1,17 +1,11 @@
-# Environment variables
-/server/.env
-/client/.env
-/client/.env.development.local
+# client
+client/node_modules
+client/package-lock.json
 
-# Dependencies
-node_modules/
-/server/node_modules/
-/client/node_modules/
+# server
+server/node_modules
+server/package-lock.json
 
-# Package lock files
+# node_modules
+node_modules
 package-lock.json
-/server/package-lock.json
-/client/package-lock.json
-
-# Uploads
-/server/uploads/

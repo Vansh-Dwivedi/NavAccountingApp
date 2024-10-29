@@ -55,3 +55,32 @@ exports.deleteTask = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.getClientTasks = async (req, res) => {
+  try {
+    const { clientId } = req.params;
+    const tasks = await Task.find({ clientId }).sort({ dueDate: 1 });
+    res.json(tasks);
+  } catch (error) {
+    console.error('Error fetching tasks:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.addTask = async (req, res) => {
+  try {
+    const { clientId, title, description, dueDate, assignedTo } = req.body;
+    const newTask = new Task({
+      clientId,
+      title,
+      description,
+      dueDate,
+      assignedTo
+    });
+    await newTask.save();
+    res.status(201).json(newTask);
+  } catch (error) {
+    console.error('Error adding task:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};

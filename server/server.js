@@ -18,11 +18,14 @@ const userRoutes = require("./routes/userRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const logRoutes = require("./routes/logRoutes");
+const appRoutes = require("./routes/appRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
-const { generalLimiter } = require("./middleware/rateLimiter");
-const rateLimit = require("express-rate-limit");
-const formRoutes = require('./routes/formRoutes');
-
+const formRoutes = require("./routes/formRoutes");
+const componentRoutes = require("./routes/componentRoutes");
+const noteRoutes = require("./routes/noteRoutes");
+const employeeRoutes = require("./routes/employeeRoutes");
+const adminRoutes = require("./routes/adminRoutes");
 const app = express();
 
 // CORS configuration
@@ -54,9 +57,10 @@ app.use(
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-inline'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", "data:", "https:"],
+        imgSrc: ["'self'", "data:", "https:", "http:"], // Add 'http:' here
       },
     },
+    crossOriginResourcePolicy: { policy: "cross-origin" }, // Add this line
     referrerPolicy: {
       policy: "strict-origin-when-cross-origin",
     },
@@ -68,16 +72,8 @@ app.use(
   })
 );
 
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
-
-// Apply rate limiting to all routes except /api/chat
-app.use((req, res, next) => {
-  if (!req.path.startsWith("/api/chat")) {
-    return generalLimiter(req, res, next);
-  }
-  next();
-});
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Add this near the top of your file, after other middleware
 app.use((req, res, next) => {
@@ -107,8 +103,15 @@ app.use("/api/users", userRoutes);
 app.use("/api/tasks", taskRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/forms", formRoutes);
+app.use("/api/app", appRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api", componentRoutes);
 app.use("/api/logs", logRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/notes", noteRoutes);
+app.use("/api/signatures", require("./routes/signatureRoutes"));
+app.use("/api/employee", employeeRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, "uploads");
