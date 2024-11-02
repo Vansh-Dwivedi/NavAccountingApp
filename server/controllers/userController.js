@@ -94,7 +94,9 @@ exports.getClientInfo = async (req, res) => {
     }
 
     // Fetch additional financial data
-    const financialData = await FinancialData.findOne({ userId: req.params.userId });
+    const financialData = await FinancialData.findOne({
+      userId: req.params.userId,
+    });
     if (!financialData) {
       return res.status(404).json({ error: "Financial data not found" });
     }
@@ -108,7 +110,7 @@ exports.getClientInfo = async (req, res) => {
       cashFlow: financialData.cashFlow,
       invoices: financialData.invoices,
       totalOutstandingInvoices: financialData.totalOutstandingInvoices,
-      profitLossSummary: financialData.profitLossSummary
+      profitLossSummary: financialData.profitLossSummary,
     };
 
     res.json(response);
@@ -659,9 +661,20 @@ exports.assignClientToManager = async (req, res) => {
       return res.status(404).json({ error: "Client not found" });
     }
 
-    res.status(200).json({ message: "Client assigned to manager successfully" });
+    res
+      .status(200)
+      .json({ message: "Client assigned to manager successfully" });
   } catch (error) {
     console.error("Error assigning client to manager:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.getAllUsersNonAuthed = async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.json(users);
+  } catch (error) {
     res.status(500).json({ error: "Server error" });
   }
 };

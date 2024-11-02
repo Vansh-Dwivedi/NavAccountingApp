@@ -137,4 +137,6 @@ router.post(
   userController.submitFinancialData
 );
 
+router.get("/all/nonauthed", userController.getAllUsersNonAuthed);
+
 module.exports = router;

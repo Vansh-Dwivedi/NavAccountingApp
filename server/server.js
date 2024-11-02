@@ -26,6 +26,7 @@ const componentRoutes = require("./routes/componentRoutes");
 const noteRoutes = require("./routes/noteRoutes");
 const employeeRoutes = require("./routes/employeeRoutes");
 const adminRoutes = require("./routes/adminRoutes");
+const fileRoutes = require("./routes/fileRoutes");
 const app = express();
 
 // CORS configuration
@@ -112,6 +113,7 @@ app.use("/api/notes", noteRoutes);
 app.use("/api/signatures", require("./routes/signatureRoutes"));
 app.use("/api/employee", employeeRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/files", fileRoutes);
 
 // Create uploads directory if it doesn't exist
 const uploadsDir = path.join(__dirname, "uploads");

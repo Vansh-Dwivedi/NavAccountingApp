@@ -24,6 +24,7 @@ import HelperDashboard from "./components/Dashboard/HelperDashboard";
 import EmployeeDashboard from "./components/Dashboard/EmployeeDashboard";
 import dayjs from "./utils/dayjsConfig";
 import Unauthorized from "./components/Unauthorized";
+import GoogleCallback from "./components/Auth/GoogleCallback";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
@@ -142,6 +143,7 @@ function App() {
               />
             }
           />
+          <Route path="/auth/google/callback" element={<GoogleCallback />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

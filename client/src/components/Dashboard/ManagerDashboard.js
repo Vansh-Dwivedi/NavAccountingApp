@@ -43,9 +43,10 @@ import NotificationBubble from "../NotificationBubble";
 import ReactPaginate from "react-paginate";
 import InputForm from "../InputForm";
 import "antd/dist/reset.css";
-import FinancialInfoSection from './FinancialInfoSection';
+import FinancialInfoSection from "./FinancialInfoSection";
 import RoleChecker from "../../Authentication/main";
-
+import DragAndDropScreen from "../DragAndDropScreen";
+import { getProfilePicUrl } from "../../utils/profilePicHelper";
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -58,7 +59,6 @@ const ManagerDashboard = () => {
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [profilePic, setProfilePic] = useState(null);
-  const [adminUser, setAdminUser] = useState(null);
   const [openChats, setOpenChats] = useState({});
   const [unreadCounts, setUnreadCounts] = useState({});
   const socketRef = useRef(null);
@@ -170,7 +170,7 @@ const ManagerDashboard = () => {
     try {
       const response = await api.get("/api/users/profile");
       setManagerData(response.data);
-      setProfilePic(response.data.profilePic);
+      setProfilePic(response.data.getProfilePicUrl(profilePic));
     } catch (err) {
       console.error("Error fetching manager data:", err);
       setError("Failed to fetch manager data. Please try again.");
@@ -269,13 +269,13 @@ const ManagerDashboard = () => {
     }
 
     const formData = new FormData();
-    formData.append("profilePic", file);
+    formData.append("getProfilePicUrl(profilePic)", file);
 
     try {
       const response = await api.post("/api/users/profile-pic", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      setProfilePic(response.data.profilePic);
+      setProfilePic(response.data.getProfilePicUrl(profilePic));
     } catch (error) {
       console.error("Error uploading profile picture:", error);
       alert("Error uploading profile picture. Please try again.");
@@ -370,7 +370,7 @@ const ManagerDashboard = () => {
           <Avatar
             size={64}
             icon={<UserOutlined />}
-            src={selectedClient.client.profilePicture}
+            src={getProfilePicUrl(selectedClient.client.profilePic)}
           />
           <Title level={4} style={{ marginTop: "10px" }}>
             {selectedClient.client.fullName}
@@ -632,13 +632,13 @@ const ManagerDashboard = () => {
     { key: "adminChat", icon: <MessageOutlined />, label: "Chat with Admin" },
     { key: "clientData", icon: <UserOutlined />, label: "Client Data" },
     { key: "forms", icon: <FileOutlined />, label: "Forms" },
+    { key: "dragAndDrop", icon: <InboxOutlined />, label: "File Transfer" },
     { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
   ];
 
   return (
-    <RoleChecker userRole={managerData.role} userEmail={managerData.email}>
-      <Layout style={{ minHeight: "100vh", marginTop: "60px" }}>
-        <Sider
+    <Layout style={{ minHeight: "100vh", marginTop: "60px" }}>
+      <Sider
         collapsible
         collapsed={!isSidebarOpen}
         onCollapse={(collapsed) => setIsSidebarOpen(!collapsed)}
@@ -709,8 +709,8 @@ const ManagerDashboard = () => {
                   <Avatar
                     size={64}
                     src={
-                      profilePic
-                        ? `${process.env.REACT_APP_API_URL}/uploads/${profilePic}`
+                      getProfilePicUrl(profilePic)
+                        ? `${process.env.REACT_APP_API_URL}/uploads/${getProfilePicUrl(profilePic)}`
                         : null
                     }
                     icon={<UserOutlined />}
@@ -857,6 +857,12 @@ const ManagerDashboard = () => {
                 </Select>
               </div>
             )}
+            {activeTab === "dragAndDrop" && (
+              <div className="drag-and-drop-section">
+                <Title level={3}>File Transfer</Title>
+                <DragAndDropScreen userRole="manager" />
+              </div>
+            )}
           </div>
         </Content>
       </Layout>
@@ -875,8 +881,11 @@ const ManagerDashboard = () => {
       >
         {renderClientInfo()}
       </Drawer>
-      </Layout>
-    </RoleChecker>
+      <RoleChecker
+        userRole={managerData.role}
+        userEmail={managerData.email}
+      ></RoleChecker>
+    </Layout>
   );
 };
 

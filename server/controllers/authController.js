@@ -3,6 +3,8 @@ const jwt = require("jsonwebtoken");
 const { createLog } = require("./logController");
 const crypto = require("crypto");
 const sendEmail = require("../utils/sendEmail"); // We'll create this utility later
+const { OAuth2Client } = require('google-auth-library');
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 exports.register = async (req, res) => {
   try {
@@ -154,5 +156,55 @@ exports.verifyPassword = async (req, res) => {
     res.json({ isValid: true });
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+};
+
+exports.googleAuth = async (req, res) => {
+  try {
+    const { credential, mode } = req.body;
+    
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID
+    });
+    
+    const { email, name, picture, sub: googleId } = ticket.getPayload();
+
+    let user = await User.findOne({ email });
+
+    if (mode === 'login' && !user) {
+      return res.status(404).json({ message: 'No account found with this email' });
+    }
+
+    if (!user && mode === 'register') {
+      user = await User.create({
+        username: name,
+        email,
+        googleId,
+        profilePic: picture,
+        role: 'client',
+        password: crypto.randomBytes(20).toString('hex') // Random password for Google users
+      });
+    }
+
+    const token = jwt.sign(
+      { user: { id: user._id, role: user.role } },
+      process.env.JWT_SECRET,
+      { expiresIn: '1d' }
+    );
+
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role,
+        profilePic: user.profilePic
+      }
+    });
+  } catch (error) {
+    console.error('Google auth error:', error);
+    res.status(500).json({ message: 'Authentication failed' });
   }
 };

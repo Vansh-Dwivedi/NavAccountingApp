@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEnvelope, FaLock, FaGlobe } from "react-icons/fa";
 import api from "../../utils/api";
+import GoogleOAuthButton from '../GoogleOAuthButton';
+import { Divider } from 'antd';
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -292,6 +294,8 @@ const Login = () => {
           >
             Login
           </button>
+          <Divider>Or</Divider>
+          <GoogleOAuthButton mode="login" />
         </form>
         <p
           style={{

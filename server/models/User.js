@@ -188,6 +188,11 @@ const UserSchema = new mongoose.Schema(
     // Client-specific fields
     company: String,
     industry: String,
+    googleId: {
+      type: String,
+      sparse: true,
+      unique: true
+    },
   },
   { timestamps: true }
 );

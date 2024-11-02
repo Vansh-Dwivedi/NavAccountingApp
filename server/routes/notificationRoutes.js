@@ -6,7 +6,7 @@ const { protect } = require("../middleware/authMiddleware");
 router.get("/", protect, async (req, res) => {
   try {
     const notifications = await Notification.find({ userId: req.user._id })
-      .populate('sender', 'username') // Populate sender field with username
+      .populate("sender", "username") // Populate sender field with username
       .sort({ createdAt: -1 })
       .limit(10);
     res.json(notifications);

@@ -13,6 +13,14 @@ const RoleChecker = ({ userRole, userEmail, children }) => {
 
   useEffect(() => {
     const checkRole = async () => {
+      // Check if this is the first load after navigation
+      const hasRefreshed = sessionStorage.getItem('hasRefreshed');
+      if (!hasRefreshed) {
+        sessionStorage.setItem('hasRefreshed', 'true');
+        window.location.reload();
+        return;
+      }
+
       const token = localStorage.getItem("token");
       if (!token) {
         setIsRoleValid(false);

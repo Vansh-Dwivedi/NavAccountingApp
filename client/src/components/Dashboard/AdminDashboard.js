@@ -29,6 +29,7 @@ import {
   EditOutlined,
   UploadOutlined,
   TeamOutlined,
+  InboxOutlined,
 } from "@ant-design/icons";
 import AuditLogs from "../AuditLogs";
 import ChatComponent from "../Chat/ChatComponent";
@@ -51,6 +52,8 @@ import UserManagement from "../Admin/UserManagement";
 import { debounce } from "lodash";
 import io from "socket.io-client";
 import AdminEmployeeDashboard from "./AdminEmployeeDashboard";
+import DragAndDropScreen from "../DragAndDropScreen";
+import { getProfilePicUrl } from "../../utils/profilePicHelper";
 
 const { Content, Sider } = Layout;
 const { Title } = Typography;
@@ -188,7 +191,7 @@ const AdminDashboard = () => {
     try {
       const response = await api.get("/api/users/profile");
       setAdminData(response.data);
-      setProfilePic(response.data.profilePic);
+      setProfilePic(response.data.getProfilePicUrl(profilePic));
     } catch (error) {
       console.error("Error fetching admin data:", error);
       if (error.response && error.response.status === 401) {
@@ -235,13 +238,14 @@ const AdminDashboard = () => {
     { key: "users", icon: <UserOutlined />, label: "Users" },
     { key: "logs", icon: <FileOutlined />, label: "Logs" },
     { key: "forms", icon: <EditOutlined />, label: "Forms" },
-    { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
-    { key: "sleep", icon: <MoonOutlined />, label: "Sleep Mode" },
     {
       key: "employeeManagement",
       icon: <TeamOutlined />,
       label: "Employee Management",
     },
+    { key: "dragAndDrop", icon: <InboxOutlined />, label: "File Transfer" },
+    { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
+    { key: "sleep", icon: <MoonOutlined />, label: "Sleep Mode" },
   ];
 
   const handlePageChange = (page, pageSize) => {
@@ -269,13 +273,13 @@ const AdminDashboard = () => {
     }
 
     const formData = new FormData();
-    formData.append("profilePic", file);
+    formData.append("getProfilePicUrl(profilePic)", file);
 
     try {
       const response = await api.post("/api/users/profile-pic", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      setProfilePic(response.data.profilePic);
+      setProfilePic(response.data.getProfilePicUrl(profilePic));
     } catch (error) {
       console.error("Error uploading profile picture:", error);
       alert("Error uploading profile picture. Please try again.");
@@ -372,8 +376,8 @@ const AdminDashboard = () => {
                   <Avatar
                     size={64}
                     src={
-                      profilePic
-                        ? `${process.env.REACT_APP_API_URL}/uploads/${profilePic}`
+                      getProfilePicUrl(profilePic)
+                        ? `${process.env.REACT_APP_API_URL}/uploads/${getProfilePicUrl(getProfilePicUrl(getProfilePicUrl(profilePic)))}`
                         : null
                     }
                     icon={<UserOutlined />}
@@ -385,7 +389,7 @@ const AdminDashboard = () => {
                   >
                     <Button icon={<UploadOutlined />}>Upload Picture</Button>
                   </Upload>
-                  {profilePic && (
+                  {getProfilePicUrl(getProfilePicUrl(profilePic)) && (
                     <Button onClick={handleProfilePicDelete}>
                       Delete Picture
                     </Button>
@@ -435,13 +439,18 @@ const AdminDashboard = () => {
                 ) : (
                   <>
                     <List
-                      dataSource={users.filter(
-                        (user) => user.role === "employee"
-                      ).slice((currentPage - 1) * pageSize, currentPage * pageSize)}
+                      dataSource={users
+                        .filter((user) => user.role === "employee")
+                        .slice(
+                          (currentPage - 1) * pageSize,
+                          currentPage * pageSize
+                        )}
                       renderItem={(user) => (
                         <List.Item
                           actions={[
-                            <Button onClick={() => setSelectedEmployee(user._id)}>
+                            <Button
+                              onClick={() => setSelectedEmployee(user._id)}
+                            >
                               Manage Employee
                             </Button>,
                           ]}
@@ -456,7 +465,9 @@ const AdminDashboard = () => {
                     <Pagination
                       current={currentPage}
                       pageSize={pageSize}
-                      total={users.filter((user) => user.role === "employee").length}
+                      total={
+                        users.filter((user) => user.role === "employee").length
+                      }
                       onChange={(page, pageSize) => {
                         setCurrentPage(page);
                         setPageSize(pageSize);
@@ -465,6 +476,12 @@ const AdminDashboard = () => {
                     />
                   </>
                 )}
+              </div>
+            )}
+            {activeTab === "dragAndDrop" && (
+              <div className="drag-and-drop-section">
+                <Title level={3}>File Transfer</Title>
+                <DragAndDropScreen userRole="admin" />
               </div>
             )}
             {activeTab === "forms" && (

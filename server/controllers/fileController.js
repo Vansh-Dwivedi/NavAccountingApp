@@ -1,0 +1,66 @@
+const path = require("path");
+const DndFile = require("../models/DndFile");
+
+exports.sendFile = async (req, res) => {
+  try {
+
+    const { recipientId, file } = req.body;
+
+    // Create file path in uploads folder
+    const uploadPath = path.join(
+      __dirname,
+      "../uploads",
+      new Date()
+        .toLocaleString("en-US", {
+          month: "2-digit",
+          day: "2-digit",
+          year: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        })
+        .replace(/[/:,\s]/g, "") + path.extname(file.name)
+    );
+
+    // Save file to uploads folder
+    await file.mv(uploadPath);
+
+    // Create new DndFile document
+    const dndFile = new DndFile({
+      senderId: req.user.id,
+      recipientId: recipientId,
+      fileName: file.name,
+      filePath: uploadPath,
+    });
+
+    await dndFile.save();
+
+    res.status(200).json({
+      success: true,
+      message: "File sent successfully",
+      file: dndFile,
+    });
+  } catch (error) {
+    console.error("Error sending file:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error sending file",
+      error: error.message,
+    });
+  }
+};
+
+exports.getFiles = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const files = await DndFile.find({ recipientId: userId });
+    res.json(files);
+  } catch (error) {
+    console.error("Error fetching files:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error fetching files",
+      error: error.message,
+    });
+  }
+};

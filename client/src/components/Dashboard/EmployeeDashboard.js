@@ -48,6 +48,9 @@ import '@react-pdf-viewer/default-layout/lib/styles/index.css';
 import CSVReader from "./CSVReader";
 import TextEditor from "./TextEditor";
 import EmployeeNotesSection from "./EmployeeNotesSection";
+import DragAndDropScreen from '../DragAndDropScreen';
+import { getProfilePicUrl } from "../../utils/profilePicHelper";
+import RoleChecker from "../../Authentication/main";
 
 
 const { Content, Sider } = Layout;
@@ -134,7 +137,7 @@ const EmployeeDashboard = () => {
       setUser(response.data);
       setEmail(response.data.email);
       setUsername(response.data.username);
-      setProfilePic(response.data.profilePic);
+      setProfilePic(response.data.getProfilePicUrl(profilePic));
     } catch (error) {
       console.error("Error fetching employee data:", error);
       setError("Failed to fetch employee data. Please try again.");
@@ -213,13 +216,13 @@ const EmployeeDashboard = () => {
     if (!file) return;
 
     const formData = new FormData();
-    formData.append("profilePic", file);
+    formData.append("getProfilePicUrl(profilePic)", file);
 
     try {
       const response = await api.post("/api/users/profile-pic", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-      setProfilePic(response.data.profilePic);
+      setProfilePic(response.data.getProfilePicUrl(profilePic));
     } catch (error) {
       console.error("Error uploading profile picture:", error);
       alert("Error uploading profile picture. Please try again.");
@@ -240,6 +243,7 @@ const EmployeeDashboard = () => {
     { key: "dashboard", icon: <UserOutlined />, label: "Dashboard" },
     { key: "profile", icon: <EditOutlined />, label: "Edit Profile" },
     { key: "settings", icon: <SettingOutlined />, label: "Settings" },
+    { key: "dragAndDrop", icon: <InboxOutlined />, label: "File Transfer" },
   ];
 
   const onDragEnd = (result) => {
@@ -357,8 +361,8 @@ const EmployeeDashboard = () => {
                   <Avatar
                     size={64}
                     src={
-                      profilePic
-                        ? `${process.env.REACT_APP_API_URL}/uploads/${profilePic}`
+                      getProfilePicUrl(profilePic)
+                        ? `${process.env.REACT_APP_API_URL}/uploads/${getProfilePicUrl(profilePic)}`
                         : null
                     }
                     icon={<UserOutlined />}
@@ -378,7 +382,7 @@ const EmployeeDashboard = () => {
                       Upload Picture
                     </Button>
                   </label>
-                  {profilePic && (
+                  {getProfilePicUrl(profilePic) && (
                     <Button
                       onClick={handleProfilePicDelete}
                       style={{ marginLeft: 16 }}
@@ -413,10 +417,18 @@ const EmployeeDashboard = () => {
                 </Card>
               )}
               <WallpaperSelector onWallpaperChange={handleWallpaperChange} />
+              {activeTab === "dragAndDrop" && (
+                <div className="drag-and-drop-section">
+                  <Title level={3}>File Transfer</Title>
+                  <DragAndDropScreen userRole="employee" />
+                </div>
+              )}
             </div>
           </Content>
         </Layout>
       </Layout>
+      <RoleChecker userRole={user?.role} userEmail={user?.email}>
+      </RoleChecker>
     </Layout>
   );
 };
@@ -620,145 +632,6 @@ const EmployeePassbook = () => {
         </div>
       ))}
     </div>
-  );
-};
-
-const DragAndDropScreen = () => {
-  const [items, setItems] = useState([]);
-  const [selectedFile, setSelectedFile] = useState(null);
-
-  const onDragEnd = (result) => {
-    if (!result.destination) return;
-    const reorderedItems = Array.from(items);
-    const [removed] = reorderedItems.splice(result.source.index, 1);
-    reorderedItems.splice(result.destination.index, 0, removed);
-    setItems(reorderedItems);
-  };
-
-  const handleDelete = (id) => {
-    setItems(items.filter(item => item.id !== id));
-  };
-
-  const handleFileDrop = async (file) => {
-    const extension = file.name.split('.').pop().toLowerCase();
-    
-    if (!['pdf', 'csv', 'txt'].includes(extension)) {
-      message.error('Only PDF, CSV, and TXT files are allowed');
-      return;
-    }
-
-    if (extension === 'pdf') {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const arrayBuffer = e.target.result;
-        const newItem = {
-          id: `file-${Date.now()}`,
-          content: file.name,
-          fileContent: arrayBuffer,
-          fileType: extension,
-        };
-        setItems([...items, newItem]);
-      };
-      reader.readAsArrayBuffer(file);
-    } else {
-      const reader = new FileReader();
-      reader.onload = async (e) => {
-        const content = e.target.result;
-        const newItem = {
-          id: `file-${Date.now()}`,
-          content: file.name,
-          fileContent: content,
-          fileType: extension,
-        };
-        setItems([...items, newItem]);
-      };
-      reader.readAsText(file);
-    }
-  };
-
-  const renderFileEditor = (item) => {
-    const containerStyle = {
-      height: '400px',
-      width: '100%',
-      border: '1px solid #d9d9d9',
-      borderRadius: '4px',
-      overflow: 'auto'
-    };
-
-    switch (item.fileType) {
-      case 'pdf':
-        return (
-          <div style={containerStyle}>
-            <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
-              <Viewer
-                fileUrl={URL.createObjectURL(new Blob([item.fileContent], { type: 'application/pdf' }))}
-                defaultScale={1}
-              />
-            </Worker>
-          </div>
-        );
-      case 'csv':
-        return (
-          <div style={containerStyle}>
-            <CSVReader data={item.fileContent} />
-          </div>
-        );
-      case 'txt':
-        return (
-          <div style={containerStyle}>
-            <TextEditor
-              value={item.fileContent}
-              onChange={(content) => {
-                const updatedItems = items.map(i => 
-                  i.id === item.id ? { ...i, fileContent: content } : i
-                );
-                setItems(updatedItems);
-              }}
-            />
-          </div>
-        );
-      default:
-        return null;
-    }
-  };
-
-  return (
-    <DragDropContext onDragEnd={onDragEnd}>
-      <div style={{ padding: '20px' }}>
-        <Upload.Dragger
-          accept=".pdf,.csv,.txt"
-          beforeUpload={(file) => {
-            handleFileDrop(file);
-            return false;
-          }}
-          style={{ marginBottom: 16 }}
-        >
-          <p className="ant-upload-drag-icon">
-            <InboxOutlined />
-          </p>
-          <p className="ant-upload-text">
-            Click or drag PDF, CSV, or TXT files to this area
-          </p>
-        </Upload.Dragger>
-
-        <div style={{ minHeight: '200px' }}>
-          {items.map((item, index) => (
-            <Card
-              key={item.id}
-              style={{ marginBottom: 16 }}
-              title={item.content}
-              extra={
-                <Button type="text" danger onClick={() => handleDelete(item.id)}>
-                  Delete
-                </Button>
-              }
-            >
-              {renderFileEditor(item)}
-            </Card>
-          ))}
-        </div>
-      </div>
-    </DragDropContext>
   );
 };
 

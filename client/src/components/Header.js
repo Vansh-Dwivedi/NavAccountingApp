@@ -8,6 +8,7 @@ import { FaBell } from 'react-icons/fa';
 import io from "socket.io-client";
 import "./components.css";
 import NotificationBubble from "./NotificationBubble";
+import { getProfilePicUrl } from "../utils/profilePicHelper";
 
 const Header = () => {
   const { user } = useContext(AuthContext);
@@ -114,7 +115,7 @@ const Header = () => {
       <div className="user-info">
         {profilePic ? (
           <img
-            src={`${process.env.REACT_APP_API_URL}/uploads/${profilePic}`}
+            src={getProfilePicUrl(profilePic)}
             alt="Profile"
             className="header-profile-pic"
             crossOrigin="anonymous"
@@ -141,13 +142,13 @@ const Header = () => {
             ) : notifications.length > 0 ? (
               notifications.map((notification) => (
                 <div
-                  className={`notification-item ${notification.read ? 'read' : 'unread'}`}
+                  className="notification-item"
                   key={notification._id}
                   onClick={() => handleNotificationClick(notification)}
                 >
                   {notification && notification.senderProfilePic && (
                     <img
-                      src={`${process.env.REACT_APP_API_URL}/uploads/${notification.senderProfilePic}`}
+                      src={getProfilePicUrl(notification.senderProfilePic)}
                       alt="Sender"
                       className="notification-sender-pic"
                       crossOrigin="anonymous"
