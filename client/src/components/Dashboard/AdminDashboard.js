@@ -19,6 +19,10 @@ import {
   Button,
   Upload,
   message,
+  Popconfirm,
+  Descriptions,
+  Tag,
+  Table,
 } from "antd";
 import {
   UserOutlined,
@@ -30,6 +34,7 @@ import {
   UploadOutlined,
   TeamOutlined,
   InboxOutlined,
+  DeleteOutlined,
 } from "@ant-design/icons";
 import AuditLogs from "../AuditLogs";
 import ChatComponent from "../Chat/ChatComponent";
@@ -67,39 +72,12 @@ const AdminDashboard = () => {
   const [adminData, setAdminData] = useState(null);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
-  const [roles, setRoles] = useState([]);
-  const [pendingChanges, setPendingChanges] = useState({});
-  const [messageText, setMessageText] = useState("");
-  const [showChat, setShowChat] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [showModal, setShowModal] = useState(false);
-  const [modalContent, setModalContent] = useState(null);
-  const [roleFilter, setRoleFilter] = useState("All");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [columnFilters, setColumnFilters] = useState({
-    username: true,
-    email: true,
-    role: true,
-    assignedManager: true,
-    assignedClients: true,
-    actions: true,
-  });
   const [isSleepMode, setIsSleepMode] = useState(false);
-  const [password, setPassword] = useState("");
   const [selectedFormId, setSelectedFormId] = useState(null);
   const [savedForms, setSavedForms] = useState([]);
   const [activeFormsTab, setActiveFormsTab] = useState("makeForm");
-  const [selectedClient, setSelectedClient] = useState(null);
-  const [filters, setFilters] = useState({
-    role: "",
-    accountStatus: "",
-    assignedManager: "",
-  });
-  const [selectedUsers, setSelectedUsers] = useState([]);
-  const [financialInfo, setFinancialInfo] = useState(null);
-  const [transactions, setTransactions] = useState([]);
+  const [selectedClient] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
   const [email, setEmail] = useState(adminData?.email || "");
@@ -107,6 +85,7 @@ const AdminDashboard = () => {
   const [emailError, setEmailError] = useState("");
   const [usernameError, setUsernameError] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
 
   useEffect(() => {
     fetchUsers();
@@ -238,11 +217,7 @@ const AdminDashboard = () => {
     { key: "users", icon: <UserOutlined />, label: "Users" },
     { key: "logs", icon: <FileOutlined />, label: "Logs" },
     { key: "forms", icon: <EditOutlined />, label: "Forms" },
-    {
-      key: "employeeManagement",
-      icon: <TeamOutlined />,
-      label: "Employee Management",
-    },
+    { key: "employeeManagement", icon: <TeamOutlined />, label: "Employee Management" },  
     { key: "dragAndDrop", icon: <InboxOutlined />, label: "File Transfer" },
     { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
     { key: "sleep", icon: <MoonOutlined />, label: "Sleep Mode" },
@@ -280,25 +255,102 @@ const AdminDashboard = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setProfilePic(response.data.getProfilePicUrl(profilePic));
+      message.success("Profile picture uploaded successfully");
     } catch (error) {
       console.error("Error uploading profile picture:", error);
-      alert("Error uploading profile picture. Please try again.");
+      message.error("Error uploading profile picture. Please try again.");
     }
   };
 
   const handleProfilePicDelete = async () => {
-    const confirmed = window.confirm(
-      "Are you sure you want to delete your profile picture?"
-    );
-    if (!confirmed) return;
-
     try {
       await api.delete("/api/users/profile-pic");
       setProfilePic(null);
+      message.success("Profile picture deleted successfully");
     } catch (error) {
       console.error("Error deleting profile picture:", error);
-      alert("Error deleting profile picture. Please try again.");
+      message.error("Error deleting profile picture. Please try again.");
     }
+  };
+
+  const renderUserDetails = (user) => {
+    if (!user) return null;
+
+    return (
+      <Card title="User Details" style={{ marginTop: 16 }}>
+        <Descriptions bordered column={2}>
+          <Descriptions.Item label="Username">{user.username}</Descriptions.Item>
+          <Descriptions.Item label="Email">{user.email}</Descriptions.Item>
+          <Descriptions.Item label="Role">{user.role}</Descriptions.Item>
+          <Descriptions.Item label="Full Name">{user.fullName}</Descriptions.Item>
+          <Descriptions.Item label="SSN">{user.ssn}</Descriptions.Item>
+          <Descriptions.Item label="Date of Birth">{user.dateOfBirth && new Date(user.dateOfBirth).toLocaleDateString()}</Descriptions.Item>
+          <Descriptions.Item label="Phone Number">{user.phoneNumber}</Descriptions.Item>
+          <Descriptions.Item label="Cell Number">{user.cellNo}</Descriptions.Item>
+          <Descriptions.Item label="Address Line 1">{user.addressLine1}</Descriptions.Item>
+          <Descriptions.Item label="Address Line 2">{user.addressLine2}</Descriptions.Item>
+          <Descriptions.Item label="Filing Status">{user.filingStatus}</Descriptions.Item>
+          <Descriptions.Item label="Total Dependents">{user.totalDependents}</Descriptions.Item>
+          <Descriptions.Item label="How Did You Find Us">{user.howDidYouFindUs}</Descriptions.Item>
+          <Descriptions.Item label="Referred By">{user.referredName}</Descriptions.Item>
+          
+          <Descriptions.Item label="Spouse Name">{user.spouseName}</Descriptions.Item>
+          <Descriptions.Item label="Spouse SSN">{user.spouseSSN}</Descriptions.Item>
+          <Descriptions.Item label="Spouse DOB">{user.spouseDOB && new Date(user.spouseDOB).toLocaleDateString()}</Descriptions.Item>
+          <Descriptions.Item label="Spouse Occupation">{user.spouseOccupation}</Descriptions.Item>
+
+          <Descriptions.Item label="Business Name">{user.businessName}</Descriptions.Item>
+          <Descriptions.Item label="Business Phone">{user.businessPhone}</Descriptions.Item>
+          <Descriptions.Item label="Business Email">{user.businessEmail}</Descriptions.Item>
+          <Descriptions.Item label="Business Address 1">{user.businessAddressLine1}</Descriptions.Item>
+          <Descriptions.Item label="Business Address 2">{user.businessAddressLine2}</Descriptions.Item>
+          <Descriptions.Item label="Business Entity Type">{user.businessEntityType}</Descriptions.Item>
+          <Descriptions.Item label="Business TIN">{user.businessTIN}</Descriptions.Item>
+          <Descriptions.Item label="Business SOS">{user.businessSOS}</Descriptions.Item>
+          <Descriptions.Item label="Business EDD">{user.businessEDD}</Descriptions.Item>
+          <Descriptions.Item label="Business Year">{user.businessYear}</Descriptions.Item>
+          <Descriptions.Item label="Contact Person">{user.contactPersonName}</Descriptions.Item>
+          <Descriptions.Item label="Active Employees">{user.noOfEmployeesActive}</Descriptions.Item>
+
+          <Descriptions.Item label="Account Status">{user.accountStatus}</Descriptions.Item>
+          <Descriptions.Item label="KYC Status">{user.kycStatus}</Descriptions.Item>
+          <Descriptions.Item label="AML Status">{user.amlStatus}</Descriptions.Item>
+          <Descriptions.Item label="Created At">{new Date(user.createdAt).toLocaleDateString()}</Descriptions.Item>
+        </Descriptions>
+
+        {user.dependents && user.dependents.length > 0 && (
+          <div style={{ marginTop: 16 }}>
+            <Title level={5}>Dependents</Title>
+            <Table 
+              dataSource={user.dependents}
+              columns={[
+                { title: 'Name', dataIndex: 'name', key: 'name' },
+                { title: 'SSN', dataIndex: 'ssn', key: 'ssn' },
+                { title: 'Relation', dataIndex: 'relation', key: 'relation' },
+                { title: 'DOB', dataIndex: 'dob', key: 'dob', render: (date) => new Date(date).toLocaleDateString() }
+              ]}
+              pagination={false}
+            />
+          </div>
+        )}
+
+        {user.members && user.members.length > 0 && (
+          <div style={{ marginTop: 16 }}>
+            <Title level={5}>Business Members</Title>
+            <Table
+              dataSource={user.members}
+              columns={[
+                { title: 'Name', dataIndex: 'name', key: 'name' },
+                { title: 'SSN', dataIndex: 'ssn', key: 'ssn' },
+                { title: 'Cell Phone', dataIndex: 'cellPhone', key: 'cellPhone' },
+                { title: 'Position', dataIndex: 'position', key: 'position' }
+              ]}
+              pagination={false}
+            />
+          </div>
+        )}
+      </Card>
+    );
   };
 
   return (
@@ -373,27 +425,37 @@ const AdminDashboard = () => {
                   </Col>
                 </Row>
                 <Card style={{ marginTop: 16 }}>
-                  <Avatar
-                    size={64}
-                    src={
-                      getProfilePicUrl(profilePic)
-                        ? `${process.env.REACT_APP_API_URL}/uploads/${getProfilePicUrl(getProfilePicUrl(getProfilePicUrl(profilePic)))}`
-                        : null
-                    }
-                    icon={<UserOutlined />}
-                  />
-                  <Upload
-                    type="file"
-                    onChange={handleProfilePicUpload}
-                    accept="image/*"
-                  >
-                    <Button icon={<UploadOutlined />}>Upload Picture</Button>
-                  </Upload>
-                  {getProfilePicUrl(getProfilePicUrl(profilePic)) && (
-                    <Button onClick={handleProfilePicDelete}>
-                      Delete Picture
-                    </Button>
-                  )}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                    <Avatar
+                      size={64}
+                      src={
+                        getProfilePicUrl(profilePic)
+                            ? `${process.env.REACT_APP_API_URL}/uploads/${getProfilePicUrl(profilePic)}`
+                            : null
+                      }
+                      icon={<UserOutlined />}
+                    />
+                    <Upload
+                      type="file"
+                      onChange={handleProfilePicUpload}
+                      accept="image/*"
+                      showUploadList={false}
+                    >
+                      <Button icon={<UploadOutlined />}>Upload Picture</Button>
+                    </Upload>
+                    {getProfilePicUrl(profilePic) && (
+                      <Popconfirm
+                        title="Are you sure you want to delete your profile picture?"
+                        onConfirm={handleProfilePicDelete}
+                        okText="Yes"
+                        cancelText="No"
+                      >
+                        <Button danger icon={<DeleteOutlined />}>
+                          Delete Picture
+                        </Button>
+                      </Popconfirm>
+                    )}
+                  </div>
                   <Title level={4} style={{ marginTop: 16 }}>
                     Profile Information
                   </Title>
@@ -427,6 +489,23 @@ const AdminDashboard = () => {
                     </Form.Item>
                   </Form>
                 </Card>
+                <List
+                  header={<Title level={4}>User List</Title>}
+                  dataSource={users}
+                  renderItem={user => (
+                    <List.Item
+                      onClick={() => setSelectedUser(user)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      <List.Item.Meta
+                        avatar={<Avatar icon={<UserOutlined />} src={user.profilePic} />}
+                        title={user.username}
+                        description={`${user.role} - ${user.email}`}
+                      />
+                    </List.Item>
+                  )}
+                />
+                {selectedUser && renderUserDetails(selectedUser)}
               </div>
             )}
             {activeTab === "users" && <UserManagement adminData={adminData} />}

@@ -637,255 +637,257 @@ const ManagerDashboard = () => {
   ];
 
   return (
-    <Layout style={{ minHeight: "100vh", marginTop: "60px" }}>
-      <Sider
-        collapsible
-        collapsed={!isSidebarOpen}
-        onCollapse={(collapsed) => setIsSidebarOpen(!collapsed)}
-        style={{
-          background: "#001529",
-          boxShadow: "2px 0 8px rgba(0,0,0,0.15)",
-        }}
-      >
-        <div className="logo" />
-        <Menu
-          theme="dark"
-          defaultSelectedKeys={["dashboard"]}
-          mode="inline"
-          onClick={({ key }) => {
-            if (key === "logout") {
-              handleLogout();
-            } else {
-              setActiveTab(key);
-            }
+    <RoleChecker userRole={managerData.role} userEmail={managerData.email}>
+      <Layout style={{ minHeight: "100vh", marginTop: "60px" }}>
+        <Sider
+          collapsible
+          collapsed={!isSidebarOpen}
+          onCollapse={(collapsed) => setIsSidebarOpen(!collapsed)}
+          style={{
+            background: "#001529",
+            boxShadow: "2px 0 8px rgba(0,0,0,0.15)",
           }}
         >
-          {menuItems.map((item) => (
-            <Menu.Item key={item.key} icon={item.icon}>
-              {item.label}
-            </Menu.Item>
-          ))}
-        </Menu>
-      </Sider>
-      <Layout className="site-layout">
-        <Header />
-        <Content style={{ margin: "0 16px" }}>
-          <div style={{ padding: 24, minHeight: 360 }}>
-            <Title level={2}>Manager Dashboard</Title>
-            <NotificationBubble userId={managerData._id} />
+          <div className="logo" />
+          <Menu
+            theme="dark"
+            defaultSelectedKeys={["dashboard"]}
+            mode="inline"
+            onClick={({ key }) => {
+              if (key === "logout") {
+                handleLogout();
+              } else {
+                setActiveTab(key);
+              }
+            }}
+          >
+            {menuItems.map((item) => (
+              <Menu.Item key={item.key} icon={item.icon}>
+                {item.label}
+              </Menu.Item>
+            ))}
+          </Menu>
+        </Sider>
+        <Layout className="site-layout">
+          <Header />
+          <Content style={{ margin: "0 16px" }}>
+            <div style={{ padding: 24, minHeight: 360 }}>
+              <Title level={2}>Manager Dashboard</Title>
+              <NotificationBubble userId={managerData._id} />
 
-            {activeTab === "dashboard" && (
-              <div>
-                <Row gutter={16}>
-                  <Col span={8}>
-                    <Card>
-                      <Statistic
-                        title="Assigned Clients"
-                        value={assignedClients.length}
-                      />
-                    </Card>
-                  </Col>
-                  <Col span={8}>
-                    <Card>
-                      <Statistic
-                        title="Unread Messages"
-                        value={Object.values(unreadCounts).reduce(
-                          (a, b) => a + b,
-                          0
-                        )}
-                      />
-                    </Card>
-                  </Col>
-                  <Col span={8}>
-                    <Card>
-                      <Statistic
-                        title="Saved Forms"
-                        value={savedForms.length}
-                      />
-                    </Card>
-                  </Col>
-                </Row>
-                <Card style={{ marginTop: 16 }}>
-                  <Avatar
-                    size={64}
-                    src={
-                      getProfilePicUrl(profilePic)
-                        ? `${process.env.REACT_APP_API_URL}/uploads/${getProfilePicUrl(profilePic)}`
-                        : null
-                    }
-                    icon={<UserOutlined />}
-                  />
-                  <Title level={4} style={{ marginTop: 16 }}>
-                    {managerData.username}
-                  </Title>
-                  <Text>Email: {managerData.email}</Text>
-                  <br />
-                  <Text>Role: {managerData.role}</Text>
-                </Card>
-              </div>
-            )}
-
-            {activeTab === "chat" && (
-              <div className="chat-section">
-                <Title level={3}>Chat with Clients</Title>
-                <List
-                  dataSource={assignedClients}
-                  renderItem={(client) => (
-                    <List.Item
-                      key={client._id}
-                      onClick={() => handleClientSelect(client)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <List.Item.Meta
-                        avatar={<Avatar icon={<UserOutlined />} />}
-                        title={client.username}
-                        description={`Unread: ${unreadCounts[client._id] || 0}`}
-                      />
-                    </List.Item>
-                  )}
-                />
-                {Object.entries(openChats).map(([clientId, isOpen]) => {
-                  if (!isOpen) return null;
-                  const client = assignedClients.find(
-                    (c) => c._id === clientId
-                  );
-                  if (!client) return null;
-                  return (
-                    <Card key={clientId} style={{ marginTop: 16 }}>
-                      <ChatComponent
-                        currentUser={managerData}
-                        otherUser={client}
-                        onClose={() => handleCloseChat(clientId)}
-                        chatId={`${managerData._id}-${client._id}`}
-                      />
-                    </Card>
-                  );
-                })}
-              </div>
-            )}
-
-            {activeTab === "adminChat" && adminUser && (
-              <Card>
-                <ChatComponent
-                  currentUser={managerData}
-                  otherUser={adminUser}
-                  onClose={() => setActiveTab("dashboard")}
-                />
-              </Card>
-            )}
-
-            {activeTab === "forms" && (
-              <div className="forms-section">
-                <Title level={3}>Saved Forms</Title>
-                <Row gutter={16} style={{ marginBottom: 16 }}>
-                  <Col span={8}>
-                    <Input
-                      prefix={<SearchOutlined />}
-                      placeholder="Search forms..."
-                      value={formSearchTerm}
-                      onChange={handleFormSearchChange}
+              {activeTab === "dashboard" && (
+                <div>
+                  <Row gutter={16}>
+                    <Col span={8}>
+                      <Card>
+                        <Statistic
+                          title="Assigned Clients"
+                          value={assignedClients.length}
+                        />
+                      </Card>
+                    </Col>
+                    <Col span={8}>
+                      <Card>
+                        <Statistic
+                          title="Unread Messages"
+                          value={Object.values(unreadCounts).reduce(
+                            (a, b) => a + b,
+                            0
+                          )}
+                        />
+                      </Card>
+                    </Col>
+                    <Col span={8}>
+                      <Card>
+                        <Statistic
+                          title="Saved Forms"
+                          value={savedForms.length}
+                        />
+                      </Card>
+                    </Col>
+                  </Row>
+                  <Card style={{ marginTop: 16 }}>
+                    <Avatar
+                      size={64}
+                      src={
+                        getProfilePicUrl(profilePic)
+                          ? `${
+                              process.env.REACT_APP_API_URL
+                            }/uploads/${getProfilePicUrl(profilePic)}`
+                          : null
+                      }
+                      icon={<UserOutlined />}
                     />
-                  </Col>
-                  <Col span={8}>
-                    <Select
-                      style={{ width: "100%" }}
-                      value={selectedCategory}
-                      onChange={handleCategoryChange}
-                      placeholder="Select category"
-                    >
-                      <Option value="">All Categories</Option>
-                      {categories.map((category) => (
-                        <Option key={category._id} value={category._id}>
-                          {category.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Col>
-                  <Col span={8}>
-                    <Input
-                      prefix={<SearchOutlined />}
-                      placeholder="Search clients..."
-                      value={clientSearchTerm}
-                      onChange={handleClientSearchChange}
-                    />
-                  </Col>
-                </Row>
-                <List
-                  dataSource={paginatedForms}
-                  renderItem={(form) => (
-                    <List.Item>
-                      <List.Item.Meta
-                        title={form.title}
-                        description={getCategoryName(form.category)}
-                      />
-                      <Select
-                        style={{ width: 200 }}
-                        placeholder="Select client"
-                        onChange={(value) => handleSendForm(form._id, value)}
+                    <Title level={4} style={{ marginTop: 16 }}>
+                      {managerData.username}
+                    </Title>
+                    <Text>Email: {managerData.email}</Text>
+                    <br />
+                    <Text>Role: {managerData.role}</Text>
+                  </Card>
+                </div>
+              )}
+
+              {activeTab === "chat" && (
+                <div className="chat-section">
+                  <Title level={3}>Chat with Clients</Title>
+                  <List
+                    dataSource={assignedClients}
+                    renderItem={(client) => (
+                      <List.Item
+                        key={client._id}
+                        onClick={() => handleClientSelect(client)}
+                        style={{ cursor: "pointer" }}
                       >
-                        {filteredClients.map((client) => (
-                          <Option key={client._id} value={client._id}>
-                            {client.username}
+                        <List.Item.Meta
+                          avatar={<Avatar icon={<UserOutlined />} />}
+                          title={client.username}
+                          description={`Unread: ${
+                            unreadCounts[client._id] || 0
+                          }`}
+                        />
+                      </List.Item>
+                    )}
+                  />
+                  {Object.entries(openChats).map(([clientId, isOpen]) => {
+                    if (!isOpen) return null;
+                    const client = assignedClients.find(
+                      (c) => c._id === clientId
+                    );
+                    if (!client) return null;
+                    return (
+                      <Card key={clientId} style={{ marginTop: 16 }}>
+                        <ChatComponent
+                          currentUser={managerData}
+                          otherUser={client}
+                          onClose={() => handleCloseChat(clientId)}
+                          chatId={`${managerData._id}-${client._id}`}
+                        />
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+
+              {activeTab === "adminChat" && adminUser && (
+                <Card>
+                  <ChatComponent
+                    currentUser={managerData}
+                    otherUser={adminUser}
+                    onClose={() => setActiveTab("dashboard")}
+                  />
+                </Card>
+              )}
+
+              {activeTab === "forms" && (
+                <div className="forms-section">
+                  <Title level={3}>Saved Forms</Title>
+                  <Row gutter={16} style={{ marginBottom: 16 }}>
+                    <Col span={8}>
+                      <Input
+                        prefix={<SearchOutlined />}
+                        placeholder="Search forms..."
+                        value={formSearchTerm}
+                        onChange={handleFormSearchChange}
+                      />
+                    </Col>
+                    <Col span={8}>
+                      <Select
+                        style={{ width: "100%" }}
+                        value={selectedCategory}
+                        onChange={handleCategoryChange}
+                        placeholder="Select category"
+                      >
+                        <Option value="">All Categories</Option>
+                        {categories.map((category) => (
+                          <Option key={category._id} value={category._id}>
+                            {category.name}
                           </Option>
                         ))}
                       </Select>
-                    </List.Item>
-                  )}
-                />
-                <Pagination
-                  current={currentPage + 1}
-                  total={filteredForms.length}
-                  pageSize={formsPerPage}
-                  onChange={(page) => setCurrentPage(page - 1)}
-                  style={{ marginTop: 16, textAlign: "center" }}
-                />
-              </div>
-            )}
-            {activeTab === "clientData" && (
-              <div className="client-data-section">
-                <Title level={3}>Client Data</Title>
-                <Select
-                  style={{ width: "100%", marginBottom: 16 }}
-                  placeholder="Select a client"
-                  onChange={(value) => fetchClientData(value)}
-                >
-                  {assignedClients.map((client) => (
-                    <Option key={client._id} value={client._id}>
-                      {client.username}
-                    </Option>
-                  ))}
-                </Select>
-              </div>
-            )}
-            {activeTab === "dragAndDrop" && (
-              <div className="drag-and-drop-section">
-                <Title level={3}>File Transfer</Title>
-                <DragAndDropScreen userRole="manager" />
-              </div>
-            )}
-          </div>
-        </Content>
+                    </Col>
+                    <Col span={8}>
+                      <Input
+                        prefix={<SearchOutlined />}
+                        placeholder="Search clients..."
+                        value={clientSearchTerm}
+                        onChange={handleClientSearchChange}
+                      />
+                    </Col>
+                  </Row>
+                  <List
+                    dataSource={paginatedForms}
+                    renderItem={(form) => (
+                      <List.Item>
+                        <List.Item.Meta
+                          title={form.title}
+                          description={getCategoryName(form.category)}
+                        />
+                        <Select
+                          style={{ width: 200 }}
+                          placeholder="Select client"
+                          onChange={(value) => handleSendForm(form._id, value)}
+                        >
+                          {filteredClients.map((client) => (
+                            <Option key={client._id} value={client._id}>
+                              {client.username}
+                            </Option>
+                          ))}
+                        </Select>
+                      </List.Item>
+                    )}
+                  />
+                  <Pagination
+                    current={currentPage + 1}
+                    total={filteredForms.length}
+                    pageSize={formsPerPage}
+                    onChange={(page) => setCurrentPage(page - 1)}
+                    style={{ marginTop: 16, textAlign: "center" }}
+                  />
+                </div>
+              )}
+              {activeTab === "clientData" && (
+                <div className="client-data-section">
+                  <Title level={3}>Client Data</Title>
+                  <Select
+                    style={{ width: "100%", marginBottom: 16 }}
+                    placeholder="Select a client"
+                    onChange={(value) => fetchClientData(value)}
+                  >
+                    {assignedClients.map((client) => (
+                      <Option key={client._id} value={client._id}>
+                        {client.username}
+                      </Option>
+                    ))}
+                  </Select>
+                </div>
+              )}
+              {activeTab === "dragAndDrop" && (
+                <div className="drag-and-drop-section">
+                  <Title level={3}>File Transfer</Title>
+                  <DragAndDropScreen userRole="manager" />
+                </div>
+              )}
+            </div>
+          </Content>
+        </Layout>
+        <Drawer
+          width={720}
+          placement="right"
+          closable={true}
+          onClose={() => {
+            setClientDrawerVisible(false);
+            setSelectedClient(null);
+          }}
+          visible={clientDrawerVisible}
+          closeIcon={<CloseOutlined style={{ fontSize: "18px" }} />}
+          headerStyle={{ borderBottom: "1px solid #f0f0f0" }}
+          bodyStyle={{ padding: "24px" }}
+        >
+          {renderClientInfo()}
+        </Drawer>
       </Layout>
-      <Drawer
-        width={720}
-        placement="right"
-        closable={true}
-        onClose={() => {
-          setClientDrawerVisible(false);
-          setSelectedClient(null);
-        }}
-        visible={clientDrawerVisible}
-        closeIcon={<CloseOutlined style={{ fontSize: "18px" }} />}
-        headerStyle={{ borderBottom: "1px solid #f0f0f0" }}
-        bodyStyle={{ padding: "24px" }}
-      >
-        {renderClientInfo()}
-      </Drawer>
-      <RoleChecker
-        userRole={managerData.role}
-        userEmail={managerData.email}
-      ></RoleChecker>
-    </Layout>
+    </RoleChecker>
   );
 };
 

@@ -3,8 +3,15 @@ const DndFile = require("../models/DndFile");
 
 exports.sendFile = async (req, res) => {
   try {
+    if (!req.files || !req.files.file) {
+      return res.status(400).json({
+        success: false,
+        message: "No file uploaded"
+      });
+    }
 
-    const { recipientId, file } = req.body;
+    const uploadedFile = req.files.file;
+    const recipientId = req.body.recipientId;
 
     // Create file path in uploads folder
     const uploadPath = path.join(
@@ -19,17 +26,17 @@ exports.sendFile = async (req, res) => {
           minute: "2-digit",
           hour12: true,
         })
-        .replace(/[/:,\s]/g, "") + path.extname(file.name)
+        .replace(/[/:,\s]/g, "") + path.extname(uploadedFile.name)
     );
 
     // Save file to uploads folder
-    await file.mv(uploadPath);
+    await uploadedFile.mv(uploadPath);
 
     // Create new DndFile document
     const dndFile = new DndFile({
       senderId: req.user.id,
       recipientId: recipientId,
-      fileName: file.name,
+      fileName: uploadedFile.name,
       filePath: uploadPath,
     });
 

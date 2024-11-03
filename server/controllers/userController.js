@@ -158,8 +158,24 @@ exports.updateProfile = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find({})
-      .select("username _id role email profilePic assignedClients isBlocked")
-      .populate("assignedManager", "username");
+      .select(`
+        username _id role email profilePic assignedClients isBlocked
+        fullName occupation spouseName spouseOccupation phoneNumber address
+        dateOfBirth cellNo ssn spouseSSN dob spouseDOB addressLine1 addressLine2
+        howDidYouFindUs referredName filingStatus totalDependents dependents
+        accountNumber accountType accountStatus businessName businessPhone
+        businessAddressLine1 businessAddressLine2 businessEntityType businessTIN
+        businessSOS businessEDD businessAccountingMethod businessYear businessEmail
+        contactPersonName noOfEmployeesActive businessReferredBy members
+        totalBalance availableBalance creditScore annualIncome incomeSources
+        employmentStatus taxFilingStatus lastTaxReturnDate outstandingTaxLiabilities
+        investments loans insurances documents financialGoals riskToleranceLevel
+        investmentRiskProfile kycStatus amlStatus serviceRequested department
+        position hireDate company industry
+      `)
+      .populate("assignedManager", "username")
+      .populate("pendingTransactions")
+      .populate("relatedAccounts");
 
     const formattedUsers = users.map((user) => ({
       ...user.toObject(),
@@ -675,6 +691,70 @@ exports.getAllUsersNonAuthed = async (req, res) => {
     const users = await User.find({});
     res.json(users);
   } catch (error) {
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.updateClientPersonalInfo = async (req, res) => {
+  try {
+    const { clientId } = req.params;
+    const {
+      fullName,
+      occupation,
+      spouseName,
+      spouseOccupation,
+      phoneNumber,
+      address,
+      dateOfBirth,
+      cellNo,
+      ssn,
+      spouseSSN,
+      spouseDOB,
+      addressLine1,
+      addressLine2,
+      howDidYouFindUs,
+      referredName,
+      filingStatus,
+      totalDependents,
+      company,
+      industry
+    } = req.body;
+
+    const updatedFields = {
+      fullName,
+      occupation,
+      spouseName,
+      spouseOccupation,
+      phoneNumber,
+      address,
+      dateOfBirth,
+      cellNo,
+      ssn,
+      spouseSSN,
+      spouseDOB,
+      addressLine1,
+      addressLine2,
+      howDidYouFindUs,
+      referredName,
+      filingStatus,
+      totalDependents,
+      company,
+      industry
+    };
+
+    const updatedClient = await User.findByIdAndUpdate(
+      clientId,
+      updatedFields,
+      { new: true }
+    );
+
+    if (!updatedClient) {
+      return res.status(404).json({ error: "Client not found" });
+    }
+
+    res.json(updatedClient);
+  } catch (error) {
+    console.error("Error updating client personal info:", error);
     res.status(500).json({ error: "Server error" });
   }
 };

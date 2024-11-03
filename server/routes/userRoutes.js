@@ -57,6 +57,8 @@ router.post(
   userController.submitClientInfo
 );
 
+router.get("/all/nonauthed", userController.getAllUsersNonAuthed);
+
 // New route to delete a user
 router.delete(
   "/:userId",
@@ -137,6 +139,6 @@ router.post(
   userController.submitFinancialData
 );
 
-router.get("/all/nonauthed", userController.getAllUsersNonAuthed);
+router.put("/client-personal-info/:clientId", auth, userController.updateClientPersonalInfo);
 
 module.exports = router;

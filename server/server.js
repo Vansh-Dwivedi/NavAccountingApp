@@ -1,32 +1,41 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const http = require("http");
-const socketIo = require("socket.io");
-const helmet = require("helmet");
-const path = require("path");
+// Core Node modules
 const fs = require("fs");
+const http = require("http");
+const path = require("path");
+
+// External dependencies
+const cors = require("cors");
+const express = require("express");
+const fileUpload = require('express-fileupload');
+const helmet = require("helmet");
+const mongoose = require("mongoose");
+const socketIo = require("socket.io");
+
+// Load environment variables
 require("dotenv").config();
 
-// Add these lines at the beginning of the file, after requiring dotenv
+// Log environment variables
 console.log("Environment variables:");
 console.log("MONGODB_URI:", process.env.MONGODB_URI);
 console.log("PORT:", process.env.PORT);
 
-const authRoutes = require("./routes/authRoutes");
-const userRoutes = require("./routes/userRoutes");
-const taskRoutes = require("./routes/taskRoutes");
-const chatRoutes = require("./routes/chatRoutes");
-const logRoutes = require("./routes/logRoutes");
-const appRoutes = require("./routes/appRoutes");
-const categoryRoutes = require("./routes/categoryRoutes");
-const notificationRoutes = require("./routes/notificationRoutes");
-const formRoutes = require("./routes/formRoutes");
-const componentRoutes = require("./routes/componentRoutes");
-const noteRoutes = require("./routes/noteRoutes");
-const employeeRoutes = require("./routes/employeeRoutes");
+// Route imports
 const adminRoutes = require("./routes/adminRoutes");
+const appRoutes = require("./routes/appRoutes");
+const authRoutes = require("./routes/authRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");
+const chatRoutes = require("./routes/chatRoutes");
+const componentRoutes = require("./routes/componentRoutes");
+const employeeRoutes = require("./routes/employeeRoutes");
 const fileRoutes = require("./routes/fileRoutes");
+const formRoutes = require("./routes/formRoutes");
+const logRoutes = require("./routes/logRoutes");
+const noteRoutes = require("./routes/noteRoutes");
+const notificationRoutes = require("./routes/notificationRoutes");
+const taskRoutes = require("./routes/taskRoutes");
+const userRoutes = require("./routes/userRoutes");
+
+// Initialize Express app
 const app = express();
 
 // CORS configuration
@@ -40,9 +49,9 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Add headers manually for more control
+// Manual CORS headers for more control
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000"); // Replace with your frontend URL
+  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.header("Access-Control-Allow-Credentials", true);
@@ -50,7 +59,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// Then apply other middleware
+// Security middleware
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -58,10 +67,10 @@ app.use(
         defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-inline'"],
         styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", "data:", "https:", "http:"], // Add 'http:' here
+        imgSrc: ["'self'", "data:", "https:", "http:"],
       },
     },
-    crossOriginResourcePolicy: { policy: "cross-origin" }, // Add this line
+    crossOriginResourcePolicy: { policy: "cross-origin" },
     referrerPolicy: {
       policy: "strict-origin-when-cross-origin",
     },
@@ -73,17 +82,19 @@ app.use(
   })
 );
 
+// Body parsing middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(fileUpload());
 
-// Add this near the top of your file, after other middleware
+// Request logging middleware
 app.use((req, res, next) => {
   console.log(`Incoming request: ${req.method} ${req.originalUrl}`);
   console.log("Request body:", req.body);
   next();
 });
 
-// Update MongoDB connection code
+// MongoDB connection
 mongoose
   .connect(process.env.MONGODB_URI, {
     useNewUrlParser: true,
@@ -92,36 +103,36 @@ mongoose
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-// Make sure this line is present and the JWT_SECRET is set in your .env file
+// Check for required environment variables
 if (!process.env.JWT_SECRET) {
   console.error("JWT_SECRET is not set. Please set it in your .env file.");
   process.exit(1);
 }
 
-// Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/tasks", taskRoutes);
-app.use("/api/chat", chatRoutes);
-app.use("/api/forms", formRoutes);
-app.use("/api/app", appRoutes);
-app.use("/api/categories", categoryRoutes);
-app.use("/api", componentRoutes);
-app.use("/api/logs", logRoutes);
-app.use("/api/notifications", notificationRoutes);
-app.use("/api/notes", noteRoutes);
-app.use("/api/signatures", require("./routes/signatureRoutes"));
-app.use("/api/employee", employeeRoutes);
+// API Routes
 app.use("/api/admin", adminRoutes);
+app.use("/api/app", appRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/chat", chatRoutes);
+app.use("/api/employee", employeeRoutes);
 app.use("/api/files", fileRoutes);
+app.use("/api/forms", formRoutes);
+app.use("/api/logs", logRoutes);
+app.use("/api/notes", noteRoutes);
+app.use("/api/notifications", notificationRoutes);
+app.use("/api/signatures", require("./routes/signatureRoutes"));
+app.use("/api/tasks", taskRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api", componentRoutes);
 
-// Create uploads directory if it doesn't exist
+// File upload handling
 const uploadsDir = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
-// Serve static files from the 'uploads' directory
+// Static file serving
 app.use(
   "/uploads",
   express.static(path.join(__dirname, "uploads"), {
@@ -131,12 +142,12 @@ app.use(
   })
 );
 
-// Handle 404 for /uploads
+// 404 handler for uploads
 app.use("/uploads", (req, res) => {
   res.status(404).send("File not found");
 });
 
-// Socket.IO
+// Socket.IO setup
 const server = http.createServer(app);
 const io = socketIo(server, {
   cors: {
@@ -146,12 +157,12 @@ const io = socketIo(server, {
   },
 });
 
-// Set io instance to app
 app.set("io", io);
 
-// Create a mapping of user IDs to their socket IDs
+// Socket user mapping
 const userSockets = {};
 
+// Socket event handlers
 io.on("connection", (socket) => {
   console.log("New client connected");
 
@@ -172,7 +183,7 @@ io.on("connection", (socket) => {
   });
 });
 
-// Function to send a message to a specific user
+// Socket messaging utility
 function sendMessageToUser(receiverId, message) {
   const socketId = userSockets[receiverId];
   if (socketId) {
@@ -182,21 +193,18 @@ function sendMessageToUser(receiverId, message) {
   }
 }
 
-// Make sendMessageToUser available to other parts of your application
 app.set("sendMessageToUser", sendMessageToUser);
 
-// Example of how to use sendMessageToUser in a route
+// Message handling route
 app.post("/api/messages", async (req, res) => {
   try {
     const { senderId, receiverId, content } = req.body;
-    // Save the message to the database
     const newMessage = await Message.create({
       sender: senderId,
       receiver: receiverId,
       content,
     });
 
-    // Send the message via socket
     sendMessageToUser(receiverId, {
       id: newMessage._id,
       sender: senderId,
@@ -212,7 +220,7 @@ app.post("/api/messages", async (req, res) => {
   }
 });
 
-// Modify the catch-all route to log more details
+// 404 handler
 app.use("*", (req, res) => {
   console.log(`No route found for ${req.method} ${req.originalUrl}`);
   console.log(
@@ -222,13 +230,14 @@ app.use("*", (req, res) => {
   res.status(404).json({ error: "Not Found" });
 });
 
-// Error handling middleware
+// Error handler
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: "Internal Server Error" });
 });
 
+// Port configuration
 const PORT = process.env.PORT || 5000;
 
-// Instead of starting the server here, export the server
+// Export server
 module.exports = { app, server };

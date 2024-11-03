@@ -41,17 +41,16 @@ import {
 } from "@ant-design/icons";
 import api from "../../utils/api";
 import "antd/dist/reset.css";
-import { Worker, Viewer } from '@react-pdf-viewer/core';
-import { defaultLayoutPlugin } from '@react-pdf-viewer/default-layout';
-import '@react-pdf-viewer/core/lib/styles/index.css';
-import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+import { Worker, Viewer } from "@react-pdf-viewer/core";
+import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
+import "@react-pdf-viewer/core/lib/styles/index.css";
+import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 import CSVReader from "./CSVReader";
 import TextEditor from "./TextEditor";
 import EmployeeNotesSection from "./EmployeeNotesSection";
-import DragAndDropScreen from '../DragAndDropScreen';
+import DragAndDropScreen from "../DragAndDropScreen";
 import { getProfilePicUrl } from "../../utils/profilePicHelper";
 import RoleChecker from "../../Authentication/main";
-
 
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -66,20 +65,20 @@ const COMMON_STYLES = {
     backdropFilter: "blur(10px)",
     borderRadius: "10px",
     boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-    overflow: "auto"
+    overflow: "auto",
   },
   WALLPAPER_CARD: {
-    position: 'fixed',
-    bottom: '20px',
-    right: '20px',
-    width: '300px',
-    height: 'auto',
+    position: "fixed",
+    bottom: "20px",
+    right: "20px",
+    width: "300px",
+    height: "auto",
     zIndex: 1000,
     background: "rgba(255, 255, 255, 0.9)",
     backdropFilter: "blur(10px)",
     borderRadius: "10px",
     boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-  }
+  },
 };
 
 const EmployeeDashboard = () => {
@@ -259,177 +258,182 @@ const EmployeeDashboard = () => {
   };
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Header />
-      <Layout>
-        <Sider
-          width={200}
-          collapsible
-          collapsed={!isSidebarOpen}
-          onCollapse={(collapsed) => setIsSidebarOpen(!collapsed)}
-          style={{ marginTop: "60px" }}
-        >
-          <Menu
-            theme="dark"
-            mode="inline"
-            defaultSelectedKeys={["dashboard"]}
-            onClick={({ key }) => setActiveTab(key)}
+    <RoleChecker userRole={user?.role} userEmail={user?.email}>
+      <Layout style={{ minHeight: "100vh" }}>
+        <Header />
+        <Layout>
+          <Sider
+            width={200}
+            collapsible
+            collapsed={!isSidebarOpen}
+            onCollapse={(collapsed) => setIsSidebarOpen(!collapsed)}
+            style={{ marginTop: "60px" }}
           >
-            {menuItems.map((item) => (
-              <Menu.Item key={item.key} icon={item.icon}>
-                {item.label}
-              </Menu.Item>
-            ))}
-          </Menu>
-        </Sider>
-        <Layout style={{ padding: "0 24px 24px" }}>
-          <Content
-            style={{
-              padding: 24,
-              margin: 0,
-              minHeight: 280,
-              backgroundImage: `url(/wallpapers/${wallpaper})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              position: "relative",
-            }}
-          >
-            <div
+            <Menu
+              theme="dark"
+              mode="inline"
+              defaultSelectedKeys={["dashboard"]}
+              onClick={({ key }) => setActiveTab(key)}
+            >
+              {menuItems.map((item) => (
+                <Menu.Item key={item.key} icon={item.icon}>
+                  {item.label}
+                </Menu.Item>
+              ))}
+            </Menu>
+          </Sider>
+          <Layout style={{ padding: "0 24px 24px" }}>
+            <Content
               style={{
-                position: "absolute",
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backdropFilter: "blur(5px)",
-                backgroundColor: "rgba(255, 255, 255, 0.5)",
-                zIndex: 0,
+                padding: 24,
+                margin: 0,
+                minHeight: 280,
+                backgroundImage: `url(/wallpapers/${wallpaper})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                position: "relative",
               }}
-            />
-            <div style={{ position: "relative", zIndex: 1 }}>
-              <Title level={2}>Welcome, {user?.username || "Employee"}</Title>
-              {activeTab === "dashboard" && (
-                <DragDropContext onDragEnd={onDragEnd}>
-                  <Droppable droppableId="widgets">
-                    {(provided) => (
-                      <Row
-                        gutter={[16, 16]}
-                        {...provided.droppableProps}
-                        ref={provided.innerRef}
-                      >
-                        {widgets.map((widget, index) => (
-                          <Draggable
-                            key={widget.id}
-                            draggableId={widget.id}
-                            index={index}
-                          >
-                            {(provided) => (
-                              <Col
-                                xs={24}
-                                sm={12}
-                                lg={8}
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                              >
-                                <Card
-                                  title={widget.title}
-                                  style={COMMON_STYLES.CARD}
+            >
+              <div
+                style={{
+                  position: "absolute",
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  backdropFilter: "blur(5px)",
+                  backgroundColor: "rgba(255, 255, 255, 0.5)",
+                  zIndex: 0,
+                }}
+              />
+              <div style={{ position: "relative", zIndex: 1 }}>
+                <Title level={2}>Welcome, {user?.username || "Employee"}</Title>
+                {activeTab === "dashboard" && (
+                  <DragDropContext onDragEnd={onDragEnd}>
+                    <Droppable droppableId="widgets">
+                      {(provided) => (
+                        <Row
+                          gutter={[16, 16]}
+                          {...provided.droppableProps}
+                          ref={provided.innerRef}
+                        >
+                          {widgets.map((widget, index) => (
+                            <Draggable
+                              key={widget.id}
+                              draggableId={widget.id}
+                              index={index}
+                            >
+                              {(provided) => (
+                                <Col
+                                  xs={24}
+                                  sm={12}
+                                  lg={8}
+                                  ref={provided.innerRef}
+                                  {...provided.draggableProps}
+                                  {...provided.dragHandleProps}
                                 >
-                                  {widget.content}
-                                </Card>
-                              </Col>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </Row>
-                    )}
-                  </Droppable>
-                </DragDropContext>
-              )}
-              {activeTab === "profile" && (
-                <Card
-                  style={{
-                    width: "100%",
-                    background: "rgba(255, 255, 255, 0.8)",
-                    backdropFilter: "blur(10px)",
-                    borderRadius: "10px",
-                    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                  }}
-                >
-                  <Avatar
-                    size={64}
-                    src={
-                      getProfilePicUrl(profilePic)
-                        ? `${process.env.REACT_APP_API_URL}/uploads/${getProfilePicUrl(profilePic)}`
-                        : null
-                    }
-                    icon={<UserOutlined />}
-                  />
-                  <input
-                    type="file"
-                    onChange={handleProfilePicUpload}
-                    accept="image/*"
-                    style={{ display: "none" }}
-                    id="profile-pic-upload"
-                  />
-                  <label htmlFor="profile-pic-upload">
-                    <Button
-                      icon={<UploadOutlined />}
-                      style={{ marginLeft: 16 }}
-                    >
-                      Upload Picture
-                    </Button>
-                  </label>
-                  {getProfilePicUrl(profilePic) && (
-                    <Button
-                      onClick={handleProfilePicDelete}
-                      style={{ marginLeft: 16 }}
-                    >
-                      Delete Picture
-                    </Button>
-                  )}
-                  <Title level={4} style={{ marginTop: 16 }}>
-                    Profile Information
-                  </Title>
-                  <Form layout="vertical">
-                    <Form.Item
-                      label="Username"
-                      validateStatus={usernameError ? "error" : ""}
-                      help={usernameError}
-                    >
-                      <Input value={username} onChange={handleUsernameChange} />
-                    </Form.Item>
-                    <Form.Item
-                      label="Email"
-                      validateStatus={emailError ? "error" : ""}
-                      help={emailError}
-                    >
-                      <Input value={email} onChange={handleEmailChange} />
-                    </Form.Item>
-                    <Form.Item>
-                      <Button type="primary" onClick={updateProfile}>
-                        Update Profile
+                                  <Card
+                                    title={widget.title}
+                                    style={COMMON_STYLES.CARD}
+                                  >
+                                    {widget.content}
+                                  </Card>
+                                </Col>
+                              )}
+                            </Draggable>
+                          ))}
+                          {provided.placeholder}
+                        </Row>
+                      )}
+                    </Droppable>
+                  </DragDropContext>
+                )}
+                {activeTab === "profile" && (
+                  <Card
+                    style={{
+                      width: "100%",
+                      background: "rgba(255, 255, 255, 0.8)",
+                      backdropFilter: "blur(10px)",
+                      borderRadius: "10px",
+                      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                    }}
+                  >
+                    <Avatar
+                      size={64}
+                      src={
+                        getProfilePicUrl(profilePic)
+                          ? `${
+                              process.env.REACT_APP_API_URL
+                            }/uploads/${getProfilePicUrl(profilePic)}`
+                          : null
+                      }
+                      icon={<UserOutlined />}
+                    />
+                    <input
+                      type="file"
+                      onChange={handleProfilePicUpload}
+                      accept="image/*"
+                      style={{ display: "none" }}
+                      id="profile-pic-upload"
+                    />
+                    <label htmlFor="profile-pic-upload">
+                      <Button
+                        icon={<UploadOutlined />}
+                        style={{ marginLeft: 16 }}
+                      >
+                        Upload Picture
                       </Button>
-                    </Form.Item>
-                  </Form>
-                </Card>
-              )}
-              <WallpaperSelector onWallpaperChange={handleWallpaperChange} />
-              {activeTab === "dragAndDrop" && (
-                <div className="drag-and-drop-section">
-                  <Title level={3}>File Transfer</Title>
-                  <DragAndDropScreen userRole="employee" />
-                </div>
-              )}
-            </div>
-          </Content>
+                    </label>
+                    {getProfilePicUrl(profilePic) && (
+                      <Button
+                        onClick={handleProfilePicDelete}
+                        style={{ marginLeft: 16 }}
+                      >
+                        Delete Picture
+                      </Button>
+                    )}
+                    <Title level={4} style={{ marginTop: 16 }}>
+                      Profile Information
+                    </Title>
+                    <Form layout="vertical">
+                      <Form.Item
+                        label="Username"
+                        validateStatus={usernameError ? "error" : ""}
+                        help={usernameError}
+                      >
+                        <Input
+                          value={username}
+                          onChange={handleUsernameChange}
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        label="Email"
+                        validateStatus={emailError ? "error" : ""}
+                        help={emailError}
+                      >
+                        <Input value={email} onChange={handleEmailChange} />
+                      </Form.Item>
+                      <Form.Item>
+                        <Button type="primary" onClick={updateProfile}>
+                          Update Profile
+                        </Button>
+                      </Form.Item>
+                    </Form>
+                  </Card>
+                )}
+                <WallpaperSelector onWallpaperChange={handleWallpaperChange} />
+                {activeTab === "dragAndDrop" && (
+                  <div className="drag-and-drop-section">
+                    <Title level={3}>File Transfer</Title>
+                    <DragAndDropScreen userRole="employee" />
+                  </div>
+                )}
+              </div>
+            </Content>
+          </Layout>
         </Layout>
       </Layout>
-      <RoleChecker userRole={user?.role} userEmail={user?.email}>
-      </RoleChecker>
-    </Layout>
+    </RoleChecker>
   );
 };
 
@@ -437,21 +441,18 @@ const WallpaperSelector = ({ onWallpaperChange }) => {
   const wallpapers = ["default.jpg", "nature.jpg", "city.jpg", "abstract.jpg"];
 
   return (
-    <Card 
-      title="Wallpaper Selection" 
-      style={COMMON_STYLES.WALLPAPER_CARD}
-    >
+    <Card title="Wallpaper Selection" style={COMMON_STYLES.WALLPAPER_CARD}>
       <Row gutter={[8, 8]}>
         {wallpapers.map((wallpaper) => (
           <Col key={wallpaper} span={12}>
-            <div 
+            <div
               style={{
-                height: '80px',
-                borderRadius: '4px',
-                overflow: 'hidden',
-                cursor: 'pointer',
-                border: '2px solid transparent',
-                transition: 'border-color 0.3s'
+                height: "80px",
+                borderRadius: "4px",
+                overflow: "hidden",
+                cursor: "pointer",
+                border: "2px solid transparent",
+                transition: "border-color 0.3s",
               }}
               onClick={() => onWallpaperChange(wallpaper)}
             >
@@ -459,9 +460,9 @@ const WallpaperSelector = ({ onWallpaperChange }) => {
                 src={`/wallpapers/${wallpaper}`}
                 alt={wallpaper}
                 style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover'
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
                 }}
               />
             </div>

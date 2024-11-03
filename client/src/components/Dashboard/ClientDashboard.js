@@ -17,6 +17,9 @@ import {
   Badge,
   Form,
   Input,
+  DatePicker,
+  InputNumber,
+  Select,
 } from "antd";
 import {
   UserOutlined,
@@ -44,10 +47,12 @@ import Signatures from "../Signatures/Signatures";
 import FinancialInfoSection from "./FinancialInfoSection";
 import RoleChecker from "../../Authentication/main";
 import { getProfilePicUrl } from "../../utils/profilePicHelper";
+import moment from "moment";
 
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
+const { Option } = Select;
 
 const ClientDashboard = () => {
   const { user } = useContext(AuthContext);
@@ -70,12 +75,37 @@ const ClientDashboard = () => {
   const [username, setUsername] = useState(clientData?.username || "");
   const [emailError, setEmailError] = useState("");
   const [usernameError, setUsernameError] = useState("");
+  const [personnelForm] = Form.useForm();
 
   useEffect(() => {
     fetchClientData();
     fetchAdminUser();
     fetchForms();
   }, []);
+
+  useEffect(() => {
+    if (clientData) {
+      fetchAssignedForms();
+      // Pre-fill personnel form when client data is loaded
+      personnelForm.setFieldsValue({
+        // ADD FIELDS HERE :)
+      });
+    }
+  }, [clientData]);
+
+  const handlePersonnelSubmit = async (values) => {
+    try {
+      const response = await api.put(
+        `/api/users/client-personal-info/${clientData._id}`,
+        values
+      );
+      setClientData(response.data);
+      alert("Personnel information updated successfully");
+    } catch (error) {
+      console.error("Error updating personnel information:", error);
+      alert("Failed to update personnel information");
+    }
+  };
 
   useEffect(() => {
     if (clientData) {
@@ -314,293 +344,400 @@ const ClientDashboard = () => {
       icon: <DollarOutlined />,
       label: "Financial Information",
     },
+    {
+      key: "personnelSettings",
+      icon: <SettingOutlined />,
+      label: "Personnel Settings",
+    },
   ];
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Header />
-      <Layout>
-        <Sider
-          collapsible
-          collapsed={!isSidebarOpen}
-          onCollapse={(collapsed) => setIsSidebarOpen(!collapsed)}
-          style={{
-            background: "#001529",
-            boxShadow: "2px 0 8px rgba(0,0,0,0.15)",
-            marginTop: "60px",
-          }}
-        >
-          <Menu
-            theme="dark"
-            defaultSelectedKeys={["dashboard"]}
-            mode="inline"
-            onClick={({ key }) => {
-              if (key === "logout") {
-                handleLogout();
-              } else {
-                setActiveTab(key);
-              }
-            }}
+    <RoleChecker userRole={clientData?.role} userEmail={clientData?.email}>
+      <Layout style={{ minHeight: "100vh" }}>
+        <Header />
+        <Layout>
+          <Sider
+            collapsible
+            collapsed={!isSidebarOpen}
+            onCollapse={(collapsed) => setIsSidebarOpen(!collapsed)}
             style={{
-              background: "transparent",
-              borderRight: 0,
+              background: "#001529",
+              boxShadow: "2px 0 8px rgba(0,0,0,0.15)",
+              marginTop: "60px",
             }}
           >
-            {menuItems.map((item) => (
-              <Menu.Item
-                key={item.key}
-                icon={item.icon}
-                style={{ margin: "8px 0" }}
-              >
-                {item.label}
-              </Menu.Item>
-            ))}
-          </Menu>
-        </Sider>
-        <Layout className="site-layout" style={{ marginTop: "64px" }}>
-          <Content style={{ margin: "0 16px" }}>
-            <div style={{ padding: 24, minHeight: 360 }}>
-              {activeTab === "dashboard" && clientData && (
-                <div className="dashboard-info">
-                  <Title level={2}>Welcome, {clientData.username}</Title>
-                  <Row gutter={16}>
-                    <Col span={8}>
+            <Menu
+              theme="dark"
+              defaultSelectedKeys={["dashboard"]}
+              mode="inline"
+              onClick={({ key }) => {
+                if (key === "logout") {
+                  handleLogout();
+                } else {
+                  setActiveTab(key);
+                }
+              }}
+              style={{
+                background: "transparent",
+                borderRight: 0,
+              }}
+            >
+              {menuItems.map((item) => (
+                <Menu.Item
+                  key={item.key}
+                  icon={item.icon}
+                  style={{ margin: "8px 0" }}
+                >
+                  {item.label}
+                </Menu.Item>
+              ))}
+            </Menu>
+          </Sider>
+          <Layout className="site-layout" style={{ marginTop: "64px" }}>
+            <Content style={{ margin: "0 16px" }}>
+              <div style={{ padding: 24, minHeight: 360 }}>
+                {activeTab === "dashboard" && clientData && (
+                  <div className="dashboard-info">
+                    <Title level={2}>Welcome, {clientData.username}</Title>
+                    <Row gutter={16}>
+                      <Col span={8}>
+                        <Card>
+                          {getProfilePicUrl(clientData.profilePic) ? (
+                            <img
+                              src={getProfilePicUrl(clientData.profilePic)}
+                              alt="Profile"
+                              style={{
+                                width: 64,
+                                height: 64,
+                                borderRadius: "50%",
+                              }}
+                            />
+                          ) : (
+                            <Avatar size={64} icon={<UserOutlined />} />
+                          )}
+                          <Title level={4} style={{ marginTop: 16 }}>
+                            {clientData.username}
+                          </Title>
+                          <Text>Email: {clientData.email}</Text>
+                          <br />
+                          <Text>Role: {clientData.role}</Text>
+                        </Card>
+                      </Col>
+                      <Col span={16}>
+                        <Card title="Your Info">
+                          {clientData.clientInfo ? (
+                            <>
+                              <Title level={4}>Personal Information</Title>
+                              <Text>
+                                Full Name: {clientData.clientInfo.fullName}
+                              </Text>
+                              <br />
+                              <Text>
+                                Occupation: {clientData.clientInfo.occupation}
+                              </Text>
+                              <br />
+                              <Text>Email: {clientData.clientInfo.email}</Text>
+                              <br />
+                              <Text>
+                                Cell No: {clientData.clientInfo.cellNo}
+                              </Text>
+                              <br />
+                              <Text>
+                                Filing Status:{" "}
+                                {clientData.clientInfo.filingStatus}
+                              </Text>
+                              <br />
+                              <Text>
+                                Total Dependents:{" "}
+                                {clientData.clientInfo.totalDependents}
+                              </Text>
+                            </>
+                          ) : (
+                            <Text>No client information submitted yet.</Text>
+                          )}
+                        </Card>
+                      </Col>
                       <Card>
-                        {getProfilePicUrl(clientData.profilePic) ? (
-                          <img
-                            src={getProfilePicUrl(clientData.profilePic)}
-                            alt="Profile"
-                            style={{
-                              width: 64,
-                              height: 64,
-                              borderRadius: "50%",
-                            }}
-                          />
-                        ) : (
-                          <Avatar size={64} icon={<UserOutlined />} />
+                        <Avatar
+                          size={64}
+                          icon={<UserOutlined />}
+                          src={getProfilePicUrl(clientData.profilePic)}
+                        />
+                        <input
+                          type="file"
+                          onChange={handleProfilePicUpload}
+                          accept="image/*"
+                        />
+                        {getProfilePicUrl(clientData.profilePic) && (
+                          <Button onClick={handleProfilePicDelete}>
+                            Delete Picture
+                          </Button>
                         )}
                         <Title level={4} style={{ marginTop: 16 }}>
-                          {clientData.username}
+                          Profile Information
                         </Title>
-                        <Text>Email: {clientData.email}</Text>
-                        <br />
-                        <Text>Role: {clientData.role}</Text>
-                      </Card>
-                    </Col>
-                    <Col span={16}>
-                      <Card title="Your Info">
-                        {clientData.clientInfo ? (
-                          <>
-                            <Title level={4}>Personal Information</Title>
-                            <Text>
-                              Full Name: {clientData.clientInfo.fullName}
-                            </Text>
-                            <br />
-                            <Text>
-                              Occupation: {clientData.clientInfo.occupation}
-                            </Text>
-                            <br />
-                            <Text>Email: {clientData.clientInfo.email}</Text>
-                            <br />
-                            <Text>Cell No: {clientData.clientInfo.cellNo}</Text>
-                            <br />
-                            <Text>
-                              Filing Status:{" "}
-                              {clientData.clientInfo.filingStatus}
-                            </Text>
-                            <br />
-                            <Text>
-                              Total Dependents:{" "}
-                              {clientData.clientInfo.totalDependents}
-                            </Text>
-                          </>
-                        ) : (
-                          <Text>No client information submitted yet.</Text>
-                        )}
-                      </Card>
-                    </Col>
-                    <Card>
-                      <Avatar
-                        size={64}
-                        icon={<UserOutlined />}
-                        src={getProfilePicUrl(clientData.profilePic)}
-                      />
-                      <input
-                        type="file"
-                        onChange={handleProfilePicUpload}
-                        accept="image/*"
-                      />
-                      {getProfilePicUrl(clientData.profilePic) && (
-                        <Button onClick={handleProfilePicDelete}>
-                          Delete Picture
-                        </Button>
-                      )}
-                      <Title level={4} style={{ marginTop: 16 }}>
-                        Profile Information
-                      </Title>
-                      <Form layout="vertical">
-                        <Form.Item
-                          label="Username"
-                          validateStatus={usernameError ? "error" : ""}
-                          help={usernameError}
-                        >
-                          <Input
-                            value={clientData.username}
-                            onChange={handleUsernameChange}
-                          />
-                        </Form.Item>
-                        <Form.Item
-                          label="Email"
-                          validateStatus={emailError ? "error" : ""}
-                          help={emailError}
-                        >
-                          <Input value={clientData.email} onChange={handleEmailChange} />
-                        </Form.Item>
-                        <Form.Item>
-                          <Button type="primary" onClick={updateProfile}>
-                            Update Profile
-                          </Button>
-                        </Form.Item>
-                      </Form>
-                    </Card>
-                  </Row>
-                </div>
-              )}
-              {activeTab === "submitInfo" && clientData && (
-                <ClientInfoForm clientId={clientData._id} />
-              )}
-
-              {activeTab === "notesAndSignatures" && clientData && (
-                <div className="notes-and-signatures">
-                  <Notes userId={clientData._id} />
-                  <Signatures userId={clientData._id} />
-                </div>
-              )}
-              {activeTab === "dragAndDrop" && (
-                <div className="drag-and-drop-section">
-                  <Title level={3}>File Transfer</Title>
-                  <DragAndDropScreen userRole="client" />
-                </div>
-              )}
-              {activeTab === "forms" && (
-                <div className="assigned-forms-section">
-                  <Title level={3}>Forms to Complete</Title>
-                  <List
-                    itemLayout="horizontal"
-                    dataSource={paginatedForms}
-                    renderItem={(form) => (
-                      <List.Item
-                        onClick={() => handleFormClick(form)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <List.Item.Meta
-                          title={form.title}
-                          description={`Deadline: ${form.deadline} days`}
-                        />
-                        {form.isCompulsory && (
-                          <Text type="danger">Compulsory</Text>
-                        )}
-                      </List.Item>
-                    )}
-                  />
-                  <Pagination
-                    current={currentPage}
-                    pageSize={pageSize}
-                    total={assignedForms.length}
-                    onChange={handlePageChange}
-                    style={{ marginTop: "16px", textAlign: "center" }}
-                  />
-                </div>
-              )}
-              {activeTab === "chat" && (
-                <div className="chat-section">
-                  <Title level={3}>Chat</Title>
-                  <Row gutter={16}>
-                    <Col span={8}>
-                      <Card title="Chat List">
-                        {clientData?.assignedManager && (
-                          <Button
-                            onClick={() =>
-                              handleChatSelect(clientData.assignedManager)
-                            }
-                            type={
-                              openChats[clientData.assignedManager._id]
-                                ? "primary"
-                                : "default"
-                            }
-                            block
+                        <Form layout="vertical">
+                          <Form.Item
+                            label="Username"
+                            validateStatus={usernameError ? "error" : ""}
+                            help={usernameError}
                           >
-                            Chat with Manager
-                            {unreadCounts[clientData.assignedManager._id] >
-                              0 && (
-                              <Badge
-                                count={
-                                  unreadCounts[clientData.assignedManager._id]
-                                }
-                              />
-                            )}
-                          </Button>
-                        )}
-                        {adminUser && (
-                          <Button
-                            onClick={() => handleChatSelect(adminUser)}
-                            type={
-                              openChats[adminUser._id] ? "primary" : "default"
-                            }
-                            block
-                            style={{ marginTop: 8 }}
-                          >
-                            Chat with Admin
-                            {unreadCounts[adminUser._id] > 0 && (
-                              <Badge count={unreadCounts[adminUser._id]} />
-                            )}
-                          </Button>
-                        )}
-                      </Card>
-                    </Col>
-                    <Col span={16}>
-                      <Card title="Chat Window">
-                        {Object.entries(openChats).map(([userId, isOpen]) => {
-                          if (!isOpen) return null;
-                          const chatPartner =
-                            userId === adminUser?._id
-                              ? adminUser
-                              : clientData?.assignedManager;
-                          if (!chatPartner) return null;
-                          return (
-                            <ChatComponent
-                              key={userId}
-                              currentUser={clientData}
-                              otherUser={chatPartner}
-                              onClose={() => handleCloseChat(userId)}
-                              chatId={`${clientData._id}-${chatPartner._id}`}
+                            <Input
+                              value={clientData.username}
+                              onChange={handleUsernameChange}
                             />
-                          );
-                        })}
+                          </Form.Item>
+                          <Form.Item
+                            label="Email"
+                            validateStatus={emailError ? "error" : ""}
+                            help={emailError}
+                          >
+                            <Input
+                              value={clientData.email}
+                              onChange={handleEmailChange}
+                            />
+                          </Form.Item>
+                          <Form.Item>
+                            <Button type="primary" onClick={updateProfile}>
+                              Update Profile
+                            </Button>
+                          </Form.Item>
+                        </Form>
                       </Card>
-                    </Col>
-                  </Row>
-                </div>
-              )}
-              {activeTab === "financialInfo" && clientData && (
-                <FinancialInfoSection clientId={clientData._id} />
-              )}
-              {selectedForm && (
-                <FormPopupModal
-                  form={selectedForm}
-                  onClose={() => setSelectedForm(null)}
-                  onSubmit={handleFormSubmit}
-                  userId={clientData._id}
-                />
-              )}
-            </div>
-          </Content>
+                    </Row>
+                  </div>
+                )}
+                {activeTab === "submitInfo" && clientData && (
+                  <ClientInfoForm clientId={clientData._id} />
+                )}
+
+                {activeTab === "notesAndSignatures" && clientData && (
+                  <div className="notes-and-signatures">
+                    <Notes userId={clientData._id} />
+                    <Signatures userId={clientData._id} />
+                  </div>
+                )}
+                {activeTab === "dragAndDrop" && (
+                  <div className="drag-and-drop-section">
+                    <Title level={3}>File Transfer</Title>
+                    <DragAndDropScreen userRole="client" />
+                  </div>
+                )}
+                {activeTab === "forms" && (
+                  <div className="assigned-forms-section">
+                    <Title level={3}>Forms to Complete</Title>
+                    <List
+                      itemLayout="horizontal"
+                      dataSource={paginatedForms}
+                      renderItem={(form) => (
+                        <List.Item
+                          onClick={() => handleFormClick(form)}
+                          style={{ cursor: "pointer" }}
+                        >
+                          <List.Item.Meta
+                            title={form.title}
+                            description={`Deadline: ${form.deadline} days`}
+                          />
+                          {form.isCompulsory && (
+                            <Text type="danger">Compulsory</Text>
+                          )}
+                        </List.Item>
+                      )}
+                    />
+                    <Pagination
+                      current={currentPage}
+                      pageSize={pageSize}
+                      total={assignedForms.length}
+                      onChange={handlePageChange}
+                      style={{ marginTop: "16px", textAlign: "center" }}
+                    />
+                  </div>
+                )}
+                {activeTab === "chat" && (
+                  <div className="chat-section">
+                    <Title level={3}>Chat</Title>
+                    <Row gutter={16}>
+                      <Col span={8}>
+                        <Card title="Chat List">
+                          {clientData?.assignedManager && (
+                            <Button
+                              onClick={() =>
+                                handleChatSelect(clientData.assignedManager)
+                              }
+                              type={
+                                openChats[clientData.assignedManager._id]
+                                  ? "primary"
+                                  : "default"
+                              }
+                              block
+                            >
+                              Chat with Manager
+                              {unreadCounts[clientData.assignedManager._id] >
+                                0 && (
+                                <Badge
+                                  count={
+                                    unreadCounts[clientData.assignedManager._id]
+                                  }
+                                />
+                              )}
+                            </Button>
+                          )}
+                          {adminUser && (
+                            <Button
+                              onClick={() => handleChatSelect(adminUser)}
+                              type={
+                                openChats[adminUser._id] ? "primary" : "default"
+                              }
+                              block
+                              style={{ marginTop: 8 }}
+                            >
+                              Chat with Admin
+                              {unreadCounts[adminUser._id] > 0 && (
+                                <Badge count={unreadCounts[adminUser._id]} />
+                              )}
+                            </Button>
+                          )}
+                        </Card>
+                      </Col>
+                      <Col span={16}>
+                        <Card title="Chat Window">
+                          {Object.entries(openChats).map(([userId, isOpen]) => {
+                            if (!isOpen) return null;
+                            const chatPartner =
+                              userId === adminUser?._id
+                                ? adminUser
+                                : clientData?.assignedManager;
+                            if (!chatPartner) return null;
+                            return (
+                              <ChatComponent
+                                key={userId}
+                                currentUser={clientData}
+                                otherUser={chatPartner}
+                                onClose={() => handleCloseChat(userId)}
+                                chatId={`${clientData._id}-${chatPartner._id}`}
+                              />
+                            );
+                          })}
+                        </Card>
+                      </Col>
+                    </Row>
+                  </div>
+                )}
+                {activeTab === "financialInfo" && clientData && (
+                  <FinancialInfoSection clientId={clientData._id} />
+                )}
+                {activeTab === "personnelSettings" && (
+                  <Card title="Personnel Settings">
+                    <Form
+                      form={personnelForm}
+                      layout="vertical"
+                      onFinish={handlePersonnelSubmit}
+                    >
+                      <Row gutter={16}>
+                        <Col span={12}>
+                          <Form.Item name="fullName" label="Full Name">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="occupation" label="Occupation">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="spouseName" label="Spouse Name">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item
+                            name="spouseOccupation"
+                            label="Spouse Occupation"
+                          >
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="phoneNumber" label="Phone Number">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="cellNo" label="Cell Number">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="ssn" label="SSN">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="spouseSSN" label="Spouse SSN">
+                            <Input />
+                          </Form.Item>
+                        </Col>
+                        <Col span={12}>
+                          <Form.Item name="dateOfBirth" label="Date of Birth">
+                            <DatePicker />
+                          </Form.Item>
+                          <Form.Item
+                            name="spouseDOB"
+                            label="Spouse Date of Birth"
+                          >
+                            <DatePicker />
+                          </Form.Item>
+                          <Form.Item name="addressLine1" label="Address Line 1">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="addressLine2" label="Address Line 2">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item
+                            name="howDidYouFindUs"
+                            label="How Did You Find Us"
+                          >
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="referredName" label="Referred By">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="filingStatus" label="Filing Status">
+                            <Select>
+                              <Option value="single">Single</Option>
+                              <Option value="married">Married</Option>
+                              <Option value="head_of_household">
+                                Head of Household
+                              </Option>
+                            </Select>
+                          </Form.Item>
+                          <Form.Item
+                            name="totalDependents"
+                            label="Total Dependents"
+                          >
+                            <InputNumber min={0} />
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                      <Row>
+                        <Col span={24}>
+                          <Form.Item name="company" label="Company">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="industry" label="Industry">
+                            <Input />
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                      <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                          Save Personnel Information
+                        </Button>
+                      </Form.Item>
+                    </Form>
+                  </Card>
+                )}
+                {selectedForm && (
+                  <FormPopupModal
+                    form={selectedForm}
+                    onClose={() => setSelectedForm(null)}
+                    onSubmit={handleFormSubmit}
+                    userId={clientData._id}
+                  />
+                )}
+              </div>
+            </Content>
+          </Layout>
         </Layout>
+        <NotificationBubble userId={clientData?._id} />
       </Layout>
-      <NotificationBubble userId={clientData?._id} />
-      <RoleChecker userRole={clientData?.role} userEmail={clientData?.email}>
-      </RoleChecker>
-    </Layout>
+    </RoleChecker>
   );
 };
 

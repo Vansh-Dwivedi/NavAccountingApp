@@ -28,10 +28,12 @@ const RoleChecker = ({ userRole, userEmail, children }) => {
       }
 
       try {
+        // First, fetch the current user's role from the API
+        const response = await api.get("/api/users/profile");
+        const dbRole = response.data.role;
+
         const decodedToken = jwtDecode(token);
         const tokenRole = decodedToken.user.role;
-
-        const dbRole = userRole;
 
         console.log(`tokenRole: ${tokenRole}, dbRole: ${dbRole}`);
 
