@@ -53,6 +53,7 @@ import RoleChecker from "../../Authentication/main";
 import { getProfilePicUrl } from "../../utils/profilePicHelper";
 import moment from "moment";
 import ProfileSettings from "../shared/ProfileSettings";
+import ClientFinancialOverview from "./ClientFinancialOverview";
 
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -493,6 +494,7 @@ const ClientDashboard = () => {
                 {activeTab === "dashboard" && clientData && (
                   <div className="dashboard-info">
                     <Title level={2}>Welcome, {clientData.username}</Title>
+                    <ClientFinancialOverview clientData={clientData} />
                     <ProfileSettings
                       userData={clientData}
                       onUpdate={(updatedData) => setClientData(updatedData)}
@@ -616,7 +618,9 @@ const ClientDashboard = () => {
                   </div>
                 )}
                 {activeTab === "financialInfo" && clientData && (
-                  <FinancialInfoSection clientId={clientData._id} />
+                  <>
+                    <FinancialInfoSection clientId={clientData._id} />
+                  </>
                 )}
                 {activeTab === "personnelSettings" && (
                   <Card title="Personnel Settings">

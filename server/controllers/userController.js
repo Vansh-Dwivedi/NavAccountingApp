@@ -149,7 +149,6 @@ exports.updateProfile = async (req, res) => {
 
     await user.save();
     res.json(user);
-
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -159,7 +158,8 @@ exports.updateProfile = async (req, res) => {
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find({})
-      .select(`
+      .select(
+        `
         username _id role email profilePic assignedClients isBlocked
         fullName occupation spouseName spouseOccupation phoneNumber address
         dateOfBirth cellNo ssn spouseSSN dob spouseDOB addressLine1 addressLine2
@@ -173,7 +173,8 @@ exports.getAllUsers = async (req, res) => {
         investments loans insurances documents financialGoals riskToleranceLevel
         investmentRiskProfile kycStatus amlStatus serviceRequested department
         position hireDate company industry
-      `)
+      `
+      )
       .populate("assignedManager", "username")
       .populate("pendingTransactions")
       .populate("relatedAccounts");
@@ -720,12 +721,12 @@ exports.updateClientPersonalInfo = async (req, res) => {
       totalDependents: req.body.totalDependents,
       company: req.body.company,
       industry: req.body.industry,
-      
+
       // Account Information
       accountNumber: req.body.accountNumber,
       accountType: req.body.accountType,
       accountStatus: req.body.accountStatus,
-      
+
       // Business Information
       businessName: req.body.businessName,
       businessPhone: req.body.businessPhone,
@@ -741,7 +742,7 @@ exports.updateClientPersonalInfo = async (req, res) => {
       contactPersonName: req.body.contactPersonName,
       noOfEmployeesActive: req.body.noOfEmployeesActive,
       businessReferredBy: req.body.businessReferredBy,
-      
+
       // Financial Information
       totalBalance: req.body.totalBalance,
       availableBalance: req.body.availableBalance,
@@ -749,23 +750,23 @@ exports.updateClientPersonalInfo = async (req, res) => {
       annualIncome: req.body.annualIncome,
       incomeSources: req.body.incomeSources,
       employmentStatus: req.body.employmentStatus,
-      
+
       // Tax Information
       taxFilingStatus: req.body.taxFilingStatus,
       lastTaxReturnDate: req.body.lastTaxReturnDate,
       outstandingTaxLiabilities: req.body.outstandingTaxLiabilities,
-      
+
       // Risk Assessment
       riskToleranceLevel: req.body.riskToleranceLevel,
       investmentRiskProfile: req.body.investmentRiskProfile,
-      
+
       // Compliance Information
       kycStatus: req.body.kycStatus,
       amlStatus: req.body.amlStatus,
-      
+
       // Service Information
       serviceRequested: req.body.serviceRequested,
-      
+
       // Arrays and Objects
       dependents: req.body.dependents,
       members: req.body.members,
@@ -773,12 +774,12 @@ exports.updateClientPersonalInfo = async (req, res) => {
       loans: req.body.loans,
       insurances: req.body.insurances,
       documents: req.body.documents,
-      financialGoals: req.body.financialGoals
+      financialGoals: req.body.financialGoals,
     };
 
     // Remove undefined fields
-    Object.keys(updatedFields).forEach(key => 
-      updatedFields[key] === undefined && delete updatedFields[key]
+    Object.keys(updatedFields).forEach(
+      (key) => updatedFields[key] === undefined && delete updatedFields[key]
     );
 
     const updatedClient = await User.findByIdAndUpdate(
@@ -822,12 +823,12 @@ exports.updateUserPersonalInfo = async (req, res) => {
       totalDependents: req.body.totalDependents,
       company: req.body.company,
       industry: req.body.industry,
-      
+
       // Account Information
       accountNumber: req.body.accountNumber,
       accountType: req.body.accountType,
       accountStatus: req.body.accountStatus,
-      
+
       // Business Information
       businessName: req.body.businessName,
       businessPhone: req.body.businessPhone,
@@ -843,7 +844,7 @@ exports.updateUserPersonalInfo = async (req, res) => {
       contactPersonName: req.body.contactPersonName,
       noOfEmployeesActive: req.body.noOfEmployeesActive,
       businessReferredBy: req.body.businessReferredBy,
-      
+
       // Financial Information
       totalBalance: req.body.totalBalance,
       availableBalance: req.body.availableBalance,
@@ -851,23 +852,23 @@ exports.updateUserPersonalInfo = async (req, res) => {
       annualIncome: req.body.annualIncome,
       incomeSources: req.body.incomeSources,
       employmentStatus: req.body.employmentStatus,
-      
+
       // Tax Information
       taxFilingStatus: req.body.taxFilingStatus,
       lastTaxReturnDate: req.body.lastTaxReturnDate,
       outstandingTaxLiabilities: req.body.outstandingTaxLiabilities,
-      
+
       // Risk Assessment
       riskToleranceLevel: req.body.riskToleranceLevel,
       investmentRiskProfile: req.body.investmentRiskProfile,
-      
+
       // Compliance Information
       kycStatus: req.body.kycStatus,
       amlStatus: req.body.amlStatus,
-      
+
       // Service Information
       serviceRequested: req.body.serviceRequested,
-      
+
       // Arrays and Objects
       dependents: req.body.dependents,
       members: req.body.members,
@@ -875,12 +876,12 @@ exports.updateUserPersonalInfo = async (req, res) => {
       loans: req.body.loans,
       insurances: req.body.insurances,
       documents: req.body.documents,
-      financialGoals: req.body.financialGoals
+      financialGoals: req.body.financialGoals,
     };
 
     // Remove undefined fields
-    Object.keys(updatedFields).forEach(key => 
-      updatedFields[key] === undefined && delete updatedFields[key]
+    Object.keys(updatedFields).forEach(
+      (key) => updatedFields[key] === undefined && delete updatedFields[key]
     );
 
     const updatedUser = await User.findByIdAndUpdate(
@@ -939,5 +940,111 @@ exports.updateAdminPersonalInfo = async (req, res) => {
   } catch (error) {
     console.error("Error updating admin personal info:", error);
     res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.updateFinancialData = async (req, res) => {
+  try {
+    const allowedFields = [
+      "totalBalance",
+      "availableBalance",
+      "creditScore",
+      "annualIncome",
+    ];
+
+    const updates = Object.keys(req.body);
+    const isValidOperation = updates.every(
+      (update) => allowedFields.includes(update) || update === "dateUpdated"
+    );
+
+    if (!isValidOperation) {
+      return res.status(400).json({
+        error: "Invalid update field",
+        allowedFields,
+      });
+    }
+
+    const user = await User.findById(req.params.userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    updates.forEach((update) => {
+      user[update] = req.body[update];
+    });
+
+    await user.save();
+    res.json(user);
+  } catch (error) {
+    console.error("Error updating financial data:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.updateFinancialHistory = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { type, history } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    // Update the specific history type
+    if (type === "balance") {
+      user.balanceHistory = history;
+    } else if (type === "creditScore") {
+      user.creditScoreHistory = history;
+    } else {
+      return res.status(400).json({ error: "Invalid history type" });
+    }
+
+    await user.save();
+    res.json(user);
+  } catch (error) {
+    console.error("Error updating financial history:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.getFinancialHistory = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { period, startDate, endDate } = req.query;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // Filter history based on date range
+    const filteredHistory = user.financialHistory.filter(record => {
+      const recordDate = new Date(record.date);
+      return recordDate >= new Date(startDate) && recordDate <= new Date(endDate);
+    });
+
+    res.json(filteredHistory);
+  } catch (error) {
+    console.error('Error fetching financial history:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
+exports.deleteFinancialHistory = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { date, type } = req.body;
+
+    await FinancialHistory.deleteOne({
+      userId,
+      date: new Date(date),
+      [`metrics.${type}`]: { $exists: true }
+    });
+
+    res.json({ message: 'History entry deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting financial history:', error);
+    res.status(500).json({ error: error.message });
   }
 };

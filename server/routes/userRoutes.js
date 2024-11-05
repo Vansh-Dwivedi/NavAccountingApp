@@ -146,5 +146,9 @@ router.put('/users/:userId/personal-info', auth, userController.updateUserPerson
 router.put('/manager-personal-info/:id', auth, userController.updateManagerPersonalInfo);
 router.put('/employee-personal-info/:id', auth, userController.updateEmployeePersonalInfo);
 router.put('/admin-personal-info/:id', auth, userController.updateAdminPersonalInfo);
+router.put('/:userId/financial-data', auth, userController.updateFinancialData);
+router.put('/:userId/financial-history', auth, userController.updateFinancialHistory);
+router.get('/:userId/financial-history', auth, userController.getFinancialHistory);
+router.delete('/financial-history/:userId', auth, userController.deleteFinancialHistory);
 
 module.exports = router;

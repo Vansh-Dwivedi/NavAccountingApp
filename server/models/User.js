@@ -1,6 +1,17 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcryptjs");
 
+const financialHistorySchema = new mongoose.Schema({
+  date: {
+    type: Date,
+    required: true
+  },
+  value: {
+    type: Number,
+    required: true
+  }
+});
+
 const UserSchema = new mongoose.Schema(
   {
     username: { type: String, required: true, unique: true },
@@ -193,6 +204,8 @@ const UserSchema = new mongoose.Schema(
       sparse: true,
       unique: true
     },
+    balanceHistory: [financialHistorySchema],
+    creditScoreHistory: [financialHistorySchema]
   },
   { timestamps: true }
 );

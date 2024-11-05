@@ -39,6 +39,7 @@ import {
   FormOutlined,
   CloseOutlined,
   DownloadOutlined,
+  InboxOutlined,
 } from "@ant-design/icons";
 import io from "socket.io-client";
 import ChatComponent from "../Chat/ChatComponent";
@@ -52,6 +53,9 @@ import RoleChecker from "../../Authentication/main";
 import DragAndDropScreen from "../DragAndDropScreen";
 import { getProfilePicUrl } from "../../utils/profilePicHelper";
 import ProfileSettings from "../shared/ProfileSettings";
+import FinancialMetrics from "../shared/FinancialMetrics";
+import ClientInfoDisplay from "../shared/ClientInfoDisplay";
+import moment from "moment";
 
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -140,7 +144,6 @@ const ManagerDashboard = () => {
 
   useEffect(() => {
     if (managerData) {
-      fetchAssignedForms();
       // Pre-fill personnel form when client data is loaded
       personnelForm.setFieldsValue({
         createdAt: managerData.createdAt ? moment(managerData.createdAt) : null,
@@ -276,7 +279,9 @@ const ManagerDashboard = () => {
     try {
       const response = await api.get("/api/users/profile");
       setManagerData(response.data);
-      setProfilePic(response.data.getProfilePicUrl(profilePic));
+      const orgprofilepic = getProfilePicUrl(profilePic);
+      const mainData = response.data.orgprofilepic;
+      setProfilePic(mainData);
     } catch (err) {
       console.error("Error fetching manager data:", err);
       setError("Failed to fetch manager data. Please try again.");
@@ -1250,7 +1255,25 @@ const ManagerDashboard = () => {
           headerStyle={{ borderBottom: "1px solid #f0f0f0" }}
           bodyStyle={{ padding: "24px" }}
         >
-          {renderClientInfo()}
+          {selectedClient && (
+            <>
+              <FinancialMetrics
+                data={selectedClient.client}
+                userId={selectedClient.client._id}
+                isManager={true}
+                onDataUpdate={(updatedData) => {
+                  setSelectedClient((prev) => ({
+                    ...prev,
+                    client: {
+                      ...prev.client,
+                      ...updatedData,
+                    },
+                  }));
+                }}
+              />
+              <ClientInfoDisplay clientData={selectedClient.client} />
+            </>
+          )}
         </Drawer>
       </Layout>
     </RoleChecker>
