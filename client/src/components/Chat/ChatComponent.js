@@ -197,20 +197,28 @@ const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
     e.preventDefault();
     setError("");
     if (inputMessage || file) {
-      const formData = new FormData();
-      formData.append("message", inputMessage);
-      formData.append("receiver", otherUser?._id || "");
-      formData.append("sender-profile-pic", senderProfilePic);
-      if (file) {
-        formData.append("file", file);
-        formData.append("fileType", fileType);
-      }
-
       try {
-        const response = await api.post("/api/chat/send", formData, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        addMessage(response.data);
+        // If there's no file, send a simple JSON message
+        if (!file) {
+          const response = await api.post("/api/chat/send", {
+            message: inputMessage,
+            receiver: otherUser?._id || "",
+          });
+          addMessage(response.data);
+        } else {
+          // If there is a file, use FormData
+          const formData = new FormData();
+          formData.append("message", inputMessage);
+          formData.append("receiver", otherUser?._id || "");
+          formData.append("file", file);
+          formData.append("fileType", fileType);
+
+          const response = await api.post("/api/chat/send-with-file", formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+          });
+          addMessage(response.data);
+        }
+
         setInputMessage("");
         setFile(null);
         setFileType("");
@@ -222,15 +230,11 @@ const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
         // Scroll to bottom after sending message
         setTimeout(() => {
           if (chatMessagesRef.current) {
-            chatMessagesRef.current.scrollTop =
-              chatMessagesRef.current.scrollHeight;
+            chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
           }
         }, 100);
       } catch (error) {
-        console.error(
-          "Error sending message:",
-          error.response?.data || error.message
-        );
+        console.error("Error sending message:", error.response?.data || error.message);
         setError(error.response?.data?.error || "Error sending message");
       }
     }

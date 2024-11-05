@@ -20,7 +20,7 @@ const upload = multer({ storage: storage });
 
 // Existing routes
 router.get("/profile", auth, userController.getProfile);
-router.put("/profile", auth, userController.updateProfile);
+router.put("/profile/:id", auth, userController.updateProfile);
 router.post(
   "/profile-pic",
   auth,
@@ -140,5 +140,11 @@ router.post(
 );
 
 router.put("/client-personal-info/:clientId", auth, userController.updateClientPersonalInfo);
+
+router.put('/users/:userId/personal-info', auth, userController.updateUserPersonalInfo);
+
+router.put('/manager-personal-info/:id', auth, userController.updateManagerPersonalInfo);
+router.put('/employee-personal-info/:id', auth, userController.updateEmployeePersonalInfo);
+router.put('/admin-personal-info/:id', auth, userController.updateAdminPersonalInfo);
 
 module.exports = router;

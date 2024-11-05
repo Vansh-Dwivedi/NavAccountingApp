@@ -149,6 +149,7 @@ exports.updateProfile = async (req, res) => {
 
     await user.save();
     res.json(user);
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -698,49 +699,87 @@ exports.getAllUsersNonAuthed = async (req, res) => {
 exports.updateClientPersonalInfo = async (req, res) => {
   try {
     const { clientId } = req.params;
-    const {
-      fullName,
-      occupation,
-      spouseName,
-      spouseOccupation,
-      phoneNumber,
-      address,
-      dateOfBirth,
-      cellNo,
-      ssn,
-      spouseSSN,
-      spouseDOB,
-      addressLine1,
-      addressLine2,
-      howDidYouFindUs,
-      referredName,
-      filingStatus,
-      totalDependents,
-      company,
-      industry
-    } = req.body;
-
     const updatedFields = {
-      fullName,
-      occupation,
-      spouseName,
-      spouseOccupation,
-      phoneNumber,
-      address,
-      dateOfBirth,
-      cellNo,
-      ssn,
-      spouseSSN,
-      spouseDOB,
-      addressLine1,
-      addressLine2,
-      howDidYouFindUs,
-      referredName,
-      filingStatus,
-      totalDependents,
-      company,
-      industry
+      // Personal Information
+      fullName: req.body.fullName,
+      occupation: req.body.occupation,
+      spouseName: req.body.spouseName,
+      spouseOccupation: req.body.spouseOccupation,
+      phoneNumber: req.body.phoneNumber,
+      address: req.body.address,
+      dateOfBirth: req.body.dateOfBirth,
+      cellNo: req.body.cellNo,
+      ssn: req.body.ssn,
+      spouseSSN: req.body.spouseSSN,
+      spouseDOB: req.body.spouseDOB,
+      addressLine1: req.body.addressLine1,
+      addressLine2: req.body.addressLine2,
+      howDidYouFindUs: req.body.howDidYouFindUs,
+      referredName: req.body.referredName,
+      filingStatus: req.body.filingStatus,
+      totalDependents: req.body.totalDependents,
+      company: req.body.company,
+      industry: req.body.industry,
+      
+      // Account Information
+      accountNumber: req.body.accountNumber,
+      accountType: req.body.accountType,
+      accountStatus: req.body.accountStatus,
+      
+      // Business Information
+      businessName: req.body.businessName,
+      businessPhone: req.body.businessPhone,
+      businessAddressLine1: req.body.businessAddressLine1,
+      businessAddressLine2: req.body.businessAddressLine2,
+      businessEntityType: req.body.businessEntityType,
+      businessTIN: req.body.businessTIN,
+      businessSOS: req.body.businessSOS,
+      businessEDD: req.body.businessEDD,
+      businessAccountingMethod: req.body.businessAccountingMethod,
+      businessYear: req.body.businessYear,
+      businessEmail: req.body.businessEmail,
+      contactPersonName: req.body.contactPersonName,
+      noOfEmployeesActive: req.body.noOfEmployeesActive,
+      businessReferredBy: req.body.businessReferredBy,
+      
+      // Financial Information
+      totalBalance: req.body.totalBalance,
+      availableBalance: req.body.availableBalance,
+      creditScore: req.body.creditScore,
+      annualIncome: req.body.annualIncome,
+      incomeSources: req.body.incomeSources,
+      employmentStatus: req.body.employmentStatus,
+      
+      // Tax Information
+      taxFilingStatus: req.body.taxFilingStatus,
+      lastTaxReturnDate: req.body.lastTaxReturnDate,
+      outstandingTaxLiabilities: req.body.outstandingTaxLiabilities,
+      
+      // Risk Assessment
+      riskToleranceLevel: req.body.riskToleranceLevel,
+      investmentRiskProfile: req.body.investmentRiskProfile,
+      
+      // Compliance Information
+      kycStatus: req.body.kycStatus,
+      amlStatus: req.body.amlStatus,
+      
+      // Service Information
+      serviceRequested: req.body.serviceRequested,
+      
+      // Arrays and Objects
+      dependents: req.body.dependents,
+      members: req.body.members,
+      investments: req.body.investments,
+      loans: req.body.loans,
+      insurances: req.body.insurances,
+      documents: req.body.documents,
+      financialGoals: req.body.financialGoals
     };
+
+    // Remove undefined fields
+    Object.keys(updatedFields).forEach(key => 
+      updatedFields[key] === undefined && delete updatedFields[key]
+    );
 
     const updatedClient = await User.findByIdAndUpdate(
       clientId,
@@ -755,6 +794,150 @@ exports.updateClientPersonalInfo = async (req, res) => {
     res.json(updatedClient);
   } catch (error) {
     console.error("Error updating client personal info:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.updateUserPersonalInfo = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    const updatedFields = {
+      // Personal Information
+      fullName: req.body.fullName,
+      occupation: req.body.occupation,
+      spouseName: req.body.spouseName,
+      spouseOccupation: req.body.spouseOccupation,
+      phoneNumber: req.body.phoneNumber,
+      address: req.body.address,
+      dateOfBirth: req.body.dateOfBirth,
+      cellNo: req.body.cellNo,
+      ssn: req.body.ssn,
+      spouseSSN: req.body.spouseSSN,
+      spouseDOB: req.body.spouseDOB,
+      addressLine1: req.body.addressLine1,
+      addressLine2: req.body.addressLine2,
+      howDidYouFindUs: req.body.howDidYouFindUs,
+      referredName: req.body.referredName,
+      filingStatus: req.body.filingStatus,
+      totalDependents: req.body.totalDependents,
+      company: req.body.company,
+      industry: req.body.industry,
+      
+      // Account Information
+      accountNumber: req.body.accountNumber,
+      accountType: req.body.accountType,
+      accountStatus: req.body.accountStatus,
+      
+      // Business Information
+      businessName: req.body.businessName,
+      businessPhone: req.body.businessPhone,
+      businessAddressLine1: req.body.businessAddressLine1,
+      businessAddressLine2: req.body.businessAddressLine2,
+      businessEntityType: req.body.businessEntityType,
+      businessTIN: req.body.businessTIN,
+      businessSOS: req.body.businessSOS,
+      businessEDD: req.body.businessEDD,
+      businessAccountingMethod: req.body.businessAccountingMethod,
+      businessYear: req.body.businessYear,
+      businessEmail: req.body.businessEmail,
+      contactPersonName: req.body.contactPersonName,
+      noOfEmployeesActive: req.body.noOfEmployeesActive,
+      businessReferredBy: req.body.businessReferredBy,
+      
+      // Financial Information
+      totalBalance: req.body.totalBalance,
+      availableBalance: req.body.availableBalance,
+      creditScore: req.body.creditScore,
+      annualIncome: req.body.annualIncome,
+      incomeSources: req.body.incomeSources,
+      employmentStatus: req.body.employmentStatus,
+      
+      // Tax Information
+      taxFilingStatus: req.body.taxFilingStatus,
+      lastTaxReturnDate: req.body.lastTaxReturnDate,
+      outstandingTaxLiabilities: req.body.outstandingTaxLiabilities,
+      
+      // Risk Assessment
+      riskToleranceLevel: req.body.riskToleranceLevel,
+      investmentRiskProfile: req.body.investmentRiskProfile,
+      
+      // Compliance Information
+      kycStatus: req.body.kycStatus,
+      amlStatus: req.body.amlStatus,
+      
+      // Service Information
+      serviceRequested: req.body.serviceRequested,
+      
+      // Arrays and Objects
+      dependents: req.body.dependents,
+      members: req.body.members,
+      investments: req.body.investments,
+      loans: req.body.loans,
+      insurances: req.body.insurances,
+      documents: req.body.documents,
+      financialGoals: req.body.financialGoals
+    };
+
+    // Remove undefined fields
+    Object.keys(updatedFields).forEach(key => 
+      updatedFields[key] === undefined && delete updatedFields[key]
+    );
+
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: updatedFields },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json(updatedUser);
+  } catch (error) {
+    console.error("Error updating user personal info:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.updateManagerPersonalInfo = async (req, res) => {
+  try {
+    const manager = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true }
+    );
+    res.json(manager);
+  } catch (error) {
+    console.error("Error updating manager personal info:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.updateEmployeePersonalInfo = async (req, res) => {
+  try {
+    const employee = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true }
+    );
+    res.json(employee);
+  } catch (error) {
+    console.error("Error updating employee personal info:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.updateAdminPersonalInfo = async (req, res) => {
+  try {
+    const admin = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: req.body },
+      { new: true }
+    );
+    res.json(admin);
+  } catch (error) {
+    console.error("Error updating admin personal info:", error);
     res.status(500).json({ error: "Server error" });
   }
 };

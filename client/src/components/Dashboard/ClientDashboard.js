@@ -20,6 +20,9 @@ import {
   DatePicker,
   InputNumber,
   Select,
+  Upload,
+  Descriptions,
+  Table,
 } from "antd";
 import {
   UserOutlined,
@@ -33,6 +36,7 @@ import {
   SettingOutlined,
   CloseOutlined,
   SaveOutlined,
+  UploadOutlined,
 } from "@ant-design/icons";
 import ClientInfoForm from "../ClientInfoForm";
 import ChatComponent from "../Chat/ChatComponent";
@@ -48,6 +52,7 @@ import FinancialInfoSection from "./FinancialInfoSection";
 import RoleChecker from "../../Authentication/main";
 import { getProfilePicUrl } from "../../utils/profilePicHelper";
 import moment from "moment";
+import ProfileSettings from "../shared/ProfileSettings";
 
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -88,7 +93,96 @@ const ClientDashboard = () => {
       fetchAssignedForms();
       // Pre-fill personnel form when client data is loaded
       personnelForm.setFieldsValue({
-        // ADD FIELDS HERE :)
+        createdAt: clientData.createdAt ? moment(clientData.createdAt) : null,
+        lastLogin: clientData.lastLogin ? moment(clientData.lastLogin) : null,
+        resetPasswordToken: clientData.resetPasswordToken,
+        resetPasswordExpire: clientData.resetPasswordExpire
+          ? moment(clientData.resetPasswordExpire)
+          : null,
+        assignedManager: clientData.assignedManager,
+        assignedClients: clientData.assignedClients,
+        firmId: clientData.firmId,
+        revenue: clientData.revenue,
+        expenses: clientData.expenses,
+        employeeSalary: clientData.employeeSalary,
+        clientData: clientData.clientData,
+        taxCollected: clientData.taxCollected,
+        projectCompletion: clientData.projectCompletion,
+        complianceStatus: clientData.complianceStatus,
+        dateRange: clientData.dateRange
+          ? [moment(clientData.dateRange[0]), moment(clientData.dateRange[1])]
+          : null,
+        fullName: clientData.fullName,
+        occupation: clientData.occupation,
+        spouseName: clientData.spouseName,
+        spouseOccupation: clientData.spouseOccupation,
+        phoneNumber: clientData.phoneNumber,
+        address: clientData.address,
+        dateOfBirth: clientData.dateOfBirth
+          ? moment(clientData.dateOfBirth)
+          : null,
+        cellNo: clientData.cellNo,
+        ssn: clientData.ssn,
+        spouseSSN: clientData.spouseSSN,
+        dob: clientData.dob ? moment(clientData.dob) : null,
+        spouseDOB: clientData.spouseDOB ? moment(clientData.spouseDOB) : null,
+        addressLine1: clientData.addressLine1,
+        addressLine2: clientData.addressLine2,
+        howDidYouFindUs: clientData.howDidYouFindUs,
+        referredName: clientData.referredName,
+        filingStatus: clientData.filingStatus,
+        totalDependents: clientData.totalDependents,
+        dependents: clientData.dependents,
+        accountNumber: clientData.accountNumber,
+        accountType: clientData.accountType,
+        accountOpeningDate: clientData.accountOpeningDate
+          ? moment(clientData.accountOpeningDate)
+          : null,
+        accountStatus: clientData.accountStatus,
+        businessName: clientData.businessName,
+        businessPhone: clientData.businessPhone,
+        businessAddressLine1: clientData.businessAddressLine1,
+        businessAddressLine2: clientData.businessAddressLine2,
+        businessEntityType: clientData.businessEntityType,
+        businessTIN: clientData.businessTIN,
+        businessSOS: clientData.businessSOS,
+        businessEDD: clientData.businessEDD,
+        businessAccountingMethod: clientData.businessAccountingMethod,
+        businessYear: clientData.businessYear,
+        businessEmail: clientData.businessEmail,
+        contactPersonName: clientData.contactPersonName,
+        noOfEmployeesActive: clientData.noOfEmployeesActive,
+        businessReferredBy: clientData.businessReferredBy,
+        members: clientData.members,
+        totalBalance: clientData.totalBalance,
+        availableBalance: clientData.availableBalance,
+        pendingTransactions: clientData.pendingTransactions,
+        creditScore: clientData.creditScore,
+        annualIncome: clientData.annualIncome,
+        incomeSources: clientData.incomeSources,
+        employmentStatus: clientData.employmentStatus,
+        taxFilingStatus: clientData.taxFilingStatus,
+        lastTaxReturnDate: clientData.lastTaxReturnDate
+          ? moment(clientData.lastTaxReturnDate)
+          : null,
+        outstandingTaxLiabilities: clientData.outstandingTaxLiabilities,
+        investments: clientData.investments,
+        loans: clientData.loans,
+        insurances: clientData.insurances,
+        documents: clientData.documents,
+        financialGoals: clientData.financialGoals,
+        riskToleranceLevel: clientData.riskToleranceLevel,
+        investmentRiskProfile: clientData.investmentRiskProfile,
+        kycStatus: clientData.kycStatus,
+        amlStatus: clientData.amlStatus,
+        relatedAccounts: clientData.relatedAccounts,
+        serviceRequested: clientData.serviceRequested,
+        department: clientData.department,
+        position: clientData.position,
+        hireDate: clientData.hireDate ? moment(clientData.hireDate) : null,
+        company: clientData.company,
+        industry: clientData.industry,
+        googleId: clientData.googleId,
       });
     }
   }, [clientData]);
@@ -399,112 +493,10 @@ const ClientDashboard = () => {
                 {activeTab === "dashboard" && clientData && (
                   <div className="dashboard-info">
                     <Title level={2}>Welcome, {clientData.username}</Title>
-                    <Row gutter={16}>
-                      <Col span={8}>
-                        <Card>
-                          {getProfilePicUrl(clientData.profilePic) ? (
-                            <img
-                              src={getProfilePicUrl(clientData.profilePic)}
-                              alt="Profile"
-                              style={{
-                                width: 64,
-                                height: 64,
-                                borderRadius: "50%",
-                              }}
-                            />
-                          ) : (
-                            <Avatar size={64} icon={<UserOutlined />} />
-                          )}
-                          <Title level={4} style={{ marginTop: 16 }}>
-                            {clientData.username}
-                          </Title>
-                          <Text>Email: {clientData.email}</Text>
-                          <br />
-                          <Text>Role: {clientData.role}</Text>
-                        </Card>
-                      </Col>
-                      <Col span={16}>
-                        <Card title="Your Info">
-                          {clientData.clientInfo ? (
-                            <>
-                              <Title level={4}>Personal Information</Title>
-                              <Text>
-                                Full Name: {clientData.clientInfo.fullName}
-                              </Text>
-                              <br />
-                              <Text>
-                                Occupation: {clientData.clientInfo.occupation}
-                              </Text>
-                              <br />
-                              <Text>Email: {clientData.clientInfo.email}</Text>
-                              <br />
-                              <Text>
-                                Cell No: {clientData.clientInfo.cellNo}
-                              </Text>
-                              <br />
-                              <Text>
-                                Filing Status:{" "}
-                                {clientData.clientInfo.filingStatus}
-                              </Text>
-                              <br />
-                              <Text>
-                                Total Dependents:{" "}
-                                {clientData.clientInfo.totalDependents}
-                              </Text>
-                            </>
-                          ) : (
-                            <Text>No client information submitted yet.</Text>
-                          )}
-                        </Card>
-                      </Col>
-                      <Card>
-                        <Avatar
-                          size={64}
-                          icon={<UserOutlined />}
-                          src={getProfilePicUrl(clientData.profilePic)}
-                        />
-                        <input
-                          type="file"
-                          onChange={handleProfilePicUpload}
-                          accept="image/*"
-                        />
-                        {getProfilePicUrl(clientData.profilePic) && (
-                          <Button onClick={handleProfilePicDelete}>
-                            Delete Picture
-                          </Button>
-                        )}
-                        <Title level={4} style={{ marginTop: 16 }}>
-                          Profile Information
-                        </Title>
-                        <Form layout="vertical">
-                          <Form.Item
-                            label="Username"
-                            validateStatus={usernameError ? "error" : ""}
-                            help={usernameError}
-                          >
-                            <Input
-                              value={clientData.username}
-                              onChange={handleUsernameChange}
-                            />
-                          </Form.Item>
-                          <Form.Item
-                            label="Email"
-                            validateStatus={emailError ? "error" : ""}
-                            help={emailError}
-                          >
-                            <Input
-                              value={clientData.email}
-                              onChange={handleEmailChange}
-                            />
-                          </Form.Item>
-                          <Form.Item>
-                            <Button type="primary" onClick={updateProfile}>
-                              Update Profile
-                            </Button>
-                          </Form.Item>
-                        </Form>
-                      </Card>
-                    </Row>
+                    <ProfileSettings
+                      userData={clientData}
+                      onUpdate={(updatedData) => setClientData(updatedData)}
+                    />
                   </div>
                 )}
                 {activeTab === "submitInfo" && clientData && (
@@ -634,7 +626,7 @@ const ClientDashboard = () => {
                       onFinish={handlePersonnelSubmit}
                     >
                       <Row gutter={16}>
-                        <Col span={12}>
+                        <Col span={8}>
                           <Form.Item name="fullName" label="Full Name">
                             <Input />
                           </Form.Item>
@@ -663,7 +655,7 @@ const ClientDashboard = () => {
                             <Input />
                           </Form.Item>
                         </Col>
-                        <Col span={12}>
+                        <Col span={8}>
                           <Form.Item name="dateOfBirth" label="Date of Birth">
                             <DatePicker />
                           </Form.Item>
@@ -679,39 +671,169 @@ const ClientDashboard = () => {
                           <Form.Item name="addressLine2" label="Address Line 2">
                             <Input />
                           </Form.Item>
+                          <Form.Item name="businessName" label="Business Name">
+                            <Input />
+                          </Form.Item>
                           <Form.Item
-                            name="howDidYouFindUs"
-                            label="How Did You Find Us"
+                            name="businessPhone"
+                            label="Business Phone"
                           >
                             <Input />
                           </Form.Item>
-                          <Form.Item name="referredName" label="Referred By">
+                          <Form.Item
+                            name="businessAddressLine1"
+                            label="Business Address Line 1"
+                          >
                             <Input />
                           </Form.Item>
-                          <Form.Item name="filingStatus" label="Filing Status">
+                          <Form.Item
+                            name="businessAddressLine2"
+                            label="Business Address Line 2"
+                          >
+                            <Input />
+                          </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                          <Form.Item
+                            name="businessEntityType"
+                            label="Business Entity Type"
+                          >
+                            <Select>
+                              <Option value="llc">LLC</Option>
+                              <Option value="corporation">Corporation</Option>
+                              <Option value="partnership">Partnership</Option>
+                              <Option value="soleProprietorship">
+                                Sole Proprietorship
+                              </Option>
+                            </Select>
+                          </Form.Item>
+                          <Form.Item name="businessTIN" label="Business TIN">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="businessSOS" label="Business SOS">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="businessEDD" label="Business EDD">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item
+                            name="businessEmail"
+                            label="Business Email"
+                          >
+                            <Input />
+                          </Form.Item>
+                          <Form.Item
+                            name="contactPersonName"
+                            label="Contact Person Name"
+                          >
+                            <Input />
+                          </Form.Item>
+                          <Form.Item
+                            name="noOfEmployeesActive"
+                            label="Number of Active Employees"
+                          >
+                            <InputNumber min={0} />
+                          </Form.Item>
+                          <Form.Item
+                            name="businessReferredBy"
+                            label="Business Referred By"
+                          >
+                            <Input />
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                      <Row gutter={16}>
+                        <Col span={8}>
+                          <Form.Item
+                            name="accountNumber"
+                            label="Account Number"
+                          >
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="accountType" label="Account Type">
+                            <Select>
+                              <Option value="checking">Checking</Option>
+                              <Option value="savings">Savings</Option>
+                              <Option value="business">Business</Option>
+                            </Select>
+                          </Form.Item>
+                          <Form.Item
+                            name="accountStatus"
+                            label="Account Status"
+                          >
+                            <Select>
+                              <Option value="active">Active</Option>
+                              <Option value="inactive">Inactive</Option>
+                              <Option value="suspended">Suspended</Option>
+                            </Select>
+                          </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                          <Form.Item
+                            name="employmentStatus"
+                            label="Employment Status"
+                          >
+                            <Select>
+                              <Option value="employed">Employed</Option>
+                              <Option value="selfEmployed">
+                                Self Employed
+                              </Option>
+                              <Option value="unemployed">Unemployed</Option>
+                              <Option value="retired">Retired</Option>
+                            </Select>
+                          </Form.Item>
+                          <Form.Item
+                            name="taxFilingStatus"
+                            label="Tax Filing Status"
+                          >
                             <Select>
                               <Option value="single">Single</Option>
-                              <Option value="married">Married</Option>
-                              <Option value="head_of_household">
+                              <Option value="married">
+                                Married Filing Jointly
+                              </Option>
+                              <Option value="separate">
+                                Married Filing Separately
+                              </Option>
+                              <Option value="headOfHousehold">
                                 Head of Household
                               </Option>
                             </Select>
                           </Form.Item>
-                          <Form.Item
-                            name="totalDependents"
-                            label="Total Dependents"
-                          >
-                            <InputNumber min={0} />
-                          </Form.Item>
                         </Col>
-                      </Row>
-                      <Row>
-                        <Col span={24}>
-                          <Form.Item name="company" label="Company">
-                            <Input />
+                        <Col span={8}>
+                          <Form.Item name="kycStatus" label="KYC Status">
+                            <Select>
+                              <Option value="pending">Pending</Option>
+                              <Option value="approved">Approved</Option>
+                              <Option value="rejected">Rejected</Option>
+                            </Select>
                           </Form.Item>
-                          <Form.Item name="industry" label="Industry">
-                            <Input />
+                          <Form.Item name="amlStatus" label="AML Status">
+                            <Select>
+                              <Option value="pending">Pending</Option>
+                              <Option value="approved">Approved</Option>
+                              <Option value="rejected">Rejected</Option>
+                            </Select>
+                          </Form.Item>
+                          <Form.Item
+                            name="riskToleranceLevel"
+                            label="Risk Tolerance Level"
+                          >
+                            <Select>
+                              <Option value="low">Low</Option>
+                              <Option value="medium">Medium</Option>
+                              <Option value="high">High</Option>
+                            </Select>
+                          </Form.Item>
+                          <Form.Item
+                            name="investmentRiskProfile"
+                            label="Investment Risk Profile"
+                          >
+                            <Select>
+                              <Option value="conservative">Conservative</Option>
+                              <Option value="moderate">Moderate</Option>
+                              <Option value="aggressive">Aggressive</Option>
+                            </Select>
                           </Form.Item>
                         </Col>
                       </Row>

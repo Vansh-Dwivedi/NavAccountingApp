@@ -22,6 +22,10 @@ import {
   Space,
   Image,
   Divider,
+  Descriptions,
+  Form,
+  InputNumber,
+  DatePicker,
 } from "antd";
 import {
   UserOutlined,
@@ -47,6 +51,8 @@ import FinancialInfoSection from "./FinancialInfoSection";
 import RoleChecker from "../../Authentication/main";
 import DragAndDropScreen from "../DragAndDropScreen";
 import { getProfilePicUrl } from "../../utils/profilePicHelper";
+import ProfileSettings from "../shared/ProfileSettings";
+
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
 const { TabPane } = Tabs;
@@ -74,6 +80,7 @@ const ManagerDashboard = () => {
   const messagesPerPage = 20;
   const [clientDrawerVisible, setClientDrawerVisible] = useState(false);
   const [formSubmissions, setFormSubmissions] = useState([]);
+  const [personnelForm] = Form.useForm();
 
   const fetchFormSubmissionsWithStructure = async (userId) => {
     try {
@@ -128,6 +135,105 @@ const ManagerDashboard = () => {
   useEffect(() => {
     if (managerData) {
       fetchAssignedClients();
+    }
+  }, [managerData]);
+
+  useEffect(() => {
+    if (managerData) {
+      fetchAssignedForms();
+      // Pre-fill personnel form when client data is loaded
+      personnelForm.setFieldsValue({
+        createdAt: managerData.createdAt ? moment(managerData.createdAt) : null,
+        lastLogin: managerData.lastLogin ? moment(managerData.lastLogin) : null,
+        resetPasswordToken: managerData.resetPasswordToken,
+        resetPasswordExpire: managerData.resetPasswordExpire
+          ? moment(managerData.resetPasswordExpire)
+          : null,
+        assignedManager: managerData.assignedManager,
+        assignedClients: managerData.assignedClients,
+        firmId: managerData.firmId,
+        revenue: managerData.revenue,
+        expenses: managerData.expenses,
+        employeeSalary: managerData.employeeSalary,
+        managerData: managerData.managerData,
+        taxCollected: managerData.taxCollected,
+        projectCompletion: managerData.projectCompletion,
+        complianceStatus: managerData.complianceStatus,
+        dateRange: managerData.dateRange
+          ? [moment(managerData.dateRange[0]), moment(managerData.dateRange[1])]
+          : null,
+        fullName: managerData.fullName,
+        occupation: managerData.occupation,
+        spouseName: managerData.spouseName,
+        spouseOccupation: managerData.spouseOccupation,
+        phoneNumber: managerData.phoneNumber,
+        address: managerData.address,
+        dateOfBirth: managerData.dateOfBirth
+          ? moment(managerData.dateOfBirth)
+          : null,
+        cellNo: managerData.cellNo,
+        ssn: managerData.ssn,
+        spouseSSN: managerData.spouseSSN,
+        dob: managerData.dob ? moment(managerData.dob) : null,
+        spouseDOB: managerData.spouseDOB ? moment(managerData.spouseDOB) : null,
+        addressLine1: managerData.addressLine1,
+        addressLine2: managerData.addressLine2,
+        howDidYouFindUs: managerData.howDidYouFindUs,
+        referredName: managerData.referredName,
+        filingStatus: managerData.filingStatus,
+        totalDependents: managerData.totalDependents,
+        dependents: managerData.dependents,
+        accountNumber: managerData.accountNumber,
+        accountType: managerData.accountType,
+        accountOpeningDate: managerData.accountOpeningDate
+          ? moment(managerData.accountOpeningDate)
+          : null,
+        accountStatus: managerData.accountStatus,
+        businessName: managerData.businessName,
+        businessPhone: managerData.businessPhone,
+        businessAddressLine1: managerData.businessAddressLine1,
+        businessAddressLine2: managerData.businessAddressLine2,
+        businessEntityType: managerData.businessEntityType,
+        businessTIN: managerData.businessTIN,
+        businessSOS: managerData.businessSOS,
+        businessEDD: managerData.businessEDD,
+        businessAccountingMethod: managerData.businessAccountingMethod,
+        businessYear: managerData.businessYear,
+        businessEmail: managerData.businessEmail,
+        contactPersonName: managerData.contactPersonName,
+        noOfEmployeesActive: managerData.noOfEmployeesActive,
+        businessReferredBy: managerData.businessReferredBy,
+        members: managerData.members,
+        totalBalance: managerData.totalBalance,
+        availableBalance: managerData.availableBalance,
+        pendingTransactions: managerData.pendingTransactions,
+        creditScore: managerData.creditScore,
+        annualIncome: managerData.annualIncome,
+        incomeSources: managerData.incomeSources,
+        employmentStatus: managerData.employmentStatus,
+        taxFilingStatus: managerData.taxFilingStatus,
+        lastTaxReturnDate: managerData.lastTaxReturnDate
+          ? moment(managerData.lastTaxReturnDate)
+          : null,
+        outstandingTaxLiabilities: managerData.outstandingTaxLiabilities,
+        investments: managerData.investments,
+        loans: managerData.loans,
+        insurances: managerData.insurances,
+        documents: managerData.documents,
+        financialGoals: managerData.financialGoals,
+        riskToleranceLevel: managerData.riskToleranceLevel,
+        investmentRiskProfile: managerData.investmentRiskProfile,
+        kycStatus: managerData.kycStatus,
+        amlStatus: managerData.amlStatus,
+        relatedAccounts: managerData.relatedAccounts,
+        serviceRequested: managerData.serviceRequested,
+        department: managerData.department,
+        position: managerData.position,
+        hireDate: managerData.hireDate ? moment(managerData.hireDate) : null,
+        company: managerData.company,
+        industry: managerData.industry,
+        googleId: managerData.googleId,
+      });
     }
   }, [managerData]);
 
@@ -378,73 +484,116 @@ const ManagerDashboard = () => {
         </div>
         <Tabs defaultActiveKey="1">
           <Tabs.TabPane tab="Personal Info" key="1">
-            <Card title="Personal Information" size="small">
-              <p>Email: {selectedClient.client.email}</p>
-              <p>Phone: {selectedClient.client.cellNo}</p>
-              <p>SSN: {selectedClient.client.ssn}</p>
-              <p>DOB: {new Date(selectedClient.dob).toLocaleDateString()}</p>
-              <p>
-                Address: {selectedClient.client.addressLine1}{" "}
+            <Descriptions bordered column={2}>
+              <Descriptions.Item label="Email">
+                {selectedClient.client.email}
+              </Descriptions.Item>
+              <Descriptions.Item label="Phone">
+                {selectedClient.client.phoneNumber}
+              </Descriptions.Item>
+              <Descriptions.Item label="Cell">
+                {selectedClient.client.cellNo}
+              </Descriptions.Item>
+              <Descriptions.Item label="SSN">
+                {selectedClient.client.ssn}
+              </Descriptions.Item>
+              <Descriptions.Item label="DOB">
+                {selectedClient.client.dateOfBirth &&
+                  new Date(
+                    selectedClient.client.dateOfBirth
+                  ).toLocaleDateString()}
+              </Descriptions.Item>
+              <Descriptions.Item label="Address">
+                {selectedClient.client.addressLine1}{" "}
                 {selectedClient.client.addressLine2}
-              </p>
-              <p>Filing Status: {selectedClient.client.filingStatus}</p>
-              <p>Spouse Name: {selectedClient.client.spouseName}</p>
-              <p>Spouse Occupation: {selectedClient.client.spouseOccupation}</p>
-              <p>Total Dependents: {selectedClient.client.totalDependents}</p>
-            </Card>
+              </Descriptions.Item>
+              <Descriptions.Item label="Filing Status">
+                {selectedClient.client.filingStatus}
+              </Descriptions.Item>
+              <Descriptions.Item label="Total Dependents">
+                {selectedClient.client.totalDependents}
+              </Descriptions.Item>
+              <Descriptions.Item label="Spouse Name">
+                {selectedClient.client.spouseName}
+              </Descriptions.Item>
+              <Descriptions.Item label="Spouse SSN">
+                {selectedClient.client.spouseSSN}
+              </Descriptions.Item>
+              <Descriptions.Item label="Spouse DOB">
+                {selectedClient.client.spouseDOB &&
+                  new Date(
+                    selectedClient.client.spouseDOB
+                  ).toLocaleDateString()}
+              </Descriptions.Item>
+            </Descriptions>
           </Tabs.TabPane>
+
           <Tabs.TabPane tab="Business Info" key="2">
-            <Card title="Business Information" size="small">
-              <p>Business Name: {selectedClient.client.businessName}</p>
-              <p>Business Phone: {selectedClient.client.businessPhone}</p>
-              <p>Business TIN: {selectedClient.client.businessTIN}</p>
-              <p>Entity Type: {selectedClient.client.businessEntityType}</p>
-              <p>
-                Accounting Method:{" "}
-                {selectedClient.client.businessAccountingMethod}
-              </p>
-              <p>
-                Active Employees: {selectedClient.client.noOfEmployeesActive}
-              </p>
-              <p>Business Email: {selectedClient.client.businessEmail}</p>
-              <p>
-                Business Address: {selectedClient.client.businessAddressLine1}{" "}
+            <Descriptions bordered column={2}>
+              <Descriptions.Item label="Business Name">
+                {selectedClient.client.businessName}
+              </Descriptions.Item>
+              <Descriptions.Item label="Business Phone">
+                {selectedClient.client.businessPhone}
+              </Descriptions.Item>
+              <Descriptions.Item label="Business Address">
+                {selectedClient.client.businessAddressLine1}{" "}
                 {selectedClient.client.businessAddressLine2}
-              </p>
-              <p>Business Year: {selectedClient.client.businessYear}</p>
-            </Card>
+              </Descriptions.Item>
+              <Descriptions.Item label="Business Entity Type">
+                {selectedClient.client.businessEntityType}
+              </Descriptions.Item>
+              <Descriptions.Item label="Business TIN">
+                {selectedClient.client.businessTIN}
+              </Descriptions.Item>
+              <Descriptions.Item label="Business SOS">
+                {selectedClient.client.businessSOS}
+              </Descriptions.Item>
+              <Descriptions.Item label="Business EDD">
+                {selectedClient.client.businessEDD}
+              </Descriptions.Item>
+              <Descriptions.Item label="Accounting Method">
+                {selectedClient.client.businessAccountingMethod}
+              </Descriptions.Item>
+              <Descriptions.Item label="Business Year">
+                {selectedClient.client.businessYear}
+              </Descriptions.Item>
+              <Descriptions.Item label="Business Email">
+                {selectedClient.client.businessEmail}
+              </Descriptions.Item>
+            </Descriptions>
           </Tabs.TabPane>
+
           <Tabs.TabPane tab="Financial Info" key="3">
-            <Card title="Financial Information" size="small">
-              <p>Total Balance: ${selectedClient.client.totalBalance}</p>
-              <p>
-                Available Balance: ${selectedClient.client.availableBalance}
-              </p>
-              <p>Credit Score: {selectedClient.client.creditScore}</p>
-              <p>Annual Income: ${selectedClient.client.annualIncome}</p>
-              <p>Employment Status: {selectedClient.client.employmentStatus}</p>
-              <p>
-                Income Sources:{" "}
-                {selectedClient.client.incomeSources?.join(", ")}
-              </p>
-            </Card>
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Tax Info" key="4">
-            <Card title="Tax Information" size="small">
-              <p>Tax Filing Status: {selectedClient.client.taxFilingStatus}</p>
-              <p>
-                Last Tax Return:{" "}
-                {selectedClient.client.lastTaxReturnDate
-                  ? new Date(
-                      selectedClient.lastTaxReturnDate
-                    ).toLocaleDateString()
-                  : "N/A"}
-              </p>
-              <p>
-                Outstanding Tax Liabilities: $
+            <Descriptions bordered column={2}>
+              <Descriptions.Item label="Total Balance">
+                {selectedClient.client.totalBalance}
+              </Descriptions.Item>
+              <Descriptions.Item label="Available Balance">
+                {selectedClient.client.availableBalance}
+              </Descriptions.Item>
+              <Descriptions.Item label="Credit Score">
+                {selectedClient.client.creditScore}
+              </Descriptions.Item>
+              <Descriptions.Item label="Annual Income">
+                {selectedClient.client.annualIncome}
+              </Descriptions.Item>
+              <Descriptions.Item label="Employment Status">
+                {selectedClient.client.employmentStatus}
+              </Descriptions.Item>
+              <Descriptions.Item label="Tax Filing Status">
+                {selectedClient.client.taxFilingStatus}
+              </Descriptions.Item>
+              <Descriptions.Item label="Last Tax Return">
+                {selectedClient.client.lastTaxReturnDate &&
+                  new Date(
+                    selectedClient.client.lastTaxReturnDate
+                  ).toLocaleDateString()}
+              </Descriptions.Item>
+              <Descriptions.Item label="Outstanding Tax">
                 {selectedClient.client.outstandingTaxLiabilities}
-              </p>
-            </Card>
+              </Descriptions.Item>
+            </Descriptions>
           </Tabs.TabPane>
           <Tabs.TabPane tab="Form Submissions" key="5">
             <List
@@ -623,6 +772,20 @@ const ManagerDashboard = () => {
     );
   };
 
+  const handlePersonnelSubmit = async (values) => {
+    try {
+      const response = await api.put(
+        `/api/users/manager-personal-info/${managerData._id}`,
+        values
+      );
+      setManagerData(response.data);
+      message.success("Personnel information updated successfully");
+    } catch (error) {
+      console.error("Error updating personnel information:", error);
+      message.error("Failed to update personnel information");
+    }
+  };
+
   if (error) return <div className="error">{error}</div>;
   if (!managerData) return <div className="loading">Loading...</div>;
 
@@ -634,6 +797,11 @@ const ManagerDashboard = () => {
     { key: "forms", icon: <FileOutlined />, label: "Forms" },
     { key: "dragAndDrop", icon: <InboxOutlined />, label: "File Transfer" },
     { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
+    {
+      key: "personnelSettings",
+      icon: <UserOutlined />,
+      label: "Personnel Settings",
+    },
   ];
 
   return (
@@ -706,25 +874,10 @@ const ManagerDashboard = () => {
                       </Card>
                     </Col>
                   </Row>
-                  <Card style={{ marginTop: 16 }}>
-                    <Avatar
-                      size={64}
-                      src={
-                        getProfilePicUrl(profilePic)
-                          ? `${
-                              process.env.REACT_APP_API_URL
-                            }/uploads/${getProfilePicUrl(profilePic)}`
-                          : null
-                      }
-                      icon={<UserOutlined />}
-                    />
-                    <Title level={4} style={{ marginTop: 16 }}>
-                      {managerData.username}
-                    </Title>
-                    <Text>Email: {managerData.email}</Text>
-                    <br />
-                    <Text>Role: {managerData.role}</Text>
-                  </Card>
+                  <ProfileSettings
+                    userData={managerData}
+                    onUpdate={(updatedData) => setManagerData(updatedData)}
+                  />
                 </div>
               )}
 
@@ -867,6 +1020,219 @@ const ManagerDashboard = () => {
                   <Title level={3}>File Transfer</Title>
                   <DragAndDropScreen userRole="manager" />
                 </div>
+              )}
+              {activeTab === "personnelSettings" && (
+                <Card title="Personnel Settings">
+                  <Form
+                    form={personnelForm}
+                    layout="vertical"
+                    onFinish={handlePersonnelSubmit}
+                  >
+                    <Row gutter={16}>
+                      <Col span={8}>
+                        <Form.Item name="fullName" label="Full Name">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="occupation" label="Occupation">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="spouseName" label="Spouse Name">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item
+                          name="spouseOccupation"
+                          label="Spouse Occupation"
+                        >
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="phoneNumber" label="Phone Number">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="cellNo" label="Cell Number">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="ssn" label="SSN">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="spouseSSN" label="Spouse SSN">
+                          <Input />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item name="dateOfBirth" label="Date of Birth">
+                          <DatePicker />
+                        </Form.Item>
+                        <Form.Item
+                          name="spouseDOB"
+                          label="Spouse Date of Birth"
+                        >
+                          <DatePicker />
+                        </Form.Item>
+                        <Form.Item name="addressLine1" label="Address Line 1">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="addressLine2" label="Address Line 2">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="businessName" label="Business Name">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="businessPhone" label="Business Phone">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item
+                          name="businessAddressLine1"
+                          label="Business Address Line 1"
+                        >
+                          <Input />
+                        </Form.Item>
+                        <Form.Item
+                          name="businessAddressLine2"
+                          label="Business Address Line 2"
+                        >
+                          <Input />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item
+                          name="businessEntityType"
+                          label="Business Entity Type"
+                        >
+                          <Select>
+                            <Option value="llc">LLC</Option>
+                            <Option value="corporation">Corporation</Option>
+                            <Option value="partnership">Partnership</Option>
+                            <Option value="soleProprietorship">
+                              Sole Proprietorship
+                            </Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item name="businessTIN" label="Business TIN">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="businessSOS" label="Business SOS">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="businessEDD" label="Business EDD">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="businessEmail" label="Business Email">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item
+                          name="contactPersonName"
+                          label="Contact Person Name"
+                        >
+                          <Input />
+                        </Form.Item>
+                        <Form.Item
+                          name="noOfEmployeesActive"
+                          label="Number of Active Employees"
+                        >
+                          <InputNumber min={0} />
+                        </Form.Item>
+                        <Form.Item
+                          name="businessReferredBy"
+                          label="Business Referred By"
+                        >
+                          <Input />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                    <Row gutter={16}>
+                      <Col span={8}>
+                        <Form.Item name="accountNumber" label="Account Number">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="accountType" label="Account Type">
+                          <Select>
+                            <Option value="checking">Checking</Option>
+                            <Option value="savings">Savings</Option>
+                            <Option value="business">Business</Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item name="accountStatus" label="Account Status">
+                          <Select>
+                            <Option value="active">Active</Option>
+                            <Option value="inactive">Inactive</Option>
+                            <Option value="suspended">Suspended</Option>
+                          </Select>
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item
+                          name="employmentStatus"
+                          label="Employment Status"
+                        >
+                          <Select>
+                            <Option value="employed">Employed</Option>
+                            <Option value="selfEmployed">Self Employed</Option>
+                            <Option value="unemployed">Unemployed</Option>
+                            <Option value="retired">Retired</Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item
+                          name="taxFilingStatus"
+                          label="Tax Filing Status"
+                        >
+                          <Select>
+                            <Option value="single">Single</Option>
+                            <Option value="married">
+                              Married Filing Jointly
+                            </Option>
+                            <Option value="separate">
+                              Married Filing Separately
+                            </Option>
+                            <Option value="headOfHousehold">
+                              Head of Household
+                            </Option>
+                          </Select>
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item name="kycStatus" label="KYC Status">
+                          <Select>
+                            <Option value="pending">Pending</Option>
+                            <Option value="approved">Approved</Option>
+                            <Option value="rejected">Rejected</Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item name="amlStatus" label="AML Status">
+                          <Select>
+                            <Option value="pending">Pending</Option>
+                            <Option value="approved">Approved</Option>
+                            <Option value="rejected">Rejected</Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item
+                          name="riskToleranceLevel"
+                          label="Risk Tolerance Level"
+                        >
+                          <Select>
+                            <Option value="low">Low</Option>
+                            <Option value="medium">Medium</Option>
+                            <Option value="high">High</Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item
+                          name="investmentRiskProfile"
+                          label="Investment Risk Profile"
+                        >
+                          <Select>
+                            <Option value="conservative">Conservative</Option>
+                            <Option value="moderate">Moderate</Option>
+                            <Option value="aggressive">Aggressive</Option>
+                          </Select>
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                    <Form.Item>
+                      <Button type="primary" htmlType="submit">
+                        Save Personnel Information
+                      </Button>
+                    </Form.Item>
+                  </Form>
+                </Card>
               )}
             </div>
           </Content>

@@ -18,4 +18,22 @@ const auth = (req, res, next) => {
   }
 };
 
+exports.canUpdateUser = async (req, res, next) => {
+  try {
+    // Allow admins to update any user
+    if (req.user.role === 'admin') {
+      return next();
+    }
+
+    // Users can only update their own info
+    if (req.user.id !== req.params.userId) {
+      return res.status(403).json({ error: 'Not authorized to update this user' });
+    }
+
+    next();
+  } catch (error) {
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
 module.exports = auth;

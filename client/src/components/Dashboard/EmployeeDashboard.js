@@ -17,6 +17,9 @@ import {
   Form,
   Upload,
   Alert,
+  Select,
+  DatePicker,
+  InputNumber,
 } from "antd";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { AuthContext } from "../../context/AuthContext";
@@ -54,6 +57,7 @@ import RoleChecker from "../../Authentication/main";
 
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
+const { Option } = Select;
 
 // Define styles at the top of the file, after imports
 const COMMON_STYLES = {
@@ -123,6 +127,7 @@ const EmployeeDashboard = () => {
   const [pageSize] = useState(5);
   const [fileContent, setFileContent] = useState(null);
   const [fileType, setFileType] = useState(null);
+  const [personnelForm] = Form.useForm();
 
   useEffect(() => {
     fetchEmployeeData();
@@ -243,6 +248,7 @@ const EmployeeDashboard = () => {
     { key: "profile", icon: <EditOutlined />, label: "Edit Profile" },
     { key: "settings", icon: <SettingOutlined />, label: "Settings" },
     { key: "dragAndDrop", icon: <InboxOutlined />, label: "File Transfer" },
+    { key: "personnelSettings", icon: <UserOutlined />, label: "Personnel Settings" },
   ];
 
   const onDragEnd = (result) => {
@@ -255,6 +261,20 @@ const EmployeeDashboard = () => {
     items.splice(result.destination.index, 0, reorderedItem);
 
     setWidgets(items);
+  };
+
+  const handlePersonnelSubmit = async (values) => {
+    try {
+      const response = await api.put(
+        `/api/users/employee-personal-info/${employeeData._id}`,
+        values
+      );
+      setEmployeeData(response.data);
+      message.success("Personnel information updated successfully");
+    } catch (error) {
+      console.error("Error updating personnel information:", error);
+      message.error("Failed to update personnel information");
+    }
   };
 
   return (
@@ -427,6 +447,175 @@ const EmployeeDashboard = () => {
                     <Title level={3}>File Transfer</Title>
                     <DragAndDropScreen userRole="employee" />
                   </div>
+                )}
+                {activeTab === "personnelSettings" && (
+                  <Card title="Personnel Settings">
+                    <Form
+                      form={personnelForm}
+                      layout="vertical"
+                      onFinish={handlePersonnelSubmit}
+                    >
+                      <Row gutter={16}>
+                        <Col span={8}>
+                          <Form.Item name="fullName" label="Full Name">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="occupation" label="Occupation">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="spouseName" label="Spouse Name">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="spouseOccupation" label="Spouse Occupation">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="phoneNumber" label="Phone Number">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="cellNo" label="Cell Number">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="ssn" label="SSN">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="spouseSSN" label="Spouse SSN">
+                            <Input />
+                          </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                          <Form.Item name="dateOfBirth" label="Date of Birth">
+                            <DatePicker />
+                          </Form.Item>
+                          <Form.Item name="spouseDOB" label="Spouse Date of Birth">
+                            <DatePicker />
+                          </Form.Item>
+                          <Form.Item name="addressLine1" label="Address Line 1">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="addressLine2" label="Address Line 2">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="businessName" label="Business Name">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="businessPhone" label="Business Phone">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="businessAddressLine1" label="Business Address Line 1">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="businessAddressLine2" label="Business Address Line 2">
+                            <Input />
+                          </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                          <Form.Item name="businessEntityType" label="Business Entity Type">
+                            <Select>
+                              <Option value="llc">LLC</Option>
+                              <Option value="corporation">Corporation</Option>
+                              <Option value="partnership">Partnership</Option>
+                              <Option value="soleProprietorship">Sole Proprietorship</Option>
+                            </Select>
+                          </Form.Item>
+                          <Form.Item name="businessTIN" label="Business TIN">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="businessSOS" label="Business SOS">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="businessEDD" label="Business EDD">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="businessEmail" label="Business Email">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="contactPersonName" label="Contact Person Name">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="noOfEmployeesActive" label="Number of Active Employees">
+                            <InputNumber min={0} />
+                          </Form.Item>
+                          <Form.Item name="businessReferredBy" label="Business Referred By">
+                            <Input />
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                      <Row gutter={16}>
+                        <Col span={8}>
+                          <Form.Item name="accountNumber" label="Account Number">
+                            <Input />
+                          </Form.Item>
+                          <Form.Item name="accountType" label="Account Type">
+                            <Select>
+                              <Option value="checking">Checking</Option>
+                              <Option value="savings">Savings</Option>
+                              <Option value="business">Business</Option>
+                            </Select>
+                          </Form.Item>
+                          <Form.Item name="accountStatus" label="Account Status">
+                            <Select>
+                              <Option value="active">Active</Option>
+                              <Option value="inactive">Inactive</Option>
+                              <Option value="suspended">Suspended</Option>
+                            </Select>
+                          </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                          <Form.Item name="employmentStatus" label="Employment Status">
+                            <Select>
+                              <Option value="employed">Employed</Option>
+                              <Option value="selfEmployed">Self Employed</Option>
+                              <Option value="unemployed">Unemployed</Option>
+                              <Option value="retired">Retired</Option>
+                            </Select>
+                          </Form.Item>
+                          <Form.Item name="taxFilingStatus" label="Tax Filing Status">
+                            <Select>
+                              <Option value="single">Single</Option>
+                              <Option value="married">Married Filing Jointly</Option>
+                              <Option value="separate">Married Filing Separately</Option>
+                              <Option value="headOfHousehold">Head of Household</Option>
+                            </Select>
+                          </Form.Item>
+                        </Col>
+                        <Col span={8}>
+                          <Form.Item name="kycStatus" label="KYC Status">
+                            <Select>
+                              <Option value="pending">Pending</Option>
+                              <Option value="approved">Approved</Option>
+                              <Option value="rejected">Rejected</Option>
+                            </Select>
+                          </Form.Item>
+                          <Form.Item name="amlStatus" label="AML Status">
+                            <Select>
+                              <Option value="pending">Pending</Option>
+                              <Option value="approved">Approved</Option>
+                              <Option value="rejected">Rejected</Option>
+                            </Select>
+                          </Form.Item>
+                          <Form.Item name="riskToleranceLevel" label="Risk Tolerance Level">
+                            <Select>
+                              <Option value="low">Low</Option>
+                              <Option value="medium">Medium</Option>
+                              <Option value="high">High</Option>
+                            </Select>
+                          </Form.Item>
+                          <Form.Item name="investmentRiskProfile" label="Investment Risk Profile">
+                            <Select>
+                              <Option value="conservative">Conservative</Option>
+                              <Option value="moderate">Moderate</Option>
+                              <Option value="aggressive">Aggressive</Option>
+                            </Select>
+                          </Form.Item>
+                        </Col>
+                      </Row>
+                      <Form.Item>
+                        <Button type="primary" htmlType="submit">
+                          Save Personnel Information
+                        </Button>
+                      </Form.Item>
+                    </Form>
+                  </Card>
                 )}
               </div>
             </Content>

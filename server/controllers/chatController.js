@@ -19,15 +19,50 @@ const upload = multer({ storage: storage }).single("file");
 
 exports.sendMessage = async (req, res) => {
   try {
-    const { receiver, message, fileType } = req.body;
-    const sender = req.user.id; // This should be the authenticated user's ID
+    const { receiver, message } = req.body;
+    const sender = req.user.id;
 
     console.log(`Sending message from ${sender} to ${receiver}`);
 
     if (!receiver || !message) {
-      return res
-        .status(400)
-        .json({ error: "Receiver and message are required" });
+      return res.status(400).json({ error: "Receiver and message are required" });
+    }
+
+    // Create and save the message
+    const newMessage = new Message({
+      sender,
+      receiver,
+      content: message
+    });
+
+    await newMessage.save();
+    await newMessage.populate("sender", "username profilePic");
+
+    // Create notification
+    const senderUser = await User.findById(sender);
+    const newNotification = new Notification({
+      userId: receiver,
+      sender: sender,
+      message: `${senderUser.username}`,
+      senderProfilePic: senderUser.profilePic || "default-profile-pic.jpg",
+      createdAt: new Date(),
+    });
+
+    await newNotification.save();
+    res.status(201).json(newMessage);
+  } catch (error) {
+    console.error("Error in sendMessage:", error);
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+exports.sendMessageWithFile = async (req, res) => {
+  try {
+    const { receiver, message, fileType } = req.body;
+    const sender = req.user.id;
+    
+    if (!receiver || !message) {
+      return res.status(400).json({ error: "Receiver and message are required" });
     }
 
     let file;
@@ -39,7 +74,6 @@ exports.sendMessage = async (req, res) => {
       };
     }
 
-    // Create and save the message
     const newMessage = new Message({
       sender,
       receiver,
@@ -49,34 +83,22 @@ exports.sendMessage = async (req, res) => {
     });
 
     await newMessage.save();
-
-    // Populate sender information
     await newMessage.populate("sender", "username profilePic");
 
-    // Fetch the sender's user information
+    // Rest of the notification logic...
     const senderUser = await User.findById(sender);
-
-    // Create and save the notification
     const newNotification = new Notification({
       userId: receiver,
-      sender: sender, // Set the sender field to the authenticated user's ID
+      sender: sender,
       message: `${senderUser.username}`,
       senderProfilePic: senderUser.profilePic || "default-profile-pic.jpg",
       createdAt: new Date(),
     });
 
     await newNotification.save();
-
-    console.log(`Emitting newNotification to ${receiver}`);
-    req.app.get("io").to(receiver.toString()).emit("newMessage", newMessage);
-    req.app
-      .get("io")
-      .to(receiver.toString())
-      .emit("newNotification", newNotification);
-
     res.status(201).json(newMessage);
   } catch (error) {
-    console.error("Error in sendMessage:", error);
+    console.error("Error in sendMessageWithFile:", error);
     res.status(500).json({ error: "Server error" });
   }
 };
@@ -84,26 +106,40 @@ exports.sendMessage = async (req, res) => {
 exports.getMessages = async (req, res) => {
   try {
     const { chatId } = req.params;
-    console.log('Received chatId:', chatId); // Debug log
+    console.log('Received chatId:', chatId);
 
     if (!chatId || chatId === 'undefined' || !chatId.includes('-')) {
       return res.status(400).json({ error: 'Invalid chat ID' });
     }
 
-    const [user1, user2] = chatId.split('-');
+    let [user1Id, user2Id] = chatId.split('-');
+    
+    // If one of the users is identified as "admin", get the actual admin ID
+    if (user1Id === 'admin') {
+      const adminUser = await User.findOne({ role: 'admin' });
+      if (!adminUser) {
+        return res.status(404).json({ error: 'Admin user not found' });
+      }
+      user1Id = adminUser._id.toString();
+    }
+    
+    if (user2Id === 'admin') {
+      const adminUser = await User.findOne({ role: 'admin' });
+      if (!adminUser) {
+        return res.status(404).json({ error: 'Admin user not found' });
+      }
+      user2Id = adminUser._id.toString();
+    }
+
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
 
-    if (!user1 || !user2) {
-      return res.status(400).json({ error: 'Invalid chat ID format' });
-    }
-
-    console.log('Querying messages for users:', user1, user2); // Debug log
+    console.log('Querying messages for users:', user1Id, user2Id);
 
     const messages = await Message.find({
       $or: [
-        { sender: user1, receiver: user2 },
-        { sender: user2, receiver: user1 },
+        { sender: user1Id, receiver: user2Id },
+        { sender: user2Id, receiver: user1Id },
       ],
     })
       .sort({ timestamp: -1 })
@@ -114,8 +150,8 @@ exports.getMessages = async (req, res) => {
 
     const totalMessages = await Message.countDocuments({
       $or: [
-        { sender: user1, receiver: user2 },
-        { sender: user2, receiver: user1 },
+        { sender: user1Id, receiver: user2Id },
+        { sender: user2Id, receiver: user1Id },
       ],
     });
 
