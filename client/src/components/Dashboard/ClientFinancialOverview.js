@@ -3,7 +3,7 @@ import { Card, Row, Col, Statistic, Progress, Typography } from 'antd';
 import { DollarOutlined, TrophyOutlined, BankOutlined, RiseOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
 import { Line, Pie } from '@ant-design/plots';
-import FinancialHistoryChart from '../shared/FinancialHistoryChart';
+import EditableHistoryChart from '../shared/EditableHistoryChart';
 
 const { Title } = Typography;
 
@@ -166,15 +166,21 @@ const ClientFinancialOverview = ({ clientData }) => {
 
       <Row gutter={[24, 24]} style={{ marginTop: '24px' }}>
         <Col span={24}>
-          <FinancialHistoryChart 
-            userId={clientData._id}
+          <EditableHistoryChart 
+            title="Credit Score History"
+            data={clientData.creditScoreHistory || []}
             metric="Credit Score"
+            readOnly={true}
+            showFilters={true}
           />
         </Col>
         <Col span={24}>
-          <FinancialHistoryChart 
-            userId={clientData._id}
+          <EditableHistoryChart 
+            title="Total Balance History"
+            data={clientData.balanceHistory || []}
             metric="Total Balance"
+            readOnly={true}
+            showFilters={true}
           />
         </Col>
       </Row>
