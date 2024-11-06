@@ -439,7 +439,11 @@ const ClientDashboard = () => {
       label: "Personnel Settings",
     },
     { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
-  ];
+  ].filter(
+    (item) =>
+      !clientData?.dashboardComponents?.length ||
+      clientData.dashboardComponents.includes(item.key)
+  );
 
   return (
     <RoleChecker userRole={clientData?.role} userEmail={clientData?.email}>

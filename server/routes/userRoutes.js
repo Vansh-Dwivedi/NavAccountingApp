@@ -161,4 +161,12 @@ router.put('/:userId/financial-history', auth, auditMiddleware("📈 Updating fi
 router.get('/:userId/financial-history', auth, auditMiddleware("📊 Viewing financial history"), userController.getFinancialHistory);
 router.delete('/financial-history/:userId', auth, auditMiddleware("🗑️ Deleting financial history"), userController.deleteFinancialHistory);
 
+// Add this new route
+router.put(
+  '/:userId/dashboard-components',
+  auth,
+  roleCheck(['admin']), // Only admin can modify dashboard components
+  userController.updateDashboardComponents
+);
+
 module.exports = router;

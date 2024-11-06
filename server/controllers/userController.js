@@ -6,6 +6,7 @@ const { sendNotificationToAdmins } = require("../utils/notifications"); // You'l
 const FormSubmission = require("../models/FormSubmission");
 const Message = require("../models/Message");
 const FinancialData = require("../models/FinancialData"); // You'll need to create this model
+const AuditLog = require("../models/AuditLog"); // You'll need to create this model
 
 exports.submitClientInfo = async (req, res) => {
   try {
@@ -1046,5 +1047,49 @@ exports.deleteFinancialHistory = async (req, res) => {
   } catch (error) {
     console.error('Error deleting financial history:', error);
     res.status(500).json({ error: error.message });
+  }
+};
+
+exports.updateDashboardComponents = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { component, enabled } = req.body;
+
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Initialize dashboardComponents array if it doesn't exist
+    if (!user.dashboardComponents) {
+      user.dashboardComponents = [];
+    }
+
+    if (enabled) {
+      // Add component if it's not already in the array
+      if (!user.dashboardComponents.includes(component)) {
+        user.dashboardComponents.push(component);
+      }
+    } else {
+      // Remove component if it exists in the array
+      user.dashboardComponents = user.dashboardComponents.filter(
+        (comp) => comp !== component
+      );
+    }
+
+    await user.save();
+
+    // Log the action
+    await AuditLog.create({
+      userId: req.user._id,
+      action: 'UPDATE_DASHBOARD_COMPONENTS',
+      details: `Updated dashboard components for user ${userId}`,
+      targetUserId: userId
+    });
+
+    res.json(user);
+  } catch (error) {
+    console.error('Error updating dashboard components:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 };

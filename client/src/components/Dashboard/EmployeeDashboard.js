@@ -254,7 +254,11 @@ const EmployeeDashboard = () => {
       icon: <UserOutlined />,
       label: "Personnel Settings",
     },
-  ];
+  ].filter(
+    (item) =>
+      !employeeData?.dashboardComponents?.length ||
+      employeeData.dashboardComponents.includes(item.key)
+  );
 
   const onDragEnd = (result) => {
     if (!result.destination) {

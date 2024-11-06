@@ -205,7 +205,32 @@ const UserSchema = new mongoose.Schema(
       unique: true
     },
     balanceHistory: [financialHistorySchema],
-    creditScoreHistory: [financialHistorySchema]
+    creditScoreHistory: [financialHistorySchema],
+    dashboardComponents: {
+      type: [String],
+      default: [], // Empty array means all components are enabled
+      validate: {
+        validator: function(components) {
+          const validComponents = [
+            'dashboard',
+            'submitInfo',
+            'notesAndSignatures',
+            'dragAndDrop',
+            'forms',
+            'chat',
+            'financialInfo',
+            'personnelSettings',
+            'profile',
+            'settings',
+            'adminChat',
+            'clientData',
+            'fileTransfer',     
+          ];
+          return components.every(comp => validComponents.includes(comp));
+        },
+        message: 'Invalid dashboard component'
+      }
+    }
   },
   { timestamps: true }
 );

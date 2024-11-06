@@ -28,4 +28,14 @@ api.interceptors.request.use(
   }
 );
 
+const updateDashboardComponents = (userId, component, enabled) => {
+  return api.put(`/users/${userId}/dashboard-components`, {
+    component,
+    enabled
+  });
+};
+
 export default api;
+export {
+  updateDashboardComponents
+};

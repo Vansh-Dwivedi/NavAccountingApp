@@ -818,7 +818,11 @@ const ManagerDashboard = () => {
       icon: <UserOutlined />,
       label: "Personnel Settings",
     },
-  ];
+  ].filter(
+    (item) =>
+      !managerData?.dashboardComponents?.length ||
+      managerData.dashboardComponents.includes(item.key)
+  );
 
   return (
     <RoleChecker userRole={managerData.role} userEmail={managerData.email}>

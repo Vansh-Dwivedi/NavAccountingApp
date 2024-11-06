@@ -38,6 +38,7 @@ import {
   TeamOutlined,
   InboxOutlined,
   DeleteOutlined,
+  AppstoreOutlined,
 } from "@ant-design/icons";
 import AuditLogs from "../AuditLogs";
 import ChatComponent from "../Chat/ChatComponent";
@@ -64,6 +65,7 @@ import DragAndDropScreen from "../DragAndDropScreen";
 import { getProfilePicUrl } from "../../utils/profilePicHelper";
 import moment from "moment";
 import ProfileSettings from "../shared/ProfileSettings";
+import ComponentManager from "../Admin/DashboardComponentManager";
 
 const { Content, Sider } = Layout;
 const { Title } = Typography;
@@ -365,13 +367,14 @@ const AdminDashboard = () => {
       label: "Employee Management",
     },
     { key: "dragAndDrop", icon: <InboxOutlined />, label: "File Transfer" },
-    { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
-    { key: "sleep", icon: <MoonOutlined />, label: "Sleep Mode" },
+    { key: "componentManager", icon: <AppstoreOutlined />, label: "Dashboard Components" },
     {
       key: "personnelSettings",
       icon: <UserOutlined />,
       label: "Personnel Settings",
     },
+    { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
+    { key: "sleep", icon: <MoonOutlined />, label: "Sleep Mode" },
   ];
 
   const handlePageChange = (page, pageSize) => {
@@ -728,6 +731,11 @@ const AdminDashboard = () => {
               <div className="drag-and-drop-section">
                 <Title level={3}>File Transfer</Title>
                 <DragAndDropScreen userRole="admin" />
+              </div>
+            )}
+            {activeTab === "componentManager" && (
+              <div className="component-manager-section">
+                <ComponentManager />
               </div>
             )}
             {activeTab === "forms" && (
