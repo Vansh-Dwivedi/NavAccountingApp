@@ -4,7 +4,7 @@ import moment from "moment";
 
 const { TabPane } = Tabs;
 
-const ClientInfoDisplay = ({ clientData }) => {
+const ClientInfoDisplay = ({ clientData, handleFinancialDataUpdate, loading }) => {
   return (
     <Card>
       <Tabs defaultActiveKey="1">
@@ -93,12 +93,21 @@ const ClientInfoDisplay = ({ clientData }) => {
               {clientData.investmentRiskProfile}
             </Descriptions.Item>
             <Descriptions.Item label="Documents">
-              {clientData.documents && clientData.documents.map((doc, index) => (
-                <div key={index}>{doc}</div>
-              ))}
+              {clientData.documents &&
+                clientData.documents.map((doc, index) => (
+                  <div key={index}>{doc}</div>
+                ))}
             </Descriptions.Item>
           </Descriptions>
         </TabPane>
+
+        <Tabs.TabPane tab="Miscellaneous" key="5">
+          <ClientFinancialDataForm
+            initialData={clientData}
+            onSubmit={handleFinancialDataUpdate}
+            loading={loading}
+          />
+        </Tabs.TabPane>
       </Tabs>
     </Card>
   );

@@ -490,6 +490,7 @@ const UserManagement = () => {
             otherUser={user}
             onClose={() => handleCloseChat(userId)}
             chatId={`admin-${userId}`}
+            visible={isOpen}
           />
         );
       })}

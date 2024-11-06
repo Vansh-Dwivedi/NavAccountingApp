@@ -15,20 +15,22 @@ const {
 const { OAuth2Client } = require("google-auth-library");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const auditMiddleware = require("../middleware/auditMiddleware");
 
-router.post("/register", authController.register);
-router.post("/login", authController.login);
-router.post("/logout", auth, authController.logout);
+router.post("/register", auditMiddleware("👤 New user registration"), authController.register);
+router.post("/login", auditMiddleware("🔑 User login"), authController.login);
+router.post("/logout", auth, auditMiddleware("👋 User logout"), authController.logout);
 router.post(
   "/forgot-password",
   forgotPasswordLimiter,
   validateForgotPassword,
+  auditMiddleware("🔄 Password reset requested"),
   authController.forgotPassword
 );
-router.post("/verify-password", authController.verifyPassword);
+router.post("/verify-password", auditMiddleware("✅ Password verification"), authController.verifyPassword);
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-router.post("/google", async (req, res) => {
+router.post("/google", auditMiddleware("🔰 Google authentication"), async (req, res) => {
   try {
     const { credential, mode } = req.body;
 
@@ -144,6 +146,7 @@ router.get("/test", (req, res) => {
 router.post(
   "/reset-password/:resetToken",
   validateResetPassword,
+  auditMiddleware("🔒 Password reset completed"),
   authController.resetPassword
 );
 

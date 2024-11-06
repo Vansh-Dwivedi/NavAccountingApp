@@ -433,17 +433,12 @@ const ClientDashboard = () => {
     },
     { key: "forms", icon: <FormOutlined />, label: "Forms" },
     { key: "chat", icon: <MessageOutlined />, label: "Chat" },
-    { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
-    {
-      key: "financialInfo",
-      icon: <DollarOutlined />,
-      label: "Financial Information",
-    },
     {
       key: "personnelSettings",
       icon: <SettingOutlined />,
       label: "Personnel Settings",
     },
+    { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
   ];
 
   return (
@@ -609,6 +604,7 @@ const ClientDashboard = () => {
                                 otherUser={chatPartner}
                                 onClose={() => handleCloseChat(userId)}
                                 chatId={`${clientData._id}-${chatPartner._id}`}
+                                visible={true}
                               />
                             );
                           })}

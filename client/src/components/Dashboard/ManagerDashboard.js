@@ -791,6 +791,17 @@ const ManagerDashboard = () => {
     }
   };
 
+  const handleFinancialDataUpdate = async (values) => {
+    try {
+      await api.put(`/api/users/${selectedClient._id}/financial-data`, values);
+      message.success("Financial data updated successfully");
+      fetchClientData(selectedClient._id);
+    } catch (error) {
+      console.error("Error updating financial data:", error);
+      message.error("Failed to update financial data");
+    }
+  };
+
   if (error) return <div className="error">{error}</div>;
   if (!managerData) return <div className="loading">Loading...</div>;
 
@@ -920,6 +931,7 @@ const ManagerDashboard = () => {
                           otherUser={client}
                           onClose={() => handleCloseChat(clientId)}
                           chatId={`${managerData._id}-${client._id}`}
+                          visible={true}
                         />
                       </Card>
                     );
@@ -933,6 +945,7 @@ const ManagerDashboard = () => {
                     currentUser={managerData}
                     otherUser={adminUser}
                     onClose={() => setActiveTab("dashboard")}
+                    visible={true}
                   />
                 </Card>
               )}
@@ -1271,7 +1284,11 @@ const ManagerDashboard = () => {
                   }));
                 }}
               />
-              <ClientInfoDisplay clientData={selectedClient.client} />
+              <ClientInfoDisplay
+                clientData={selectedClient.client}
+                handleFinancialDataUpdate={handleFinancialDataUpdate}
+                loading={loading}
+              />
             </>
           )}
         </Drawer>

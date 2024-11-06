@@ -3,41 +3,41 @@ const Note = require("../models/Note");
 // Get notes with pagination
 exports.getNotes = async (req, res) => {
   try {
-    console.log('Received request params:', req.params);
-    console.log('Received request query:', req.query);
+    console.log("Received request params:", req.params);
+    console.log("Received request query:", req.query);
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-    const userId = req.params.clientId; // Change this line
+    const userId = req.params.userId; // Change this line
 
-    console.log('Parsed values:', { page, limit, userId });
+    console.log("Parsed values:", { page, limit, userId });
 
     if (!userId) {
-      console.log('User ID is missing');
-      return res.status(400).json({ error: 'User ID is required' });
+      console.log("User ID is missing");
+      return res.status(400).json({ error: "User ID is required" });
     }
 
     const startIndex = (page - 1) * limit;
     const total = await Note.countDocuments({ user: userId });
 
-    console.log('Total notes found:', total);
+    console.log("Total notes found:", total);
 
     const notes = await Note.find({ user: userId })
       .sort({ createdAt: -1 })
       .limit(limit)
       .skip(startIndex);
 
-    console.log('Notes fetched:', notes.length);
+    console.log("Notes fetched:", notes.length);
 
     res.json({
       notes,
       total,
       page,
-      limit
+      limit,
     });
   } catch (error) {
-    console.error('Error fetching notes:', error);
-    res.status(500).json({ error: 'Server error' });
+    console.error("Error fetching notes:", error);
+    res.status(500).json({ error: "Server error" });
   }
 };
 

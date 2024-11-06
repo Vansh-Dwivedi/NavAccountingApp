@@ -328,6 +328,29 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleUpdateFinancialData = async (values) => {
+    try {
+      await api.put(`/api/users/${selectedClient._id}/financial-data`, values);
+      message.success('Financial data updated successfully');
+      // Refresh client data
+      fetchUsers();
+    } catch (error) {
+      console.error('Error updating financial data:', error);
+      message.error('Failed to update financial data');
+    }
+  };
+
+  const handleFinancialDataUpdate = async (values) => {
+    try {
+      await api.put(`/api/users/${selectedClient._id}/financial-data`, values);
+      message.success('Financial data updated successfully');
+      fetchClientData(selectedClient._id);
+    } catch (error) {
+      console.error('Error updating financial data:', error);
+      message.error('Failed to update financial data');
+    }
+  };
+
   if (loading) return <div className="loading">Loading...</div>;
   if (error) return <div className="error">{error}</div>;
 

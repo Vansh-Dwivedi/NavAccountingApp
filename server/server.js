@@ -149,15 +149,28 @@ app.use("/uploads", (req, res) => {
 
 // Socket.IO setup
 const server = http.createServer(app);
+
+// Initialize socket.io
 const io = socketIo(server, {
   cors: {
     origin: process.env.CLIENT_URL || "http://localhost:3000",
     methods: ["GET", "POST"],
-    credentials: true,
-  },
+    credentials: true
+  }
 });
 
-app.set("io", io);
+// Initialize our socket utility with the io instance
+const { initializeSocket } = require('./utils/socket');
+initializeSocket(io);
+
+// Socket connection handling
+io.on("connection", (socket) => {
+  console.log("Client connected:", socket.id);
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected:", socket.id);
+  });
+});
 
 // Socket user mapping
 const userSockets = {};
@@ -238,6 +251,9 @@ app.use((err, req, res, next) => {
 
 // Port configuration
 const PORT = process.env.PORT || 5000;
+
+// Initialize socket.io
+initializeSocket(server);
 
 // Export server
 module.exports = { app, server };

@@ -22,7 +22,7 @@ const Notes = ({ userId }) => {
 
   const fetchNotes = async () => {
     try {
-      const response = await api.get(`/api/notes/${userId}?page=${currentPage}&limit=10`);
+      const response = await api.get(`/api/notes/${userId}`);
       setNotes(response.data.notes);
       setTotalNotes(response.data.total);
     } catch (error) {

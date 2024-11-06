@@ -54,6 +54,7 @@ import EmployeeNotesSection from "./EmployeeNotesSection";
 import DragAndDropScreen from "../DragAndDropScreen";
 import { getProfilePicUrl } from "../../utils/profilePicHelper";
 import RoleChecker from "../../Authentication/main";
+import ChatComponent from "../Chat/ChatComponent";
 
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -248,7 +249,11 @@ const EmployeeDashboard = () => {
     { key: "profile", icon: <EditOutlined />, label: "Edit Profile" },
     { key: "settings", icon: <SettingOutlined />, label: "Settings" },
     { key: "dragAndDrop", icon: <InboxOutlined />, label: "File Transfer" },
-    { key: "personnelSettings", icon: <UserOutlined />, label: "Personnel Settings" },
+    {
+      key: "personnelSettings",
+      icon: <UserOutlined />,
+      label: "Personnel Settings",
+    },
   ];
 
   const onDragEnd = (result) => {
@@ -466,7 +471,10 @@ const EmployeeDashboard = () => {
                           <Form.Item name="spouseName" label="Spouse Name">
                             <Input />
                           </Form.Item>
-                          <Form.Item name="spouseOccupation" label="Spouse Occupation">
+                          <Form.Item
+                            name="spouseOccupation"
+                            label="Spouse Occupation"
+                          >
                             <Input />
                           </Form.Item>
                           <Form.Item name="phoneNumber" label="Phone Number">
@@ -486,7 +494,10 @@ const EmployeeDashboard = () => {
                           <Form.Item name="dateOfBirth" label="Date of Birth">
                             <DatePicker />
                           </Form.Item>
-                          <Form.Item name="spouseDOB" label="Spouse Date of Birth">
+                          <Form.Item
+                            name="spouseDOB"
+                            label="Spouse Date of Birth"
+                          >
                             <DatePicker />
                           </Form.Item>
                           <Form.Item name="addressLine1" label="Address Line 1">
@@ -498,23 +509,37 @@ const EmployeeDashboard = () => {
                           <Form.Item name="businessName" label="Business Name">
                             <Input />
                           </Form.Item>
-                          <Form.Item name="businessPhone" label="Business Phone">
+                          <Form.Item
+                            name="businessPhone"
+                            label="Business Phone"
+                          >
                             <Input />
                           </Form.Item>
-                          <Form.Item name="businessAddressLine1" label="Business Address Line 1">
+                          <Form.Item
+                            name="businessAddressLine1"
+                            label="Business Address Line 1"
+                          >
                             <Input />
                           </Form.Item>
-                          <Form.Item name="businessAddressLine2" label="Business Address Line 2">
+                          <Form.Item
+                            name="businessAddressLine2"
+                            label="Business Address Line 2"
+                          >
                             <Input />
                           </Form.Item>
                         </Col>
                         <Col span={8}>
-                          <Form.Item name="businessEntityType" label="Business Entity Type">
+                          <Form.Item
+                            name="businessEntityType"
+                            label="Business Entity Type"
+                          >
                             <Select>
                               <Option value="llc">LLC</Option>
                               <Option value="corporation">Corporation</Option>
                               <Option value="partnership">Partnership</Option>
-                              <Option value="soleProprietorship">Sole Proprietorship</Option>
+                              <Option value="soleProprietorship">
+                                Sole Proprietorship
+                              </Option>
                             </Select>
                           </Form.Item>
                           <Form.Item name="businessTIN" label="Business TIN">
@@ -526,23 +551,38 @@ const EmployeeDashboard = () => {
                           <Form.Item name="businessEDD" label="Business EDD">
                             <Input />
                           </Form.Item>
-                          <Form.Item name="businessEmail" label="Business Email">
+                          <Form.Item
+                            name="businessEmail"
+                            label="Business Email"
+                          >
                             <Input />
                           </Form.Item>
-                          <Form.Item name="contactPersonName" label="Contact Person Name">
+                          <Form.Item
+                            name="contactPersonName"
+                            label="Contact Person Name"
+                          >
                             <Input />
                           </Form.Item>
-                          <Form.Item name="noOfEmployeesActive" label="Number of Active Employees">
+                          <Form.Item
+                            name="noOfEmployeesActive"
+                            label="Number of Active Employees"
+                          >
                             <InputNumber min={0} />
                           </Form.Item>
-                          <Form.Item name="businessReferredBy" label="Business Referred By">
+                          <Form.Item
+                            name="businessReferredBy"
+                            label="Business Referred By"
+                          >
                             <Input />
                           </Form.Item>
                         </Col>
                       </Row>
                       <Row gutter={16}>
                         <Col span={8}>
-                          <Form.Item name="accountNumber" label="Account Number">
+                          <Form.Item
+                            name="accountNumber"
+                            label="Account Number"
+                          >
                             <Input />
                           </Form.Item>
                           <Form.Item name="accountType" label="Account Type">
@@ -552,7 +592,10 @@ const EmployeeDashboard = () => {
                               <Option value="business">Business</Option>
                             </Select>
                           </Form.Item>
-                          <Form.Item name="accountStatus" label="Account Status">
+                          <Form.Item
+                            name="accountStatus"
+                            label="Account Status"
+                          >
                             <Select>
                               <Option value="active">Active</Option>
                               <Option value="inactive">Inactive</Option>
@@ -561,20 +604,34 @@ const EmployeeDashboard = () => {
                           </Form.Item>
                         </Col>
                         <Col span={8}>
-                          <Form.Item name="employmentStatus" label="Employment Status">
+                          <Form.Item
+                            name="employmentStatus"
+                            label="Employment Status"
+                          >
                             <Select>
                               <Option value="employed">Employed</Option>
-                              <Option value="selfEmployed">Self Employed</Option>
+                              <Option value="selfEmployed">
+                                Self Employed
+                              </Option>
                               <Option value="unemployed">Unemployed</Option>
                               <Option value="retired">Retired</Option>
                             </Select>
                           </Form.Item>
-                          <Form.Item name="taxFilingStatus" label="Tax Filing Status">
+                          <Form.Item
+                            name="taxFilingStatus"
+                            label="Tax Filing Status"
+                          >
                             <Select>
                               <Option value="single">Single</Option>
-                              <Option value="married">Married Filing Jointly</Option>
-                              <Option value="separate">Married Filing Separately</Option>
-                              <Option value="headOfHousehold">Head of Household</Option>
+                              <Option value="married">
+                                Married Filing Jointly
+                              </Option>
+                              <Option value="separate">
+                                Married Filing Separately
+                              </Option>
+                              <Option value="headOfHousehold">
+                                Head of Household
+                              </Option>
                             </Select>
                           </Form.Item>
                         </Col>
@@ -593,14 +650,20 @@ const EmployeeDashboard = () => {
                               <Option value="rejected">Rejected</Option>
                             </Select>
                           </Form.Item>
-                          <Form.Item name="riskToleranceLevel" label="Risk Tolerance Level">
+                          <Form.Item
+                            name="riskToleranceLevel"
+                            label="Risk Tolerance Level"
+                          >
                             <Select>
                               <Option value="low">Low</Option>
                               <Option value="medium">Medium</Option>
                               <Option value="high">High</Option>
                             </Select>
                           </Form.Item>
-                          <Form.Item name="investmentRiskProfile" label="Investment Risk Profile">
+                          <Form.Item
+                            name="investmentRiskProfile"
+                            label="Investment Risk Profile"
+                          >
                             <Select>
                               <Option value="conservative">Conservative</Option>
                               <Option value="moderate">Moderate</Option>
@@ -859,5 +922,81 @@ const NotesSection = () => (
     <EmployeeNotesSection />
   </div>
 );
+
+const ChatSection = () => {
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [users, setUsers] = useState([]);
+  const [openChats, setOpenChats] = useState({});
+
+  useEffect(() => {
+    // Fetch available users to chat with
+    const fetchUsers = async () => {
+      try {
+        const response = await api.get("/api/users/nonauthed");
+        setUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    };
+    fetchUsers();
+  }, []);
+
+  const handleUserSelect = (user) => {
+    setSelectedUser(user);
+    setOpenChats((prev) => ({
+      ...prev,
+      [user._id]: true,
+    }));
+  };
+
+  const handleCloseChat = (userId) => {
+    setOpenChats((prev) => ({
+      ...prev,
+      [userId]: false,
+    }));
+  };
+
+  return (
+    <div style={{ padding: "24px" }}>
+      <Row gutter={16}>
+        <Col span={8}>
+          <Card title="Select User to Chat">
+            <List
+              dataSource={users}
+              renderItem={(user) => (
+                <List.Item
+                  key={user._id}
+                  onClick={() => handleUserSelect(user)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <List.Item.Meta
+                    avatar={<Avatar icon={<UserOutlined />} />}
+                    title={user.username}
+                    description={user.role}
+                  />
+                </List.Item>
+              )}
+            />
+          </Card>
+        </Col>
+        <Col span={16}>
+          {selectedUser && openChats[selectedUser._id] && (
+            <Card title="Chat Window">
+              {users.map((user) => (
+                <ChatComponent
+                  currentUser={user}
+                  otherUser={selectedUser}
+                  onClose={() => handleCloseChat(selectedUser._id)}
+                  chatId={`${user._id}-${selectedUser._id}`}
+                  visible={true}
+                />
+              ))}
+            </Card>
+          )}
+        </Col>
+      </Row>
+    </div>
+  );
+};
 
 export default EmployeeDashboard;

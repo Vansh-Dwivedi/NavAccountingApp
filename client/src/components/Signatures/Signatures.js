@@ -21,7 +21,7 @@ const Signatures = ({ userId }) => {
 
   const fetchSignatures = async () => {
     try {
-      const response = await api.get(`/api/signatures/${userId}?page=${currentPage}&limit=10`);
+      const response = await api.get(`/api/signatures/${userId}`);
       setSignatures(response.data.signatures);
       setTotalSignatures(response.data.total);
     } catch (error) {

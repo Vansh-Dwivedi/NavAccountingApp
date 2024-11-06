@@ -67,8 +67,14 @@ const Home = () => {
   const handleDashboardClick = () => {
     if (userRole === "admin") {
       navigate("/admin-dashboard");
+    } else if (userRole === "manager") {
+      navigate("/manager-dashboard");
+    } else if (userRole === "client") {
+      navigate("/client-dashboard");
+    } else if (userRole === "employee") {
+      navigate("/employee-dashboard");
     } else {
-      navigate("/user-dashboard");
+      navigate("/unauthorized");
     }
   };
 

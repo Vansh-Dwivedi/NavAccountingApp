@@ -5,6 +5,7 @@ const auth = require('../middleware/auth');
 const multer = require('multer');
 const path = require('path');
 const Message = require('../models/Message');
+const auditMiddleware = require('../middleware/auditMiddleware');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -18,9 +19,9 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
-router.get('/messages/:chatId', auth, chatController.getMessages);
-router.post('/send', auth, upload.single('file'), chatController.sendMessage);
-router.get('/search', async (req, res) => {
+router.get('/messages/:chatId', auth, auditMiddleware('📩 Fetching chat messages'), chatController.getMessages);
+router.post('/send', auth, upload.single('file'), auditMiddleware('💬 Sending new message'), chatController.sendMessage);
+router.get('/search', auditMiddleware('🔍 Searching chat messages'), async (req, res) => {
   try {
     const { chatId, keyword, startDate, endDate, fileType } = req.query;
 
@@ -54,7 +55,5 @@ router.get('/search', async (req, res) => {
     res.status(500).json({ error: 'An error occurred while searching messages' });
   }
 });
-
-module.exports = router;
 
 module.exports = router;

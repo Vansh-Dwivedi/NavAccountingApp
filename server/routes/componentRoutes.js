@@ -8,18 +8,34 @@ const taskController = require('../controllers/taskController');
 const complianceController = require('../controllers/complianceController');
 const exportController = require('../controllers/exportController');
 const auditController = require('../controllers/auditController');
+const auditMiddleware = require('../middleware/auditMiddleware');
+const auth = require('../middleware/auth');
+const roleCheck = require('../middleware/roleCheck');
 
-router.get('/audit-logs', auditController.getAuditLogs);
-router.post('/notes', noteController.addNote);
-router.post('/documents', documentController.uploadDocument);
-router.post('/tasks', taskController.addTask);
-router.post('/compliance', complianceController.updateComplianceRecord);
-router.get('/documents/:clientId', documentController.getDocuments);
-router.get('/notes/:clientId', noteController.getNotes);
-router.get('/tasks/:clientId', taskController.getTasks);
-router.get('/compliance/:clientId', complianceController.getComplianceRecords);
-router.get('/transactions/:clientId', transactionController.getTransactions);
-router.post('/financial-info/:clientId', financialController.getFinancialInfo);
-router.get('/export-client-data/:clientId', exportController.exportData);
+router.get('/audit-logs', 
+  auth, 
+  roleCheck(['admin']), 
+  auditMiddleware('📋 Viewed audit logs'), 
+  auditController.getAuditLogs
+);
+
+router.delete('/audit-logs', 
+  auth, 
+  roleCheck(['admin']), 
+  auditMiddleware('🗑️ Cleared all audit logs'), 
+  auditController.clearAuditLogs
+);
+
+router.post('/notes', auditMiddleware('📝 Added new note'), noteController.addNote);
+router.post('/documents', auditMiddleware('📄 Uploaded new document'), documentController.uploadDocument);
+router.post('/tasks', auditMiddleware('✅ Created new task'), taskController.addTask);
+router.post('/compliance', auditMiddleware('⚖️ Updated compliance record'), complianceController.updateComplianceRecord);
+router.get('/documents/:clientId', auditMiddleware('📂 Viewed client documents'), documentController.getDocuments);
+router.get('/notes/:clientId', auditMiddleware('📔 Viewed client notes'), noteController.getNotes);
+router.get('/tasks/:clientId', auditMiddleware('📋 Viewed client tasks'), taskController.getTasks);
+router.get('/compliance/:clientId', auditMiddleware('⚖️ Viewed compliance records'), complianceController.getComplianceRecords);
+router.get('/transactions/:clientId', auditMiddleware('💰 Viewed client transactions'), transactionController.getTransactions);
+router.post('/financial-info/:clientId', auditMiddleware('💼 Retrieved financial information'), financialController.getFinancialInfo);
+router.get('/export-client-data/:clientId', auditMiddleware('📊 Exported client data'), exportController.exportData);
 
 module.exports = router;

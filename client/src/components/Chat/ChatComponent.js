@@ -7,32 +7,45 @@ import React, {
 } from "react";
 import io from "socket.io-client";
 import api from "../../utils/api";
-import "../components.css";
 import { AuthContext } from "../../context/AuthContext";
 import { toast } from "react-toastify";
+import { FaPaperPlane, FaLink, FaFileAlt } from "react-icons/fa";
 import {
-  FaLink,
-  FaTimes,
-  FaFileAlt,
-  FaFilter,
-  FaWindowMaximize,
-  FaWindowMinimize,
-  FaWindowClose,
-  FaSearch,
-  FaCalendarAlt,
-  FaUser,
-  FaSort,
-  FaExpand,
-  FaCompress,
-  FaPaperPlane,
-  FaCaretDown,
-} from "react-icons/fa";
-import { Tooltip } from "react-tooltip";
-import { DatePicker } from "antd";
-import "react-datepicker/dist/react-datepicker.css";
+  Modal,
+  Input,
+  Button,
+  Upload,
+  Dropdown,
+  Menu,
+  List,
+  Avatar,
+  Tooltip,
+  Select,
+  DatePicker,
+  Spin,
+} from "antd";
+import {
+  SearchOutlined,
+  FilterOutlined,
+  FullscreenOutlined,
+  FullscreenExitOutlined,
+  CloseOutlined,
+  UploadOutlined,
+  DeleteOutlined,
+} from "@ant-design/icons";
+import "antd/dist/reset.css"; // Import antd styles
 import moment from "moment";
 
-const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
+const { TextArea } = Input;
+const { Option } = Select;
+
+const ChatComponent = ({
+  visible,
+  currentUser,
+  otherUser,
+  onClose,
+  chatId,
+}) => {
   const { user: authUser } = useContext(AuthContext);
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState("");
@@ -40,20 +53,13 @@ const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
   const [fileType, setFileType] = useState("");
   const [socket, setSocket] = useState(null);
   const messagesEndRef = useRef(null);
-  const [error, setError] = useState("");
-  const [senderProfilePic, setSenderProfilePic] = useState(null);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [showFileTypeMenu, setShowFileTypeMenu] = useState(false);
-  const fileInputRef = useRef(null);
   const [fileTypeFilter, setFileTypeFilter] = useState("All");
   const [filteredMessages, setFilteredMessages] = useState([]);
-  const [isMinimized, setIsMinimized] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [showFilterMenu, setShowFilterMenu] = useState(false);
-  const [showDetailedSearch, setShowDetailedSearch] = useState(false);
+  const [sortBy, setSortBy] = useState("date");
+  const [sortOrder, setSortOrder] = useState("desc");
   const [detailedSearchParams, setDetailedSearchParams] = useState({
     keyword: "",
     startDate: null,
@@ -62,27 +68,18 @@ const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
     sortBy: "date",
     sortOrder: "desc",
   });
-  const [sortBy, setSortBy] = useState("date");
-  const [sortOrder, setSortOrder] = useState("desc");
-  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
-  const [searchParams, setSearchParams] = useState({
-    keyword: "",
-    startDate: null,
-    endDate: null,
-    fileType: "All",
-  });
-  const [isResizing, setIsResizing] = useState(false);
-  const [size, setSize] = useState({ width: 400, height: 500 });
+  const [size, setSize] = useState({ width: 600, height: 700 });
   const resizeRef = useRef(null);
   const chatMessagesRef = useRef(null);
+  const [senderProfilePic, setSenderProfilePic] = useState(null);
   const [otherUserProfilePic, setOtherUserProfilePic] = useState(null);
 
   useEffect(() => {
-    if (currentUser && otherUser) {
+    if (visible && currentUser && otherUser) {
       const constructedChatId = `${currentUser._id}-${otherUser._id}`;
       fetchMessages(constructedChatId);
     }
-  }, [currentUser, otherUser]);
+  }, [visible, currentUser, otherUser]);
 
   const addMessage = useCallback((message) => {
     setMessages((prevMessages) => {
@@ -103,17 +100,16 @@ const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
           ? response.data.messages
           : [...response.data.messages, ...prevMessages]
       );
-      setPage(response.data.currentPage);
-      setTotalPages(response.data.totalPages);
     } catch (error) {
       console.error("Error fetching messages:", error);
+      toast.error("Failed to fetch messages.");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    if (!currentUser || !otherUser) return;
+    if (!visible || !currentUser || !otherUser) return;
 
     const newSocket = io(process.env.REACT_APP_API_URL);
     setSocket(newSocket);
@@ -131,13 +127,15 @@ const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
 
     newSocket.on("newMessage", handleNewMessage);
 
-    fetchMessages();
+    fetchMessages(`${currentUser._id}-${otherUser._id}`);
+
+    fetchProfilePics();
 
     return () => {
       newSocket.off("newMessage", handleNewMessage);
       newSocket.disconnect();
     };
-  }, [currentUser, otherUser, addMessage, chatId]);
+  }, [visible, currentUser, otherUser, addMessage, chatId]);
 
   useEffect(() => {
     if (chatMessagesRef.current) {
@@ -145,22 +143,13 @@ const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
     }
   }, [messages]);
 
-  useEffect(() => {
-    if (otherUser?._id) {
-      fetchMessages();
-      fetchProfilePics();
-    }
-  }, [otherUser?._id]);
-
   const fetchProfilePics = async () => {
     try {
-      // Fetch current user's profile pic
       const currentUserResponse = await api.get(
         `/api/users/profile/${currentUser._id}`
       );
       setSenderProfilePic(currentUserResponse.data.profilePic);
 
-      // Fetch other user's profile pic
       const otherUserResponse = await api.get(
         `/api/users/profile/${otherUser._id}`
       );
@@ -170,21 +159,9 @@ const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
     }
   };
 
-  const handleFileTypeSelect = (type) => {
-    setFileType(type);
-    setShowFileTypeMenu(false);
-    fileInputRef.current.click();
-  };
-
-  const handleFilterSelect = (filter) => {
-    setFileTypeFilter(filter);
-    setShowFilterMenu(false);
-  };
-
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    setFile(selectedFile);
-    setInputMessage(selectedFile ? selectedFile.name : "");
+  const handleFileChange = ({ file }) => {
+    setFile(file.originFileObj);
+    setInputMessage(file.originFileObj ? file.originFileObj.name : "");
   };
 
   const removeSelectedFile = () => {
@@ -193,32 +170,28 @@ const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
     setInputMessage("");
   };
 
-  const sendMessage = async (e) => {
-    e.preventDefault();
-    setError("");
+  const sendMessage = async () => {
     if (inputMessage || file) {
       try {
-        // If there's no file, send a simple JSON message
+        let response;
         if (!file) {
-          const response = await api.post("/api/chat/send", {
+          response = await api.post("/api/chat/send", {
             message: inputMessage,
             receiver: otherUser?._id || "",
           });
-          addMessage(response.data);
         } else {
-          // If there is a file, use FormData
           const formData = new FormData();
           formData.append("message", inputMessage);
           formData.append("receiver", otherUser?._id || "");
           formData.append("file", file);
-          formData.append("fileType", fileType);
+          formData.append("fileType", fileType || "File");
 
-          const response = await api.post("/api/chat/send-with-file", formData, {
+          response = await api.post("/api/chat/send-with-file", formData, {
             headers: { "Content-Type": "multipart/form-data" },
           });
-          addMessage(response.data);
         }
 
+        addMessage(response.data);
         setInputMessage("");
         setFile(null);
         setFileType("");
@@ -230,48 +203,22 @@ const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
         // Scroll to bottom after sending message
         setTimeout(() => {
           if (chatMessagesRef.current) {
-            chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
+            chatMessagesRef.current.scrollTop =
+              chatMessagesRef.current.scrollHeight;
           }
         }, 100);
       } catch (error) {
-        console.error("Error sending message:", error.response?.data || error.message);
-        setError(error.response?.data?.error || "Error sending message");
+        console.error(
+          "Error sending message:",
+          error.response?.data || error.message
+        );
+        toast.error(error.response?.data?.error || "Error sending message");
       }
     }
   };
 
-  const renderFileAttachment = (file) => {
-    if (!file) return null;
-    const fileUrl = `${process.env.REACT_APP_API_URL}/uploads/${file.filename}`;
-    return (
-      <div className="file-attachment">
-        <FaFileAlt className="file-icon" />
-        <a href={fileUrl} download={file.originalName}>
-          Download {file.originalName}
-        </a>
-      </div>
-    );
-  };
-
-  const renderMessage = (msg) => {
-    const isCurrentUser = msg.sender._id === currentUser._id;
-    return (
-      <div
-        key={msg._id}
-        className={`message ${isCurrentUser ? "sent" : "received"}`}
-      >
-        {msg.file && msg.fileType && (
-          <p className="file-type-info">
-            {msg.sender.username} sent a {msg.fileType} Attachment:
-          </p>
-        )}
-        <p>{msg.content}</p>
-        {msg.file && renderFileAttachment(msg.file)}
-        <span className="timestamp">
-          {new Date(msg.timestamp).toLocaleString()}
-        </span>
-      </div>
-    );
+  const handleFilterChange = (value) => {
+    setFileTypeFilter(value);
   };
 
   useEffect(() => {
@@ -281,22 +228,6 @@ const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
         : messages.filter((msg) => msg.fileType === fileTypeFilter)
     );
   }, [fileTypeFilter, messages]);
-
-  const loadMoreMessages = () => {
-    if (page < totalPages) {
-      fetchMessages(`${currentUser._id}-${otherUser._id}`, page + 1);
-    }
-  };
-
-  const toggleMinimize = () => {
-    setIsMinimized(!isMinimized);
-    setIsFullscreen(false);
-  };
-
-  const toggleFullscreen = () => {
-    setIsFullscreen(!isFullscreen);
-    setIsMinimized(false);
-  };
 
   const handleSearch = (e) => {
     setSearchTerm(e.target.value);
@@ -311,27 +242,16 @@ const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
     setFilteredMessages(filtered);
   };
 
-  const handleDetailedSearch = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get("/api/chat/search", {
-        params: {
-          chatId,
-          ...detailedSearchParams,
-        },
-      });
-      let sortedMessages = sortMessages(
-        response.data.messages,
-        sortBy,
-        sortOrder
-      );
-      setFilteredMessages(sortedMessages);
-    } catch (error) {
-      console.error("Error performing detailed search:", error);
-      toast.error("Failed to perform detailed search");
-    } finally {
-      setLoading(false);
-    }
+  const toggleFullscreen = () => {
+    setIsFullscreen(!isFullscreen);
+  };
+
+  const handleSortChange = (value) => {
+    setSortBy(value);
+    const newSortOrder = sortOrder === "asc" ? "desc" : "asc";
+    setSortOrder(newSortOrder);
+    const sorted = sortMessages([...filteredMessages], value, newSortOrder);
+    setFilteredMessages(sorted);
   };
 
   const sortMessages = (messages, sortBy, sortOrder) => {
@@ -352,339 +272,274 @@ const ChatComponent = ({ currentUser, otherUser, onClose, chatId }) => {
     });
   };
 
-  const handleSortChange = (newSortBy) => {
-    if (newSortBy === sortBy) {
-      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
-    } else {
-      setSortBy(newSortBy);
-      setSortOrder("asc");
-    }
-    setFilteredMessages(
-      sortMessages(
-        [...filteredMessages],
-        newSortBy,
-        sortOrder === "asc" ? "desc" : "asc"
-      )
-    );
-  };
-
-  const toggleAdvancedSearch = () => {
-    setShowAdvancedSearch(!showAdvancedSearch);
-  };
-
-  const handleSearchParamChange = (param, value) => {
-    setSearchParams((prev) => ({ ...prev, [param]: value }));
-  };
-
-  const performAdvancedSearch = () => {
-    // This is where you'd typically make an API call to search messages
-    // For now, we'll just filter the existing messages
-    const filteredMessages = messages.filter((message) => {
-      const matchesKeyword = message.content
-        .toLowerCase()
-        .includes(searchParams.keyword.toLowerCase());
-      const matchesFileType =
-        searchParams.fileType === "All" ||
-        message.fileType === searchParams.fileType;
-      const messageDate = new Date(message.timestamp);
-      const isAfterStartDate =
-        !searchParams.startDate || messageDate >= searchParams.startDate;
-      const isBeforeEndDate =
-        !searchParams.endDate || messageDate <= searchParams.endDate;
-
-      return (
-        matchesKeyword && matchesFileType && isAfterStartDate && isBeforeEndDate
-      );
-    });
-
-    // Update the displayed messages with the filtered results
-    setMessages(filteredMessages);
-  };
-
-  const startResize = (e) => {
-    setIsResizing(true);
-    e.preventDefault();
-  };
-
-  const stopResize = () => {
-    setIsResizing(false);
-  };
-
-  const resize = (e) => {
-    if (isResizing) {
-      const newWidth =
-        e.clientX - resizeRef.current.getBoundingClientRect().left;
-      const newHeight =
-        e.clientY - resizeRef.current.getBoundingClientRect().top;
-      setSize({
-        width: Math.max(300, newWidth),
-        height: Math.max(400, newHeight),
+  const performDetailedSearch = async () => {
+    try {
+      setLoading(true);
+      const response = await api.get("/api/chat/search", {
+        params: {
+          chatId,
+          ...detailedSearchParams,
+        },
       });
+      let sortedMessages = sortMessages(
+        response.data.messages,
+        sortBy,
+        sortOrder
+      );
+      setFilteredMessages(sortedMessages);
+      toast.success("Search completed!");
+    } catch (error) {
+      console.error("Error performing detailed search:", error);
+      toast.error("Failed to perform detailed search");
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    window.addEventListener("mousemove", resize);
-    window.addEventListener("mouseup", stopResize);
-    return () => {
-      window.removeEventListener("mousemove", resize);
-      window.removeEventListener("mouseup", stopResize);
-    };
-  }, [isResizing]);
+  const uploadProps = {
+    beforeUpload: () => false, // Prevent automatic upload
+    onChange: handleFileChange,
+    multiple: false,
+    showUploadList: false,
+  };
 
   return (
-    <div
-      className={`chat-component thrilling-theme ${
-        isFullscreen ? "fullscreen" : ""
-      }`}
-      style={
-        !isFullscreen
-          ? { width: `${size.width}px`, height: `${size.height}px` }
-          : {}
+    <Modal
+      visible={visible}
+      onCancel={onClose}
+      footer={null}
+      width={isFullscreen ? "100%" : size.width}
+      bodyStyle={
+        isFullscreen
+          ? { height: "100vh", padding: 0 }
+          : { height: size.height, padding: 0 }
       }
-      ref={resizeRef}
+      closable={false}
+      maskClosable={false}
+      className={`chat-modal ${isFullscreen ? "fullscreen-modal" : ""}`}
     >
-      <div className="resize-overlay" onMouseDown={startResize}></div>
-      <div className="chat-header">
-        <h3 className="chat-header-text">
-          Chat with {otherUser.username}
-          <img
-            className="circle-profile-pic"
-            src={
-              otherUserProfilePic
-                ? `${process.env.REACT_APP_API_URL}/uploads/${otherUserProfilePic}`
-                : `${process.env.REACT_APP_API_URL}/default-profile-pic.jpg`
-            }
-            alt="Profile"
-          />
-        </h3>
-        <div className="header-actions">
-          <div className="icon">
-            <FaSearch
-              className="action-icon"
-              data-tooltip-id="search-tooltip"
-              data-tooltip-content="Detailed Search"
-              onClick={() => setShowDetailedSearch(!showDetailedSearch)}
+      <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+        {/* Header */}
+        <div
+          style={{
+            background: "#001529",
+            color: "#fff",
+            padding: "10px 20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center" }}>
+            <Avatar
+              src={
+                otherUserProfilePic
+                  ? `${process.env.REACT_APP_API_URL}/uploads/${otherUserProfilePic}`
+                  : "/default-profile-pic.jpg"
+              }
+              size="large"
             />
+            <span style={{ marginLeft: 10, fontSize: 18 }}>
+              Chat with {otherUser.username}
+            </span>
           </div>
-          <div className="filter-dropdown">
-            <div className="icon">
-              <FaFilter
-                className="action-icon"
-                data-tooltip-id="filter-tooltip"
-                data-tooltip-content="Filter messages"
-                onClick={() => setShowFilterMenu(!showFilterMenu)}
+          <div>
+            <Tooltip title="Search Messages">
+              <Button
+                icon={<SearchOutlined />}
+                style={{ marginRight: 8 }}
+                onClick={() => {}}
               />
-            </div>
-            {showFilterMenu && (
-              <div className="filter-menu">
-                <button onClick={() => handleFilterSelect("All")}>All</button>
-                <button onClick={() => handleFilterSelect("Tax File")}>
-                  Tax File
-                </button>
-                <button onClick={() => handleFilterSelect("Payroll File")}>
-                  Payroll File
-                </button>
-                <button onClick={() => handleFilterSelect("Compliance File")}>
-                  Compliance File
-                </button>
-                <button onClick={() => handleFilterSelect("File")}>File</button>
-              </div>
-            )}
-          </div>
-          <div className="icon">
-            {isFullscreen ? (
-              <FaCompress
-                className="action-icon"
-                data-tooltip-id="fullscreen-tooltip"
-                data-tooltip-content="Exit Fullscreen"
+            </Tooltip>
+            <Tooltip title="Filter Messages">
+              <Select
+                value={fileTypeFilter}
+                onChange={handleFilterChange}
+                style={{ width: 150, marginRight: 8 }}
+                placeholder="Filter by File Type"
+              >
+                <Option value="All">All</Option>
+                <Option value="Tax File">Tax File</Option>
+                <Option value="Payroll File">Payroll File</Option>
+                <Option value="Compliance File">Compliance File</Option>
+                <Option value="File">File</Option>
+              </Select>
+            </Tooltip>
+            <Tooltip title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}>
+              <Button
+                icon={
+                  isFullscreen ? (
+                    <FullscreenExitOutlined />
+                  ) : (
+                    <FullscreenOutlined />
+                  )
+                }
                 onClick={toggleFullscreen}
+                style={{ marginRight: 8 }}
               />
-            ) : (
-              <FaExpand
-                className="action-icon"
-                data-tooltip-id="fullscreen-tooltip"
-                data-tooltip-content="Fullscreen"
-                onClick={toggleFullscreen}
-              />
-            )}
-          </div>
-          <div className="icon">
-            <FaTimes
-              className="action-icon"
-              data-tooltip-id="close-tooltip"
-              data-tooltip-content="Close chat"
-              onClick={onClose}
-            />
+            </Tooltip>
+            <Tooltip title="Close Chat">
+              <Button icon={<CloseOutlined />} onClick={onClose} danger />
+            </Tooltip>
           </div>
         </div>
-      </div>
 
-      {!isMinimized && (
-        <>
-          <div className="search-bar">
-            <input
-              type="text"
-              placeholder="Search messages..."
-              value={searchTerm}
-              onChange={handleSearch}
-            />
-          </div>
-          {showDetailedSearch && (
-            <div className="detailed-search">
-              <input
-                type="text"
-                placeholder="Search keyword..."
-                value={detailedSearchParams.keyword}
-                onChange={(e) =>
-                  setDetailedSearchParams((prev) => ({
-                    ...prev,
-                    keyword: e.target.value,
-                  }))
-                }
-              />
-              <DatePicker
-                selected={detailedSearchParams.startDate}
-                onChange={(date) =>
-                  setDetailedSearchParams((prev) => ({
-                    ...prev,
-                    startDate: date,
-                  }))
-                }
-                placeholderText="Start Date"
-              />
-              <DatePicker
-                value={
-                  detailedSearchParams.endDate
-                    ? dayjs(detailedSearchParams.endDate)
-                    : null
-                }
-                onChange={(date) =>
-                  setDetailedSearchParams((prev) => ({
-                    ...prev,
-                    endDate: date?.toDate() ?? null,
-                  }))
-                }
-                disabledDate={(current) =>
-                  current && current > dayjs().endOf("day")
-                }
-                format="DD-MM-YYYY"
-              />
-              <select
-                value={detailedSearchParams.fileType}
-                onChange={(e) =>
-                  setDetailedSearchParams((prev) => ({
-                    ...prev,
-                    fileType: e.target.value,
-                  }))
-                }
-              >
-                <option value="All">All File Types</option>
-                <option value="Tax File">Tax File</option>
-                <option value="Payroll File File">Payroll File</option>
-                <option value="Compliance File">Compliance File</option>
-                <option value="File">File</option>
-              </select>
-              <div className="sort-options">
-                <button onClick={() => handleSortChange("date")}>
-                  Sort by Date{" "}
-                  {sortBy === "date" && (sortOrder === "asc" ? "↑" : "↓")}
-                </button>
-                <button onClick={() => handleSortChange("fileType")}>
-                  Sort by File Type{" "}
-                  {sortBy === "fileType" && (sortOrder === "asc" ? "↑" : "↓")}
-                </button>
-              </div>
-              <button onClick={handleDetailedSearch}>Search</button>
-            </div>
-          )}
-          <div className="chat-messages" ref={chatMessagesRef}>
-            {loading && <div className="loading-spinner">Loading...</div>}
-            {filteredMessages.length > 0 ? (
-              <>
-                {page < totalPages && (
-                  <button
-                    onClick={loadMoreMessages}
-                    disabled={loading}
-                    className="load-more-button"
+        {/* Search Bar */}
+        <div style={{ padding: "10px 20px", background: "#f0f2f5" }}>
+          <Input
+            prefix={<SearchOutlined />}
+            placeholder="Search messages..."
+            value={searchTerm}
+            onChange={handleSearch}
+            allowClear
+          />
+        </div>
+
+        {/* Detailed Search (Optional) */}
+        {/* You can toggle the visibility of this section based on state if needed */}
+        {/* <div style={{ padding: "10px 20px", background: "#fafafa" }}>
+          // Detailed search components
+        </div> */}
+
+        {/* Messages */}
+        <div
+          ref={chatMessagesRef}
+          style={{
+            flex: 1,
+            padding: "20px",
+            overflowY: "auto",
+            background: "#e6f7ff",
+          }}
+        >
+          {loading ? (
+            <Spin tip="Loading..." />
+          ) : (
+            <List
+              dataSource={filteredMessages}
+              renderItem={(msg) => {
+                const isCurrentUser = msg.sender._id === currentUser._id;
+                return (
+                  <List.Item
+                    key={msg._id}
+                    style={{
+                      justifyContent: isCurrentUser ? "flex-end" : "flex-start",
+                    }}
                   >
-                    {loading ? "Loading..." : "Load More"}
-                  </button>
-                )}
-                {filteredMessages.map(renderMessage)}
-              </>
-            ) : (
-              <div className="no-messages">No messages/Files found</div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-          <form onSubmit={sendMessage} className="message-input">
-            {file && (
-              <div className="selected-file-type">
-                <span>
-                  {file.name.length > 20
-                    ? file.name.slice(0, 17) + "..."
-                    : file.name}
-                </span>
-                <FaTimes onClick={removeSelectedFile} className="remove-file" />
-              </div>
-            )}
-            <div className="input-wrapper">
-              <div className="file-upload-container">
-                <div className="file-type-dropdown">
-                  <FaLink
-                    className="link-icon"
-                    onClick={() => setShowFileTypeMenu(!showFileTypeMenu)}
-                  />
-                  {showFileTypeMenu && (
-                    <div className="file-type-menu">
-                      <button onClick={() => handleFileTypeSelect("File")}>
-                        Normal File
-                      </button>
-                      <button onClick={() => handleFileTypeSelect("Tax File")}>
-                        Tax File
-                      </button>
-                      <button
-                        onClick={() => handleFileTypeSelect("Payroll File")}
+                    <div
+                      style={{
+                        maxWidth: "70%",
+                        background: isCurrentUser ? "#1890ff" : "#fff",
+                        color: isCurrentUser ? "#fff" : "#000",
+                        padding: "10px",
+                        borderRadius: 10,
+                        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                      }}
+                    >
+                      {!isCurrentUser && (
+                        <div
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            marginBottom: 5,
+                          }}
+                        >
+                          <Avatar
+                            src={
+                              msg.sender.profilePic
+                                ? `${process.env.REACT_APP_API_URL}/uploads/${msg.sender.profilePic}`
+                                : "/default-profile-pic.jpg"
+                            }
+                            size="small"
+                          />
+                          <span style={{ marginLeft: 8 }}>
+                            {msg.sender.username}
+                          </span>
+                        </div>
+                      )}
+                      <div>{msg.content}</div>
+                      {msg.file && (
+                        <div style={{ marginTop: 10 }}>
+                          <FaFileAlt />{" "}
+                          <a
+                            href={`${process.env.REACT_APP_API_URL}/uploads/${msg.file.filename}`}
+                            download={msg.file.originalName}
+                            style={{
+                              color: isCurrentUser ? "#fff" : "#1890ff",
+                            }}
+                          >
+                            {msg.file.originalName}
+                          </a>
+                        </div>
+                      )}
+                      <div
+                        style={{
+                          textAlign: "right",
+                          fontSize: "0.8em",
+                          marginTop: 5,
+                        }}
                       >
-                        Payroll File
-                      </button>
-                      <button
-                        onClick={() => handleFileTypeSelect("Compliance File")}
-                      >
-                        Compliance File
-                      </button>
+                        {moment(msg.timestamp).format("HH:mm")}
+                      </div>
                     </div>
-                  )}
-                </div>
-                <input
-                  ref={fileInputRef}
-                  id="file-upload"
-                  type="file"
-                  onChange={handleFileChange}
-                  style={{ display: "none" }}
+                  </List.Item>
+                );
+              }}
+            />
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Message Input */}
+        <div style={{ padding: "10px 20px", background: "#f0f2f5" }}>
+          <Input.Group compact>
+            <Upload {...uploadProps} showUploadList={false} multiple={false}>
+              <Button icon={<UploadOutlined />}>Attach</Button>
+            </Upload>
+            {file && (
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  background: "#fff",
+                  padding: "0 10px",
+                  border: "1px solid #d9d9d9",
+                  borderRadius: 4,
+                  marginRight: 8,
+                }}
+              >
+                <span
+                  style={{
+                    marginRight: 8,
+                    maxWidth: 150,
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {file.name}
+                </span>
+                <DeleteOutlined
+                  onClick={removeSelectedFile}
+                  style={{ color: "red", cursor: "pointer" }}
                 />
               </div>
-              <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                placeholder="Type a message..."
-              />
-              <button type="submit" className="send-button">
-                <FaPaperPlane className="send-icon" />
-              </button>
-            </div>
-          </form>
-        </>
-      )}
-
-      <Tooltip id="filter-tooltip" />
-      <Tooltip id="fullscreen-tooltip" />
-      <Tooltip id="close-tooltip" />
-      <Tooltip id="attach-tooltip" />
-      <Tooltip id="search-tooltip" />
-    </div>
+            )}
+            <TextArea
+              rows={1}
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              placeholder="Type a message..."
+              style={{ borderRadius: 4, marginRight: 8 }}
+            />
+            <Button
+              type="primary"
+              icon={<FaPaperPlane />}
+              onClick={sendMessage}
+              disabled={!inputMessage && !file}
+            />
+          </Input.Group>
+        </div>
+      </div>
+    </Modal>
   );
 };
 

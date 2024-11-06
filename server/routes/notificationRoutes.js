@@ -2,8 +2,9 @@ const express = require("express");
 const router = express.Router();
 const Notification = require("../models/Notification");
 const { protect } = require("../middleware/authMiddleware");
+const auditMiddleware = require('../middleware/auditMiddleware');
 
-router.get("/", protect, async (req, res) => {
+router.get("/", protect, auditMiddleware('🔔 Viewed notifications'), async (req, res) => {
   try {
     const notifications = await Notification.find({ userId: req.user._id })
       .populate("sender", "username") // Populate sender field with username
