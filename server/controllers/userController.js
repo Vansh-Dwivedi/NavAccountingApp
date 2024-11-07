@@ -1060,36 +1060,37 @@ exports.updateDashboardComponents = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-    // Initialize dashboardComponents array if it doesn't exist
-    if (!user.dashboardComponents) {
+    // Initialize dashboardComponents if it doesn't exist
+    if (!Array.isArray(user.dashboardComponents)) {
       user.dashboardComponents = [];
     }
 
-    if (enabled) {
-      // Add component if it's not already in the array
-      if (!user.dashboardComponents.includes(component)) {
-        user.dashboardComponents.push(component);
-      }
-    } else {
-      // Remove component if it exists in the array
+    if (enabled && !user.dashboardComponents.includes(component)) {
+      // Add component
+      user.dashboardComponents.push(component);
+    } else if (!enabled) {
+      // Remove component
       user.dashboardComponents = user.dashboardComponents.filter(
-        (comp) => comp !== component
+        comp => comp !== component
       );
     }
 
-    await user.save();
+    const updatedUser = await user.save();
 
-    // Log the action
+    // Create audit log
     await AuditLog.create({
       userId: req.user._id,
-      action: 'UPDATE_DASHBOARD_COMPONENTS',
-      details: `Updated dashboard components for user ${userId}`,
+      action: '🔄 Updated Dashboard Components',
+      details: `${enabled ? 'Enabled' : 'Disabled'} ${component} for user ${userId}`,
       targetUserId: userId
     });
 
-    res.json(user);
+    res.json(updatedUser);
   } catch (error) {
     console.error('Error updating dashboard components:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ 
+      message: 'Failed to update dashboard components',
+      error: error.message 
+    });
   }
 };

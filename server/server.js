@@ -34,6 +34,7 @@ const noteRoutes = require("./routes/noteRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const taskRoutes = require("./routes/taskRoutes");
 const userRoutes = require("./routes/userRoutes");
+const dashboardConfigRoutes = require("./routes/dashboardConfigRoutes");
 
 // Initialize Express app
 const app = express();
@@ -125,6 +126,7 @@ app.use("/api/signatures", require("./routes/signatureRoutes"));
 app.use("/api/tasks", taskRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api", componentRoutes);
+app.use("/api/dashboard-management", dashboardConfigRoutes);
 
 // File upload handling
 const uploadsDir = path.join(__dirname, "uploads");

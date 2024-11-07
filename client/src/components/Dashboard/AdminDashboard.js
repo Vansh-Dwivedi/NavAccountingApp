@@ -41,31 +41,19 @@ import {
   AppstoreOutlined,
 } from "@ant-design/icons";
 import AuditLogs from "../AuditLogs";
-import ChatComponent from "../Chat/ChatComponent";
 import Header from "../Header";
-import Modal from "../Modal";
 import FormSubmissionPage from "../FormSubmissionPage";
 import MakeFormTab from "../MakeFormTab";
 import FormsTab from "../FormsTab";
 import CategoriesTab from "../CategoriesTab";
-import TransactionsSection from "./TransactionsSection";
-import FinancialInfoSection from "./FinancialInfoSection";
-import DocumentsSection from "./DocumentsSection";
-import NotesSection from "./NotesSection";
-import TasksSection from "./TasksSection";
-import ComplianceSection from "./ComplianceSection";
-import AuditLogSection from "./AuditLogSection";
-import FinancialOverview from "./FinancialOverview";
-import TransactionList from "./TransactionList";
 import UserManagement from "../Admin/UserManagement";
-import { debounce } from "lodash";
 import io from "socket.io-client";
 import AdminEmployeeDashboard from "./AdminEmployeeDashboard";
 import DragAndDropScreen from "../DragAndDropScreen";
 import { getProfilePicUrl } from "../../utils/profilePicHelper";
 import moment from "moment";
 import ProfileSettings from "../shared/ProfileSettings";
-import ComponentManager from "../Admin/DashboardComponentManager";
+import DashboardManager from "../Admin/DashboardManager";
 
 const { Content, Sider } = Layout;
 const { Title } = Typography;
@@ -83,7 +71,7 @@ const AdminDashboard = () => {
   const [isSleepMode, setIsSleepMode] = useState(false);
   const [selectedFormId, setSelectedFormId] = useState(null);
   const [savedForms, setSavedForms] = useState([]);
-  const [activeFormsTab, setActiveFormsTab] = useState("makeForm");
+  const [activeFormsTab, setActiveFormsTab] = useState("forms");
   const [selectedClient] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -333,23 +321,23 @@ const AdminDashboard = () => {
   const handleUpdateFinancialData = async (values) => {
     try {
       await api.put(`/api/users/${selectedClient._id}/financial-data`, values);
-      message.success('Financial data updated successfully');
+      message.success("Financial data updated successfully");
       // Refresh client data
       fetchUsers();
     } catch (error) {
-      console.error('Error updating financial data:', error);
-      message.error('Failed to update financial data');
+      console.error("Error updating financial data:", error);
+      message.error("Failed to update financial data");
     }
   };
 
   const handleFinancialDataUpdate = async (values) => {
     try {
       await api.put(`/api/users/${selectedClient._id}/financial-data`, values);
-      message.success('Financial data updated successfully');
+      message.success("Financial data updated successfully");
       fetchClientData(selectedClient._id);
     } catch (error) {
-      console.error('Error updating financial data:', error);
-      message.error('Failed to update financial data');
+      console.error("Error updating financial data:", error);
+      message.error("Failed to update financial data");
     }
   };
 
@@ -367,11 +355,15 @@ const AdminDashboard = () => {
       label: "Employee Management",
     },
     { key: "dragAndDrop", icon: <InboxOutlined />, label: "File Transfer" },
-    { key: "componentManager", icon: <AppstoreOutlined />, label: "Dashboard Components" },
     {
       key: "personnelSettings",
       icon: <UserOutlined />,
       label: "Personnel Settings",
+    },
+    {
+      key: "dashboardManager",
+      icon: <AppstoreOutlined />,
+      label: "Dashboard Manager",
     },
     { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
     { key: "sleep", icon: <MoonOutlined />, label: "Sleep Mode" },
@@ -727,6 +719,12 @@ const AdminDashboard = () => {
                 )}
               </div>
             )}
+            {activeTab === "dashboardManager" && (
+              <div className="dashboard-manager-section">
+                <Title level={3}>Dashboard Manager</Title>
+                <DashboardManager />
+              </div>
+            )}
             {activeTab === "dragAndDrop" && (
               <div className="drag-and-drop-section">
                 <Title level={3}>File Transfer</Title>
@@ -741,7 +739,7 @@ const AdminDashboard = () => {
             {activeTab === "forms" && (
               <div className="forms-tab">
                 <Tabs activeKey={activeFormsTab} onChange={setActiveFormsTab}>
-                  <TabPane tab="Forms" key="sentForms">
+                  <TabPane tab="Forms" key="forms">
                     <FormsTab />
                   </TabPane>
                   <TabPane tab="Make Form" key="makeForm">

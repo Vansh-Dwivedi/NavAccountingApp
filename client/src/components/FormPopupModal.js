@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { FaTimes, FaExclamationTriangle } from "react-icons/fa";
+import { FaTimes, FaExclamationTriangle, FaInfoCircle } from "react-icons/fa";
 import "./components.css";
 import api from "../utils/api";
 import DigitalSignature from "./DigitalSignatureField";
-import { Form, Input, Select, Upload, Button, Space, Typography } from 'antd';
+import { Form, Input, Select, Upload, Button, Space, Typography, message, Alert } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
+import moment from 'moment';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -13,7 +14,6 @@ const FormPopupModal = ({ form, onClose, onSubmit, userId }) => {
   const [formValues, setFormValues] = useState({});
   const [categoryName, setCategoryName] = useState("");
   const [timeLeft, setTimeLeft] = useState(0);
-  const [errors, setErrors] = useState({});
   const [showSignatureModal, setShowSignatureModal] = useState(false);
   const [showUploadDropdown, setShowUploadDropdown] = useState(false);
 
@@ -33,7 +33,7 @@ const FormPopupModal = ({ form, onClose, onSubmit, userId }) => {
         setCategoryName(category.name);
       }
     } catch (error) {
-      console.error("Error fetching categories:", error);
+      message.error("Error fetching categories:", error);
     }
   };
 
@@ -42,49 +42,33 @@ const FormPopupModal = ({ form, onClose, onSubmit, userId }) => {
       ...prevValues,
       [fieldId]: value,
     }));
-    if (errors[fieldId]) {
-      setErrors((prevErrors) => ({
-        ...prevErrors,
-        [fieldId]: null,
-      }));
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    form.fields.forEach((field) => {
-      if (field.required) {
-        if (field.type === "digitalSignature") {
-          if (!formValues[field._id] || formValues[field._id] === "") {
-            newErrors[field._id] = "This field is required";
-          }
-        } else if (!formValues[field._id] || formValues[field._id] === "") {
-          newErrors[field._id] = "This field is required";
-        }
-      }
-    });
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = (values) => {
-    if (validateForm()) {
-      onSubmit(values);
-    } else {
-      console.log("Form validation failed");
+    // Merge form values with any values from controlled components
+    const mergedValues = {
+      ...values,
+      ...formValues
+    };
+
+    // Check for required fields
+    const emptyRequiredFields = form.fields.filter(field => 
+      field.required && !mergedValues[field._id]
+    );
+
+    if (emptyRequiredFields.length > 0) {
+      emptyRequiredFields.forEach(field => {
+        message.error(`${field.label}: This field is required`);
+      });
+      return;
     }
+
+    onSubmit(mergedValues);
   };
 
   const handleSignatureSelect = (fieldId, signatureData) => {
     handleInputChange(fieldId, signatureData);
     setShowSignatureModal(false);
-  };
-
-  const formatTime = (seconds) => {
-    const days = Math.floor(seconds / (24 * 60 * 60));
-    const hours = Math.floor((seconds % (24 * 60 * 60)) / (60 * 60));
-    const minutes = Math.floor((seconds % (60 * 60)) / 60);
-    return `${days}d ${hours}h ${minutes}m`;
   };
 
   const updateField = (fieldId, value) => {
@@ -110,13 +94,23 @@ const FormPopupModal = ({ form, onClose, onSubmit, userId }) => {
         <Title level={2}>{form.title || "Untitled Form"}</Title>
         {form.isCompulsory && (
           <Space direction="vertical" className="compulsory-warning-container">
-            <Space className="compulsory-warning">
-              <FaExclamationTriangle className="warning-icon" />
-              <Text>This form is compulsory, the deadline is:</Text>
-            </Space>
-            <Text className="countdown">{form.deadline} days</Text>
+            <Alert
+              message="Compulsory Form"
+              description={
+                <Space direction="vertical">
+                  <Text>This form is compulsory and must be completed.</Text>
+                  <Text strong>
+                    Last Date: {moment(form.deadline).format('MMMM Do YYYY, h:mm a')}
+                  </Text>
+                </Space>
+              }
+              type="error"
+              showIcon
+              icon={<FaExclamationTriangle />}
+            />
           </Space>
         )}
+
         <Form onFinish={handleSubmit} layout="vertical">
           {form.fields.map((field) => (
             <Form.Item
@@ -128,20 +122,24 @@ const FormPopupModal = ({ form, onClose, onSubmit, userId }) => {
                   {field.required && <span style={{ color: 'red' }}>*</span>}
                 </Space>
               }
-              rules={[{ required: field.required, message: 'This field is required' }]}
+              validateTrigger={['onChange', 'onBlur']}
             >
               {field.type === "text" && (
-                <Input />
+                <Input onChange={(e) => handleInputChange(field._id, e.target.value)} />
               )}
               {field.type === "file" && (
                 <Upload
                   beforeUpload={() => false}
+                  onChange={(info) => handleInputChange(field._id, info.file)}
                 >
                   <Button icon={<UploadOutlined />}>Click to Upload</Button>
                 </Upload>
               )}
               {field.type === "dropdown" && (
-                <Select style={{ width: '100%' }}>
+                <Select 
+                  style={{ width: '100%' }}
+                  onChange={(value) => handleInputChange(field._id, value)}
+                >
                   <Option value="">Select an option</Option>
                   {field.options &&
                     field.options.map((option, index) => (
@@ -166,12 +164,17 @@ const FormPopupModal = ({ form, onClose, onSubmit, userId }) => {
             </Form.Item>
           ))}
           <Form.Item>
-            <Space direction="vertical" className="category-warning">
-              <FaExclamationTriangle className="warning-icon" />
-              <Text>
-                This form is regarding <strong>{categoryName}</strong>.
-              </Text>
-            </Space>
+            <Alert
+              message="Category Information"
+              description={
+                <Text>
+                  This form is regarding <strong>{categoryName}</strong>.
+                </Text>
+              }
+              type="info"
+              showIcon
+              icon={<FaInfoCircle />}
+            />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" className="submit-button">

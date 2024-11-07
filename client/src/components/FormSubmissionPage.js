@@ -73,12 +73,14 @@ const FormSubmissionPage = ({ formId }) => {
                   <List.Item.Meta
                     title={response.fieldLabel}
                     description={
-                      response.value === "digitalSignature" ? (
+                      response.type === "digitalSignature" ? (
                         <div>
-                          <Text>Digital Signature:</Text>
+                          <Text style={{ marginRight: 8 }}>
+                            Digital Signature:
+                          </Text>
                           <Image
                             width={200}
-                            src={response.value}
+                            src={JSON.parse(response.value).value}
                             alt="Digital Signature"
                           />
                         </div>

@@ -34,7 +34,7 @@ const NoteSchema = new mongoose.Schema({
   employee: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Employee',
-    required: true
+    required: false
   }
 }, { timestamps: true });
 

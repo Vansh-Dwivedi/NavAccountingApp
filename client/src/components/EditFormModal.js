@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
 import './components.css';
+import { Modal, Form, Input, Select, Switch, Button, Space, Divider } from 'antd';
 
 const EditFormModal = ({ form, onClose, onSubmit }) => {
   const [editedForm, setEditedForm] = useState(form);
+  const [formInstance] = Form.useForm();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
+  const handleChange = (name, value) => {
     setEditedForm(prevForm => ({
       ...prevForm,
       [name]: value
     }));
   };
 
-  const handleFieldChange = (index, e) => {
-    const { name, value } = e.target;
+  const handleFieldChange = (index, name, value) => {
     const updatedFields = [...editedForm.fields];
     updatedFields[index] = { ...updatedFields[index], [name]: value };
     setEditedForm(prevForm => ({
@@ -54,88 +54,114 @@ const EditFormModal = ({ form, onClose, onSubmit }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     onSubmit(editedForm);
   };
 
   return (
-    <div className="edit-form-modal-overlay">
-      <div className="edit-form-modal">
-        <h2>Edit Form</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="title">Form Title:</label>
-            <input
-              type="text"
-              id="title"
-              name="title"
-              value={editedForm.title}
-              onChange={handleChange}
-              required
-            />
-          </div>
-          
-          <h3>Form Fields</h3>
-          {editedForm.fields.map((field, index) => (
-            <div key={index} className="form-field">
-              <input
-                type="text"
-                name="label"
-                value={field.label}
-                onChange={(e) => handleFieldChange(index, e)}
-                placeholder="Field Label"
+    <Modal
+      title="Edit Form"
+      open={true}
+      onCancel={onClose}
+      footer={null}
+      width={800}
+    >
+      <Form
+        form={formInstance}
+        layout="vertical"
+        onFinish={handleSubmit}
+        initialValues={editedForm}
+      >
+        <Form.Item
+          label="Form Title"
+          name="title"
+          rules={[{ required: true, message: 'Please input form title!' }]}
+        >
+          <Input 
+            value={editedForm.title}
+            onChange={(e) => handleChange('title', e.target.value)}
+          />
+        </Form.Item>
+
+        <Divider>Form Fields</Divider>
+
+        {editedForm.fields.map((field, index) => (
+          <div key={index} style={{ marginBottom: 24, padding: 24, border: '1px solid #f0f0f0', borderRadius: 4 }}>
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <Form.Item
+                label="Field Label"
                 required
-              />
-              <select
-                name="type"
-                value={field.type}
-                onChange={(e) => handleFieldChange(index, e)}
               >
-                <option value="text">Text</option>
-                <option value="file">File</option>
-                <option value="dropdown">Dropdown</option>
-              </select>
-              <label>
-                <input
-                  type="checkbox"
-                  name="required"
-                  checked={field.required}
-                  onChange={(e) => handleFieldChange(index, {
-                    target: { name: 'required', value: e.target.checked }
-                  })}
+                <Input
+                  value={field.label}
+                  onChange={(e) => handleFieldChange(index, 'label', e.target.value)}
+                  placeholder="Field Label"
                 />
-                Required
-              </label>
-              <button type="button" onClick={() => removeField(index)}>Remove Field</button>
-              
+              </Form.Item>
+
+              <Form.Item label="Field Type">
+                <Select
+                  value={field.type}
+                  onChange={(value) => handleFieldChange(index, 'type', value)}
+                  style={{ width: 200 }}
+                >
+                  <Select.Option value="text">Text</Select.Option>
+                  <Select.Option value="file">File</Select.Option>
+                  <Select.Option value="dropdown">Dropdown</Select.Option>
+                  <Select.Option value="digitalSignature">Digital Signature</Select.Option>
+                </Select>
+              </Form.Item>
+
+              <Form.Item label="Required">
+                <Switch
+                  checked={field.required}
+                  onChange={(checked) => handleFieldChange(index, 'required', checked)}
+                />
+              </Form.Item>
+
               {field.type === 'dropdown' && (
                 <div className="dropdown-options">
                   <h4>Options:</h4>
                   {field.options.map((option, optionIndex) => (
-                    <input
-                      key={optionIndex}
-                      type="text"
-                      value={option}
-                      onChange={(e) => updateOption(index, optionIndex, e.target.value)}
-                      placeholder={`Option ${optionIndex + 1}`}
-                    />
+                    <Form.Item key={optionIndex}>
+                      <Input
+                        value={option}
+                        onChange={(e) => updateOption(index, optionIndex, e.target.value)}
+                        placeholder={`Option ${optionIndex + 1}`}
+                      />
+                    </Form.Item>
                   ))}
-                  <button className="field-button" type="button" onClick={() => addOption(index)}>Add Option</button>
+                  <Button type="dashed" onClick={() => addOption(index)} block>
+                    Add Option
+                  </Button>
                 </div>
               )}
-            </div>
-          ))}
-          
-          <button className="field-button" type="button" onClick={addField}>Add Field</button>
-          
-          <div className="form-actions">
-            <button type="submit">Save Changes</button>
-            <button type="button" onClick={onClose}>Cancel</button>
+
+              <Button danger onClick={() => removeField(index)}>
+                Remove Field
+              </Button>
+            </Space>
           </div>
-        </form>
-      </div>
-    </div>
+        ))}
+
+        <Form.Item>
+          <Button type="dashed" onClick={addField} block>
+            Add Field
+          </Button>
+        </Form.Item>
+
+        <Form.Item>
+          <Space>
+            <Button type="primary" htmlType="submit">
+              Save Changes
+            </Button>
+            <Button onClick={onClose}>
+              Cancel
+            </Button>
+          </Space>
+        </Form.Item>
+      </Form>
+    </Modal>
   );
 };
 

@@ -55,6 +55,7 @@ import DragAndDropScreen from "../DragAndDropScreen";
 import { getProfilePicUrl } from "../../utils/profilePicHelper";
 import RoleChecker from "../../Authentication/main";
 import ChatComponent from "../Chat/ChatComponent";
+import { useEnabledComponents } from "../../hooks/useEnabledComponents";
 
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -129,6 +130,7 @@ const EmployeeDashboard = () => {
   const [fileContent, setFileContent] = useState(null);
   const [fileType, setFileType] = useState(null);
   const [personnelForm] = Form.useForm();
+  const { canShowComponent } = useEnabledComponents(employeeData?._id);
 
   useEffect(() => {
     fetchEmployeeData();
@@ -245,20 +247,16 @@ const EmployeeDashboard = () => {
   };
 
   const menuItems = [
-    { key: "dashboard", icon: <UserOutlined />, label: "Dashboard" },
+    { key: "dashboard", icon: <DashboardOutlined />, label: "Dashboard" },
     { key: "profile", icon: <EditOutlined />, label: "Edit Profile" },
     { key: "settings", icon: <SettingOutlined />, label: "Settings" },
     { key: "dragAndDrop", icon: <InboxOutlined />, label: "File Transfer" },
-    {
-      key: "personnelSettings",
-      icon: <UserOutlined />,
-      label: "Personnel Settings",
-    },
-  ].filter(
-    (item) =>
-      !employeeData?.dashboardComponents?.length ||
-      employeeData.dashboardComponents.includes(item.key)
-  );
+    { key: "personnelSettings", icon: <UserOutlined />, label: "Personnel Settings" },
+    { key: "logout", icon: <LogoutOutlined />, label: "Logout" }
+  ].filter(item => {
+    if (item.key === 'logout') return true;
+    return canShowComponent(item.key);
+  });
 
   const onDragEnd = (result) => {
     if (!result.destination) {
@@ -337,7 +335,7 @@ const EmployeeDashboard = () => {
               />
               <div style={{ position: "relative", zIndex: 1 }}>
                 <Title level={2}>Welcome, {user?.username || "Employee"}</Title>
-                {activeTab === "dashboard" && (
+                {activeTab === "dashboard" && canShowComponent("dashboard") && (
                   <DragDropContext onDragEnd={onDragEnd}>
                     <Droppable droppableId="widgets">
                       {(provided) => (
@@ -377,7 +375,7 @@ const EmployeeDashboard = () => {
                     </Droppable>
                   </DragDropContext>
                 )}
-                {activeTab === "profile" && (
+                {activeTab === "profile" && canShowComponent("profile") && (
                   <Card
                     style={{
                       width: "100%",
@@ -451,13 +449,13 @@ const EmployeeDashboard = () => {
                   </Card>
                 )}
                 <WallpaperSelector onWallpaperChange={handleWallpaperChange} />
-                {activeTab === "dragAndDrop" && (
+                {activeTab === "dragAndDrop" && canShowComponent("dragAndDrop") && (
                   <div className="drag-and-drop-section">
                     <Title level={3}>File Transfer</Title>
                     <DragAndDropScreen userRole="employee" />
                   </div>
                 )}
-                {activeTab === "personnelSettings" && (
+                {activeTab === "personnelSettings" && canShowComponent("personnelSettings") && (
                   <Card title="Personnel Settings">
                     <Form
                       form={personnelForm}

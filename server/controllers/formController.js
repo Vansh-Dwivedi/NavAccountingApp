@@ -196,19 +196,23 @@ exports.getFormSubmissions = async (req, res) => {
       .select("user responses submittedAt status category")
       .lean();
 
-    // Create a map of field IDs to their labels
+    // Create a map of field IDs to their labels and types
     const fieldMap = form.fields.reduce((acc, field) => {
-      acc[field._id.toString()] = field.label;
+      acc[field._id.toString()] = {
+        label: field.label,
+        type: field.type
+      };
       return acc;
     }, {});
 
-    // Add field labels to each submission
+    // Add field labels and types to each submission
     const submissionsWithLabels = submissions.map((submission) => ({
       ...submission,
       responses: submission.responses.map((response) => ({
         ...response,
-        fieldLabel: fieldMap[response.fieldId.toString()] || "Unknown Field",
-        value: typeof response.value === 'object' ? JSON.stringify(response.value) : response.value
+        fieldLabel: fieldMap[response.fieldId.toString()]?.label || "Unknown Field",
+        value: typeof response.value === 'object' ? JSON.stringify(response.value) : response.value,
+        type: fieldMap[response.fieldId.toString()]?.type
       })),
     }));
 

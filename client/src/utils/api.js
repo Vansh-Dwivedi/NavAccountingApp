@@ -29,7 +29,7 @@ api.interceptors.request.use(
 );
 
 const updateDashboardComponents = (userId, component, enabled) => {
-  return api.put(`/users/${userId}/dashboard-components`, {
+  return api.put(`/api/users/${userId}/dashboard-components`, {
     component,
     enabled
   });

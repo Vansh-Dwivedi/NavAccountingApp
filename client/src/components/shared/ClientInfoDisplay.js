@@ -1,6 +1,7 @@
 import React from "react";
 import { Descriptions, Tabs, Card } from "antd";
 import moment from "moment";
+import ClientFinancialDataForm from "../Forms/ClientFinancialDataForm";
 
 const { TabPane } = Tabs;
 

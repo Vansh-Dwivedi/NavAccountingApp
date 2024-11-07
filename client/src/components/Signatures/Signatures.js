@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import SignatureCanvas from 'react-signature-canvas';
 import api from '../../utils/api';
-import { Input, Button, List, Pagination, message, Form, Modal } from 'antd';
+import { Input, Button, List, Pagination, message, Form, Modal, Image } from 'antd';
 import 'antd/dist/reset.css';
 
 const Signatures = ({ userId }) => {
@@ -12,6 +12,8 @@ const Signatures = ({ userId }) => {
   const [sigPad, setSigPad] = useState({});
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedSignature, setSelectedSignature] = useState(null);
+  const [previewVisible, setPreviewVisible] = useState(false);
+  const [previewImage, setPreviewImage] = useState('');
 
   useEffect(() => {
     if (userId) {
@@ -29,6 +31,7 @@ const Signatures = ({ userId }) => {
       message.error('Failed to fetch signatures');
     }
   };
+
   const handleAddSignature = async () => {
     if (sigPad.isEmpty()) {
       message.warning('Please provide a signature');
@@ -70,6 +73,11 @@ const Signatures = ({ userId }) => {
     setIsModalVisible(false);
   };
 
+  const handlePreview = (signature) => {
+    setPreviewImage(signature.data);
+    setPreviewVisible(true);
+  };
+
   return (
     <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
       <h2>Signatures</h2>
@@ -106,11 +114,34 @@ const Signatures = ({ userId }) => {
             ]}
           >
             <List.Item.Meta
-              title={signature.name}
-              description={<img src={signature.data} alt={signature.name} style={{ maxWidth: '100%', height: 'auto' }} />}
+              title={
+                <Button 
+                  type="default"
+                  size="large"
+                  onClick={() => handlePreview(signature)}
+                  style={{ 
+                    width: '100%',
+                    height: 'auto',
+                    padding: '20px',
+                    fontSize: '24px'
+                  }}
+                >
+                  {signature.name}
+                </Button>
+              }
             />
           </List.Item>
         )}
+      />
+      <Image
+        style={{ display: 'none' }}
+        preview={{
+          visible: previewVisible,
+          src: previewImage,
+          onVisibleChange: (visible) => {
+            setPreviewVisible(visible);
+          },
+        }}
       />
       <Pagination
         current={currentPage}

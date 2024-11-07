@@ -230,6 +230,10 @@ const UserSchema = new mongoose.Schema(
         },
         message: 'Invalid dashboard component'
       }
+    },
+    dashboardConfig: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'DashboardConfig'
     }
   },
   { timestamps: true }

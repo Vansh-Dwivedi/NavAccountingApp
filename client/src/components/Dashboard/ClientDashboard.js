@@ -37,6 +37,8 @@ import {
   CloseOutlined,
   SaveOutlined,
   UploadOutlined,
+  FileTextOutlined,
+  InboxOutlined,
 } from "@ant-design/icons";
 import ClientInfoForm from "../ClientInfoForm";
 import ChatComponent from "../Chat/ChatComponent";
@@ -54,6 +56,7 @@ import { getProfilePicUrl } from "../../utils/profilePicHelper";
 import moment from "moment";
 import ProfileSettings from "../shared/ProfileSettings";
 import ClientFinancialOverview from "./ClientFinancialOverview";
+import { useEnabledComponents } from "../../hooks/useEnabledComponents";
 
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -82,6 +85,7 @@ const ClientDashboard = () => {
   const [emailError, setEmailError] = useState("");
   const [usernameError, setUsernameError] = useState("");
   const [personnelForm] = Form.useForm();
+  const { canShowComponent } = useEnabledComponents(clientData?._id);
 
   useEffect(() => {
     fetchClientData();
@@ -425,25 +429,17 @@ const ClientDashboard = () => {
 
   const menuItems = [
     { key: "dashboard", icon: <DashboardOutlined />, label: "Dashboard" },
-    { key: "submitInfo", icon: <FormOutlined />, label: "Submit Info" },
-    {
-      key: "notesAndSignatures",
-      icon: <FileOutlined />,
-      label: "Notes & Signatures",
-    },
-    { key: "forms", icon: <FormOutlined />, label: "Forms" },
+    { key: "notesAndSignatures", icon: <FileTextOutlined />, label: "Notes & Signatures" },
+    { key: "dragAndDrop", icon: <InboxOutlined />, label: "File Transfer" },
+    { key: "forms", icon: <FileOutlined />, label: "Forms" },
     { key: "chat", icon: <MessageOutlined />, label: "Chat" },
-    {
-      key: "personnelSettings",
-      icon: <SettingOutlined />,
-      label: "Personnel Settings",
-    },
-    { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
-  ].filter(
-    (item) =>
-      !clientData?.dashboardComponents?.length ||
-      clientData.dashboardComponents.includes(item.key)
-  );
+    { key: "financialInfo", icon: <DollarOutlined />, label: "Financial Information" },
+    { key: "personnelSettings", icon: <UserOutlined />, label: "Personnel Settings" },
+    { key: "logout", icon: <LogoutOutlined />, label: "Logout" }
+  ].filter(item => {
+    if (item.key === 'logout') return true;
+    return canShowComponent(item.key);
+  });
 
   return (
     <RoleChecker userRole={clientData?.role} userEmail={clientData?.email}>
@@ -490,7 +486,7 @@ const ClientDashboard = () => {
           <Layout className="site-layout" style={{ marginTop: "64px" }}>
             <Content style={{ margin: "0 16px" }}>
               <div style={{ padding: 24, minHeight: 360 }}>
-                {activeTab === "dashboard" && clientData && (
+                {activeTab === "dashboard" && clientData && canShowComponent("dashboard") && (
                   <div className="dashboard-info">
                     <Title level={2}>Welcome, {clientData.username}</Title>
                     <ClientFinancialOverview clientData={clientData} />
@@ -500,23 +496,20 @@ const ClientDashboard = () => {
                     />
                   </div>
                 )}
-                {activeTab === "submitInfo" && clientData && (
-                  <ClientInfoForm clientId={clientData._id} />
-                )}
 
-                {activeTab === "notesAndSignatures" && clientData && (
+                {activeTab === "notesAndSignatures" && clientData && canShowComponent("notesAndSignatures") && (
                   <div className="notes-and-signatures">
                     <Notes userId={clientData._id} />
                     <Signatures userId={clientData._id} />
                   </div>
                 )}
-                {activeTab === "dragAndDrop" && (
+                {activeTab === "dragAndDrop" && clientData && canShowComponent("dragAndDrop") && (
                   <div className="drag-and-drop-section">
                     <Title level={3}>File Transfer</Title>
                     <DragAndDropScreen userRole="client" />
                   </div>
                 )}
-                {activeTab === "forms" && (
+                {activeTab === "forms" && clientData && canShowComponent("forms") && (
                   <div className="assigned-forms-section">
                     <Title level={3}>Forms to Complete</Title>
                     <List
@@ -546,7 +539,7 @@ const ClientDashboard = () => {
                     />
                   </div>
                 )}
-                {activeTab === "chat" && (
+                {activeTab === "chat" && clientData && canShowComponent("chat") && (
                   <div className="chat-section">
                     <Title level={3}>Chat</Title>
                     <Row gutter={16}>
@@ -617,12 +610,12 @@ const ClientDashboard = () => {
                     </Row>
                   </div>
                 )}
-                {activeTab === "financialInfo" && clientData && (
+                {activeTab === "financialInfo" && clientData && canShowComponent("financialInfo") && (
                   <>
                     <FinancialInfoSection clientId={clientData._id} />
                   </>
                 )}
-                {activeTab === "personnelSettings" && (
+                {activeTab === "personnelSettings" && clientData && canShowComponent("personnelSettings") && (
                   <Card title="Personnel Settings">
                     <Form
                       form={personnelForm}
