@@ -147,7 +147,7 @@ const DashboardManager = () => {
         placeholder="Select a user"
         onChange={handleUserSelect}
       >
-        {users.map((user) => (
+        {users.filter(user => user.role !== 'admin').map((user) => (
           <Option key={user._id} value={user._id}>
             {user.username} ({user.role})
           </Option>

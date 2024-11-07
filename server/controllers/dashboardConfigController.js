@@ -3,9 +3,15 @@ const User = require('../models/User');
 
 exports.getUserDashboardConfig = async (req, res) => {
   try {
-    const config = await DashboardConfig.findOne({ userId: req.params.userId });
+    let config = await DashboardConfig.findOne({ userId: req.params.userId });
     if (!config) {
-      return res.status(404).json({ message: 'Dashboard configuration not found' });
+      config = new DashboardConfig({
+        userId: req.params.userId,
+        enabledComponents: [],
+        tabs: [],
+        componentsInTabs: new Map()
+      });
+      await config.save();
     }
     res.json(config);
   } catch (error) {
