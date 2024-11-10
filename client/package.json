@@ -5,7 +5,9 @@
     "start": "react-scripts start",
     "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "electron-dev": "concurrently \"BROWSER=none npm start\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron-build": "npm run build && electron-builder"
   },
   "dependencies": {
     "@ant-design/charts": "^2.2.1",
@@ -37,6 +39,7 @@
     "jspdf-autotable": "^3.8.4",
     "jwt-decode": "^4.0.0",
     "locale": "^0.1.0",
+    "moment-timezone": "^0.5.46",
     "papaparse": "^5.4.1",
     "pdfmake": "^0.2.15",
     "rc-picker": "^4.7.0",

@@ -32,7 +32,7 @@ import {
   FileOutlined,
   DashboardOutlined,
   LogoutOutlined,
-  MoonOutlined,
+  MoonOutlined as SleepOutlined,
   EditOutlined,
   UploadOutlined,
   TeamOutlined,
@@ -54,6 +54,8 @@ import { getProfilePicUrl } from "../../utils/profilePicHelper";
 import moment from "moment";
 import ProfileSettings from "../shared/ProfileSettings";
 import DashboardManager from "../Admin/DashboardManager";
+import LogoutConfirmModal from "../LogoutConfirmModal";
+import SleepMode from "../SleepMode/SleepMode";
 
 const { Content, Sider } = Layout;
 const { Title } = Typography;
@@ -79,6 +81,7 @@ const AdminDashboard = () => {
   const [username, setUsername] = useState(adminData?.username || "");
   const [emailError, setEmailError] = useState("");
   const [usernameError, setUsernameError] = useState("");
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [personnelForm] = Form.useForm();
@@ -104,6 +107,16 @@ const AdminDashboard = () => {
       window.location.reload();
       sessionStorage.setItem("initialLoad", "true");
     }
+
+    const checkSleepMode = async () => {
+      try {
+        const response = await api.get("/api/users/profile");
+        setIsSleepMode(response.data.isInSleepMode);
+      } catch (error) {
+        console.error("Error checking sleep mode:", error);
+      }
+    };
+    checkSleepMode();
 
     return () => {
       socket.disconnect();
@@ -293,10 +306,14 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogoutConfirm = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userRole");
     navigate("/login");
+  };
+
+  const handleLogout = () => {
+    setLogoutModalVisible(true);
   };
 
   const toggleSleepMode = () => {
@@ -318,26 +335,12 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleUpdateFinancialData = async (values) => {
+  const handleSleepMode = async () => {
     try {
-      await api.put(`/api/users/${selectedClient._id}/financial-data`, values);
-      message.success("Financial data updated successfully");
-      // Refresh client data
-      fetchUsers();
+      await api.put("/api/users/sleep-mode", { isInSleepMode: true });
+      setIsSleepMode(true);
     } catch (error) {
-      console.error("Error updating financial data:", error);
-      message.error("Failed to update financial data");
-    }
-  };
-
-  const handleFinancialDataUpdate = async (values) => {
-    try {
-      await api.put(`/api/users/${selectedClient._id}/financial-data`, values);
-      message.success("Financial data updated successfully");
-      fetchClientData(selectedClient._id);
-    } catch (error) {
-      console.error("Error updating financial data:", error);
-      message.error("Failed to update financial data");
+      console.error("Error activating sleep mode:", error);
     }
   };
 
@@ -366,7 +369,12 @@ const AdminDashboard = () => {
       label: "Dashboard Manager",
     },
     { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
-    { key: "sleep", icon: <MoonOutlined />, label: "Sleep Mode" },
+    {
+      key: "sleep",
+      icon: <SleepOutlined />,
+      label: "Sleep Mode",
+      onClick: handleSleepMode,
+    },
   ];
 
   const handlePageChange = (page, pageSize) => {
@@ -591,7 +599,7 @@ const AdminDashboard = () => {
             if (key === "logout") {
               handleLogout();
             } else if (key === "sleep") {
-              toggleSleepMode();
+              handleSleepMode();
             } else {
               setActiveTab(key);
             }
@@ -995,6 +1003,12 @@ const AdminDashboard = () => {
           </div>
         </Content>
       </Layout>
+      <LogoutConfirmModal
+        visible={logoutModalVisible}
+        onConfirm={handleLogoutConfirm}
+        onCancel={() => setLogoutModalVisible(false)}
+      />
+      <SleepMode isActive={isSleepMode} onExit={() => setIsSleepMode(false)} />
     </Layout>
   );
 };

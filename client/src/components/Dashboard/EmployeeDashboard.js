@@ -20,6 +20,8 @@ import {
   Select,
   DatePicker,
   InputNumber,
+  message,
+  Empty,
 } from "antd";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { AuthContext } from "../../context/AuthContext";
@@ -41,21 +43,24 @@ import {
   TrophyOutlined,
   UploadOutlined,
   InboxOutlined,
+  DashboardOutlined,
+  LogoutOutlined,
+  MoonOutlined as SleepOutlined,
 } from "@ant-design/icons";
 import api from "../../utils/api";
 import "antd/dist/reset.css";
-import { Worker, Viewer } from "@react-pdf-viewer/core";
-import { defaultLayoutPlugin } from "@react-pdf-viewer/default-layout";
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
-import CSVReader from "./CSVReader";
-import TextEditor from "./TextEditor";
 import EmployeeNotesSection from "./EmployeeNotesSection";
 import DragAndDropScreen from "../DragAndDropScreen";
 import { getProfilePicUrl } from "../../utils/profilePicHelper";
 import RoleChecker from "../../Authentication/main";
 import ChatComponent from "../Chat/ChatComponent";
 import { useEnabledComponents } from "../../hooks/useEnabledComponents";
+import WallpaperSelector from "./WallpaperSelector";
+import SoftwareShortcuts from "./SoftwareShortcuts";
+import LogoutConfirmModal from "../LogoutConfirmModal";
+import SleepMode from '../SleepMode/SleepMode';
 
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -112,6 +117,19 @@ const EmployeeDashboard = () => {
       title: "Personal Writing Space",
       content: <NotesSection />,
     },
+    {
+      id: "wallpaperSelector",
+      title: "Wallpaper Selector",
+      content: (
+        <WallpaperSelector
+          onWallpaperChange={() => {
+            const handleWallpaperChange = (newWallpaper) => {
+              setWallpaper(newWallpaper);
+            };
+          }}
+        />
+      ),
+    },
   ]);
   const [wallpaper, setWallpaper] = useState("default.jpg");
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -130,18 +148,22 @@ const EmployeeDashboard = () => {
   const [fileContent, setFileContent] = useState(null);
   const [fileType, setFileType] = useState(null);
   const [personnelForm] = Form.useForm();
+  const [employeeData, setEmployeeData] = useState(null);
   const { canShowComponent } = useEnabledComponents(employeeData?._id);
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false);
+  const [isSleepMode, setIsSleepMode] = useState(false);
 
   useEffect(() => {
     fetchEmployeeData();
     fetchPassbook();
     fetchNotes();
+    checkSleepMode();
   }, []);
 
   const fetchEmployeeData = async () => {
     try {
       const response = await api.get("/api/employee/dashboard");
-      setUser(response.data);
+      setEmployeeData(response.data);
       setEmail(response.data.email);
       setUsername(response.data.username);
       setProfilePic(response.data.getProfilePicUrl(profilePic));
@@ -170,42 +192,15 @@ const EmployeeDashboard = () => {
     }
   };
 
-  const addNote = async () => {
+  const updateProfile = async () => {
     try {
-      const response = await api.post("/api/employee/notes", {
-        content: newNote,
+      await api.put(`/api/users/profile/${employeeData._id}`, {
+        username,
+        email,
       });
-      setNotes([...notes, response.data]);
-      setNewNote("");
     } catch (error) {
-      console.error("Error adding note:", error);
+      console.error("Error updating profile:", error);
     }
-  };
-
-  const updateNote = async (noteId, content) => {
-    try {
-      const response = await api.put(`/api/employee/notes/${noteId}`, {
-        content,
-      });
-      setNotes(
-        notes.map((note) => (note._id === noteId ? response.data : note))
-      );
-    } catch (error) {
-      console.error("Error updating note:", error);
-    }
-  };
-
-  const deleteNote = async (noteId) => {
-    try {
-      await api.delete(`/api/employee/notes/${noteId}`);
-      setNotes(notes.filter((note) => note._id !== noteId));
-    } catch (error) {
-      console.error("Error deleting note:", error);
-    }
-  };
-
-  const handleWallpaperChange = (newWallpaper) => {
-    setWallpaper(newWallpaper);
   };
 
   const handleEmailChange = (e) => {
@@ -246,15 +241,54 @@ const EmployeeDashboard = () => {
     }
   };
 
+  const handleLogoutConfirm = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userRole");
+    navigate("/login");
+  };
+
+  const handleLogout = () => {
+    setLogoutModalVisible(true);
+  };
+
   const menuItems = [
-    { key: "dashboard", icon: <DashboardOutlined />, label: "Dashboard" },
-    { key: "profile", icon: <EditOutlined />, label: "Edit Profile" },
-    { key: "settings", icon: <SettingOutlined />, label: "Settings" },
-    { key: "dragAndDrop", icon: <InboxOutlined />, label: "File Transfer" },
-    { key: "personnelSettings", icon: <UserOutlined />, label: "Personnel Settings" },
-    { key: "logout", icon: <LogoutOutlined />, label: "Logout" }
-  ].filter(item => {
-    if (item.key === 'logout') return true;
+    {
+      key: "dashboard",
+      icon: <DashboardOutlined />,
+      label: "Dashboard",
+      onClick: null,
+    },
+    {
+      key: "profile",
+      icon: <EditOutlined />,
+      label: "Edit Profile",
+      onClick: null,
+    },
+    {
+      key: "dragAndDrop",
+      icon: <InboxOutlined />,
+      label: "File Transfer",
+      onClick: null,
+    },
+    {
+      key: "personnelSettings",
+      icon: <UserOutlined />,
+      label: "Personnel Settings",
+      onClick: null,
+    },
+    {
+      key: "logout",
+      icon: <LogoutOutlined />,
+      label: "Logout",
+      onClick: handleLogout,
+    },
+    {
+      key: "sleep",
+      icon: <SleepOutlined />,
+      label: "Sleep Mode",
+    },
+  ].filter((item) => {
+    if (item.key === "logout" || item.key === "sleep") return true;
     return canShowComponent(item.key);
   });
 
@@ -284,6 +318,24 @@ const EmployeeDashboard = () => {
     }
   };
 
+  const checkSleepMode = async () => {
+    try {
+      const response = await api.get('/api/users/profile');
+      setIsSleepMode(response.data.isInSleepMode);
+    } catch (error) {
+      console.error('Error checking sleep mode:', error);
+    }
+  };
+
+  const handleSleepMode = async () => {
+    try {
+      await api.put('/api/users/sleep-mode', { isInSleepMode: true });
+      setIsSleepMode(true);
+    } catch (error) {
+      console.error('Error activating sleep mode:', error);
+    }
+  };
+
   return (
     <RoleChecker userRole={user?.role} userEmail={user?.email}>
       <Layout style={{ minHeight: "100vh" }}>
@@ -300,27 +352,39 @@ const EmployeeDashboard = () => {
               theme="dark"
               mode="inline"
               defaultSelectedKeys={["dashboard"]}
-              onClick={({ key }) => setActiveTab(key)}
+              onClick={({ key }) => {
+                if (key === "logout") {
+                  handleLogout();
+                } else if (key === "sleep") {
+                  handleSleepMode();
+                } else {
+                  setActiveTab(key);
+                }
+              }}
             >
               {menuItems.map((item) => (
-                <Menu.Item key={item.key} icon={item.icon}>
+                <Menu.Item
+                  key={item.key}
+                  icon={item.icon}
+                  onClick={item.onClick}
+                >
                   {item.label}
                 </Menu.Item>
               ))}
             </Menu>
           </Sider>
-          <Layout style={{ padding: "0 24px 24px" }}>
-            <Content
-              style={{
-                padding: 24,
-                margin: 0,
-                minHeight: 280,
-                backgroundImage: `url(/wallpapers/${wallpaper})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                position: "relative",
-              }}
-            >
+          <Layout
+            style={{
+              padding: "0 24px 24px",
+              marginTop: "60px",
+              backgroundImage: `url(/wallpapers/${wallpaper})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              position: "relative",
+              borderRadius: "0px",
+            }}
+          >
+            <Content>
               <div
                 style={{
                   position: "absolute",
@@ -328,13 +392,25 @@ const EmployeeDashboard = () => {
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  backdropFilter: "blur(5px)",
                   backgroundColor: "rgba(255, 255, 255, 0.5)",
                   zIndex: 0,
                 }}
               />
               <div style={{ position: "relative", zIndex: 1 }}>
-                <Title level={2}>Welcome, {user?.username || "Employee"}</Title>
+                <Title
+                  level={2}
+                  style={{
+                    color: wallpaper === "default.jpg" ? "#fff" : "#000",
+                    margin: "24px 0",
+                    fontFamily: "Trebuchet MS",
+                    fontWeight: "600",
+                    textShadow: "2px 2px 4px rgba(0,0,0,0.2)",
+                    letterSpacing: "1px",
+                    textTransform: "capitalize",
+                  }}
+                >
+                  Welcome, {user?.username || "Employee"}
+                </Title>
                 {activeTab === "dashboard" && canShowComponent("dashboard") && (
                   <DragDropContext onDragEnd={onDragEnd}>
                     <Droppable droppableId="widgets">
@@ -448,282 +524,260 @@ const EmployeeDashboard = () => {
                     </Form>
                   </Card>
                 )}
-                <WallpaperSelector onWallpaperChange={handleWallpaperChange} />
-                {activeTab === "dragAndDrop" && canShowComponent("dragAndDrop") && (
-                  <div className="drag-and-drop-section">
-                    <Title level={3}>File Transfer</Title>
-                    <DragAndDropScreen userRole="employee" />
-                  </div>
-                )}
-                {activeTab === "personnelSettings" && canShowComponent("personnelSettings") && (
-                  <Card title="Personnel Settings">
-                    <Form
-                      form={personnelForm}
-                      layout="vertical"
-                      onFinish={handlePersonnelSubmit}
-                    >
-                      <Row gutter={16}>
-                        <Col span={8}>
-                          <Form.Item name="fullName" label="Full Name">
-                            <Input />
-                          </Form.Item>
-                          <Form.Item name="occupation" label="Occupation">
-                            <Input />
-                          </Form.Item>
-                          <Form.Item name="spouseName" label="Spouse Name">
-                            <Input />
-                          </Form.Item>
-                          <Form.Item
-                            name="spouseOccupation"
-                            label="Spouse Occupation"
-                          >
-                            <Input />
-                          </Form.Item>
-                          <Form.Item name="phoneNumber" label="Phone Number">
-                            <Input />
-                          </Form.Item>
-                          <Form.Item name="cellNo" label="Cell Number">
-                            <Input />
-                          </Form.Item>
-                          <Form.Item name="ssn" label="SSN">
-                            <Input />
-                          </Form.Item>
-                          <Form.Item name="spouseSSN" label="Spouse SSN">
-                            <Input />
-                          </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                          <Form.Item name="dateOfBirth" label="Date of Birth">
-                            <DatePicker />
-                          </Form.Item>
-                          <Form.Item
-                            name="spouseDOB"
-                            label="Spouse Date of Birth"
-                          >
-                            <DatePicker />
-                          </Form.Item>
-                          <Form.Item name="addressLine1" label="Address Line 1">
-                            <Input />
-                          </Form.Item>
-                          <Form.Item name="addressLine2" label="Address Line 2">
-                            <Input />
-                          </Form.Item>
-                          <Form.Item name="businessName" label="Business Name">
-                            <Input />
-                          </Form.Item>
-                          <Form.Item
-                            name="businessPhone"
-                            label="Business Phone"
-                          >
-                            <Input />
-                          </Form.Item>
-                          <Form.Item
-                            name="businessAddressLine1"
-                            label="Business Address Line 1"
-                          >
-                            <Input />
-                          </Form.Item>
-                          <Form.Item
-                            name="businessAddressLine2"
-                            label="Business Address Line 2"
-                          >
-                            <Input />
-                          </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                          <Form.Item
-                            name="businessEntityType"
-                            label="Business Entity Type"
-                          >
-                            <Select>
-                              <Option value="llc">LLC</Option>
-                              <Option value="corporation">Corporation</Option>
-                              <Option value="partnership">Partnership</Option>
-                              <Option value="soleProprietorship">
-                                Sole Proprietorship
-                              </Option>
-                            </Select>
-                          </Form.Item>
-                          <Form.Item name="businessTIN" label="Business TIN">
-                            <Input />
-                          </Form.Item>
-                          <Form.Item name="businessSOS" label="Business SOS">
-                            <Input />
-                          </Form.Item>
-                          <Form.Item name="businessEDD" label="Business EDD">
-                            <Input />
-                          </Form.Item>
-                          <Form.Item
-                            name="businessEmail"
-                            label="Business Email"
-                          >
-                            <Input />
-                          </Form.Item>
-                          <Form.Item
-                            name="contactPersonName"
-                            label="Contact Person Name"
-                          >
-                            <Input />
-                          </Form.Item>
-                          <Form.Item
-                            name="noOfEmployeesActive"
-                            label="Number of Active Employees"
-                          >
-                            <InputNumber min={0} />
-                          </Form.Item>
-                          <Form.Item
-                            name="businessReferredBy"
-                            label="Business Referred By"
-                          >
-                            <Input />
-                          </Form.Item>
-                        </Col>
-                      </Row>
-                      <Row gutter={16}>
-                        <Col span={8}>
-                          <Form.Item
-                            name="accountNumber"
-                            label="Account Number"
-                          >
-                            <Input />
-                          </Form.Item>
-                          <Form.Item name="accountType" label="Account Type">
-                            <Select>
-                              <Option value="checking">Checking</Option>
-                              <Option value="savings">Savings</Option>
-                              <Option value="business">Business</Option>
-                            </Select>
-                          </Form.Item>
-                          <Form.Item
-                            name="accountStatus"
-                            label="Account Status"
-                          >
-                            <Select>
-                              <Option value="active">Active</Option>
-                              <Option value="inactive">Inactive</Option>
-                              <Option value="suspended">Suspended</Option>
-                            </Select>
-                          </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                          <Form.Item
-                            name="employmentStatus"
-                            label="Employment Status"
-                          >
-                            <Select>
-                              <Option value="employed">Employed</Option>
-                              <Option value="selfEmployed">
-                                Self Employed
-                              </Option>
-                              <Option value="unemployed">Unemployed</Option>
-                              <Option value="retired">Retired</Option>
-                            </Select>
-                          </Form.Item>
-                          <Form.Item
-                            name="taxFilingStatus"
-                            label="Tax Filing Status"
-                          >
-                            <Select>
-                              <Option value="single">Single</Option>
-                              <Option value="married">
-                                Married Filing Jointly
-                              </Option>
-                              <Option value="separate">
-                                Married Filing Separately
-                              </Option>
-                              <Option value="headOfHousehold">
-                                Head of Household
-                              </Option>
-                            </Select>
-                          </Form.Item>
-                        </Col>
-                        <Col span={8}>
-                          <Form.Item name="kycStatus" label="KYC Status">
-                            <Select>
-                              <Option value="pending">Pending</Option>
-                              <Option value="approved">Approved</Option>
-                              <Option value="rejected">Rejected</Option>
-                            </Select>
-                          </Form.Item>
-                          <Form.Item name="amlStatus" label="AML Status">
-                            <Select>
-                              <Option value="pending">Pending</Option>
-                              <Option value="approved">Approved</Option>
-                              <Option value="rejected">Rejected</Option>
-                            </Select>
-                          </Form.Item>
-                          <Form.Item
-                            name="riskToleranceLevel"
-                            label="Risk Tolerance Level"
-                          >
-                            <Select>
-                              <Option value="low">Low</Option>
-                              <Option value="medium">Medium</Option>
-                              <Option value="high">High</Option>
-                            </Select>
-                          </Form.Item>
-                          <Form.Item
-                            name="investmentRiskProfile"
-                            label="Investment Risk Profile"
-                          >
-                            <Select>
-                              <Option value="conservative">Conservative</Option>
-                              <Option value="moderate">Moderate</Option>
-                              <Option value="aggressive">Aggressive</Option>
-                            </Select>
-                          </Form.Item>
-                        </Col>
-                      </Row>
-                      <Form.Item>
-                        <Button type="primary" htmlType="submit">
-                          Save Personnel Information
-                        </Button>
-                      </Form.Item>
-                    </Form>
-                  </Card>
-                )}
+                {activeTab === "personnelSettings" &&
+                  canShowComponent("personnelSettings") && (
+                    <Card title="Personnel Settings">
+                      <Form
+                        form={personnelForm}
+                        layout="vertical"
+                        onFinish={handlePersonnelSubmit}
+                      >
+                        <Row gutter={16}>
+                          <Col span={8}>
+                            <Form.Item name="fullName" label="Full Name">
+                              <Input />
+                            </Form.Item>
+                            <Form.Item name="occupation" label="Occupation">
+                              <Input />
+                            </Form.Item>
+                            <Form.Item name="spouseName" label="Spouse Name">
+                              <Input />
+                            </Form.Item>
+                            <Form.Item
+                              name="spouseOccupation"
+                              label="Spouse Occupation"
+                            >
+                              <Input />
+                            </Form.Item>
+                            <Form.Item name="phoneNumber" label="Phone Number">
+                              <Input />
+                            </Form.Item>
+                            <Form.Item name="cellNo" label="Cell Number">
+                              <Input />
+                            </Form.Item>
+                            <Form.Item name="ssn" label="SSN">
+                              <Input />
+                            </Form.Item>
+                            <Form.Item name="spouseSSN" label="Spouse SSN">
+                              <Input />
+                            </Form.Item>
+                          </Col>
+                          <Col span={8}>
+                            <Form.Item name="dateOfBirth" label="Date of Birth">
+                              <DatePicker />
+                            </Form.Item>
+                            <Form.Item
+                              name="spouseDOB"
+                              label="Spouse Date of Birth"
+                            >
+                              <DatePicker />
+                            </Form.Item>
+                            <Form.Item
+                              name="addressLine1"
+                              label="Address Line 1"
+                            >
+                              <Input />
+                            </Form.Item>
+                            <Form.Item
+                              name="addressLine2"
+                              label="Address Line 2"
+                            >
+                              <Input />
+                            </Form.Item>
+                            <Form.Item
+                              name="businessName"
+                              label="Business Name"
+                            >
+                              <Input />
+                            </Form.Item>
+                            <Form.Item
+                              name="businessPhone"
+                              label="Business Phone"
+                            >
+                              <Input />
+                            </Form.Item>
+                            <Form.Item
+                              name="businessAddressLine1"
+                              label="Business Address Line 1"
+                            >
+                              <Input />
+                            </Form.Item>
+                            <Form.Item
+                              name="businessAddressLine2"
+                              label="Business Address Line 2"
+                            >
+                              <Input />
+                            </Form.Item>
+                          </Col>
+                          <Col span={8}>
+                            <Form.Item
+                              name="businessEntityType"
+                              label="Business Entity Type"
+                            >
+                              <Select>
+                                <Option value="llc">LLC</Option>
+                                <Option value="corporation">Corporation</Option>
+                                <Option value="partnership">Partnership</Option>
+                                <Option value="soleProprietorship">
+                                  Sole Proprietorship
+                                </Option>
+                              </Select>
+                            </Form.Item>
+                            <Form.Item name="businessTIN" label="Business TIN">
+                              <Input />
+                            </Form.Item>
+                            <Form.Item name="businessSOS" label="Business SOS">
+                              <Input />
+                            </Form.Item>
+                            <Form.Item name="businessEDD" label="Business EDD">
+                              <Input />
+                            </Form.Item>
+                            <Form.Item
+                              name="businessEmail"
+                              label="Business Email"
+                            >
+                              <Input />
+                            </Form.Item>
+                            <Form.Item
+                              name="contactPersonName"
+                              label="Contact Person Name"
+                            >
+                              <Input />
+                            </Form.Item>
+                            <Form.Item
+                              name="noOfEmployeesActive"
+                              label="Number of Active Employees"
+                            >
+                              <InputNumber min={0} />
+                            </Form.Item>
+                            <Form.Item
+                              name="businessReferredBy"
+                              label="Business Referred By"
+                            >
+                              <Input />
+                            </Form.Item>
+                          </Col>
+                        </Row>
+                        <Row gutter={16}>
+                          <Col span={8}>
+                            <Form.Item
+                              name="accountNumber"
+                              label="Account Number"
+                            >
+                              <Input />
+                            </Form.Item>
+                            <Form.Item name="accountType" label="Account Type">
+                              <Select>
+                                <Option value="checking">Checking</Option>
+                                <Option value="savings">Savings</Option>
+                                <Option value="business">Business</Option>
+                              </Select>
+                            </Form.Item>
+                            <Form.Item
+                              name="accountStatus"
+                              label="Account Status"
+                            >
+                              <Select>
+                                <Option value="active">Active</Option>
+                                <Option value="inactive">Inactive</Option>
+                                <Option value="suspended">Suspended</Option>
+                              </Select>
+                            </Form.Item>
+                          </Col>
+                          <Col span={8}>
+                            <Form.Item
+                              name="employmentStatus"
+                              label="Employment Status"
+                            >
+                              <Select>
+                                <Option value="employed">Employed</Option>
+                                <Option value="selfEmployed">
+                                  Self Employed
+                                </Option>
+                                <Option value="unemployed">Unemployed</Option>
+                                <Option value="retired">Retired</Option>
+                              </Select>
+                            </Form.Item>
+                            <Form.Item
+                              name="taxFilingStatus"
+                              label="Tax Filing Status"
+                            >
+                              <Select>
+                                <Option value="single">Single</Option>
+                                <Option value="married">
+                                  Married Filing Jointly
+                                </Option>
+                                <Option value="separate">
+                                  Married Filing Separately
+                                </Option>
+                                <Option value="headOfHousehold">
+                                  Head of Household
+                                </Option>
+                              </Select>
+                            </Form.Item>
+                          </Col>
+                          <Col span={8}>
+                            <Form.Item name="kycStatus" label="KYC Status">
+                              <Select>
+                                <Option value="pending">Pending</Option>
+                                <Option value="approved">Approved</Option>
+                                <Option value="rejected">Rejected</Option>
+                              </Select>
+                            </Form.Item>
+                            <Form.Item name="amlStatus" label="AML Status">
+                              <Select>
+                                <Option value="pending">Pending</Option>
+                                <Option value="approved">Approved</Option>
+                                <Option value="rejected">Rejected</Option>
+                              </Select>
+                            </Form.Item>
+                            <Form.Item
+                              name="riskToleranceLevel"
+                              label="Risk Tolerance Level"
+                            >
+                              <Select>
+                                <Option value="low">Low</Option>
+                                <Option value="medium">Medium</Option>
+                                <Option value="high">High</Option>
+                              </Select>
+                            </Form.Item>
+                            <Form.Item
+                              name="investmentRiskProfile"
+                              label="Investment Risk Profile"
+                            >
+                              <Select>
+                                <Option value="conservative">
+                                  Conservative
+                                </Option>
+                                <Option value="moderate">Moderate</Option>
+                                <Option value="aggressive">Aggressive</Option>
+                              </Select>
+                            </Form.Item>
+                          </Col>
+                        </Row>
+                        <Form.Item>
+                          <Button type="primary" htmlType="submit">
+                            Save Personnel Information
+                          </Button>
+                        </Form.Item>
+                      </Form>
+                    </Card>
+                  )}
               </div>
             </Content>
           </Layout>
         </Layout>
       </Layout>
+      <LogoutConfirmModal
+        visible={logoutModalVisible}
+        onConfirm={handleLogoutConfirm}
+        onCancel={() => setLogoutModalVisible(false)}
+      />
+      <SleepMode 
+        isActive={isSleepMode} 
+        onExit={() => setIsSleepMode(false)} 
+      />
     </RoleChecker>
-  );
-};
-
-const WallpaperSelector = ({ onWallpaperChange }) => {
-  const wallpapers = ["default.jpg", "nature.jpg", "city.jpg", "abstract.jpg"];
-
-  return (
-    <Card title="Wallpaper Selection" style={COMMON_STYLES.WALLPAPER_CARD}>
-      <Row gutter={[8, 8]}>
-        {wallpapers.map((wallpaper) => (
-          <Col key={wallpaper} span={12}>
-            <div
-              style={{
-                height: "80px",
-                borderRadius: "4px",
-                overflow: "hidden",
-                cursor: "pointer",
-                border: "2px solid transparent",
-                transition: "border-color 0.3s",
-              }}
-              onClick={() => onWallpaperChange(wallpaper)}
-            >
-              <img
-                src={`/wallpapers/${wallpaper}`}
-                alt={wallpaper}
-                style={{
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                }}
-              />
-            </div>
-          </Col>
-        ))}
-      </Row>
-    </Card>
   );
 };
 
@@ -782,48 +836,6 @@ const TaskOfTheDay = () => {
   );
 };
 
-const SoftwareShortcuts = () => {
-  const shortcuts = [
-    {
-      name: "Office 365",
-      icon: <FilePdfOutlined />,
-      url: "https://www.office.com",
-    },
-    {
-      name: "Adobe PDF",
-      icon: <FilePdfOutlined />,
-      url: "https://acrobat.adobe.com",
-    },
-    {
-      name: "Project Management",
-      icon: <ProjectOutlined />,
-      url: "https://trello.com",
-    },
-    { name: "Timeclock", icon: <ClockCircleOutlined />, url: "#" },
-    { name: "Notepad", icon: <FileTextOutlined />, url: "#" },
-    { name: "Calculator", icon: <CalculatorOutlined />, url: "#" },
-    { name: "Music Stress Detox", icon: <CustomerServiceOutlined />, url: "#" },
-  ];
-
-  return (
-    <List
-      grid={{ gutter: 16, column: 3 }}
-      dataSource={shortcuts}
-      renderItem={(item) => (
-        <List.Item>
-          <Tooltip title={item.name}>
-            <Button
-              icon={item.icon}
-              onClick={() => window.open(item.url, "_blank")}
-              style={{ width: "100%", height: "100%" }}
-            />
-          </Tooltip>
-        </List.Item>
-      )}
-    />
-  );
-};
-
 const EmployeePassbook = () => {
   const [passbook, setPassbook] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -848,7 +860,7 @@ const EmployeePassbook = () => {
   }
 
   if (!passbook) {
-    return <Alert message="Unable to load passbook data" type="error" />;
+    return <Empty />;
   }
 
   return (

@@ -51,23 +51,26 @@ const Login = () => {
   };
 
   const navigateToDashboard = (role) => {
+    let path;
     switch (role) {
       case "admin":
-        navigate("/admin-dashboard");
+        path = "/admin-dashboard";
         break;
       case "manager":
-        navigate("/manager-dashboard");
+        path = "/manager-dashboard";
         break;
       case "client":
-        navigate("/client-dashboard");
+        path = "/client-dashboard";
         break;
       case "employee":
-        navigate("/employee-dashboard");
+        path = "/employee-dashboard";
         break;
       case "user":
       default:
-        navigate("/user-dashboard");
+        path = "/user-dashboard";
     }
+    navigate(path, { replace: true });
+    window.location.reload();
   };
 
   return (

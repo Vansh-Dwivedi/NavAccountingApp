@@ -94,10 +94,29 @@ exports.sendFormToUser = async (req, res) => {
 
 exports.getSentForms = async (req, res) => {
   try {
-    // Find all forms where the status is 'sent'
-    const forms = await Form.find({ status: "sent" });
+    const userId = req.user.id;
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
 
-    // Send the array of forms back as a response
+    let forms;
+    if (user.role === 'manager') {
+      // For managers, get forms they've sent to their assigned clients
+      forms = await Form.find({
+        sender: userId,
+        receiver: { $in: user.assignedClients }
+      })
+      .populate('receiver', 'username')
+      .sort('-createdAt');
+    } else {
+      // For other roles, get forms they've sent
+      forms = await Form.find({ sender: userId })
+        .populate('receiver', 'username')
+        .sort('-createdAt');
+    }
+
     res.json(forms);
   } catch (error) {
     console.error("Error fetching sent forms:", error);
@@ -186,37 +205,31 @@ exports.submitForm = async (req, res) => {
 
 exports.getFormSubmissions = async (req, res) => {
   try {
-    const form = await Form.findById(req.params.id).lean();
-    if (!form) {
-      return res.status(404).json({ error: "Form not found" });
+    // Get the authenticated user's ID
+    const userId = req.user.id;
+    
+    // Find the user to check their role
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
 
-    const submissions = await FormSubmission.find({ form: req.params.id })
-      .populate("user", "username email profilePic")
-      .select("user responses submittedAt status category")
-      .lean();
+    let submissions;
+    if (user.role === 'manager') {
+      // For managers, get submissions from their assigned clients
+      submissions = await FormSubmission.find({
+        user: { $in: user.assignedClients }
+      })
+      .populate('user', 'username')
+      .sort('-createdAt');
+    } else {
+      // For other roles, get their own submissions
+      submissions = await FormSubmission.find({ user: userId })
+        .populate('user', 'username')
+        .sort('-createdAt');
+    }
 
-    // Create a map of field IDs to their labels and types
-    const fieldMap = form.fields.reduce((acc, field) => {
-      acc[field._id.toString()] = {
-        label: field.label,
-        type: field.type
-      };
-      return acc;
-    }, {});
-
-    // Add field labels and types to each submission
-    const submissionsWithLabels = submissions.map((submission) => ({
-      ...submission,
-      responses: submission.responses.map((response) => ({
-        ...response,
-        fieldLabel: fieldMap[response.fieldId.toString()]?.label || "Unknown Field",
-        value: typeof response.value === 'object' ? JSON.stringify(response.value) : response.value,
-        type: fieldMap[response.fieldId.toString()]?.type
-      })),
-    }));
-
-    res.json(submissionsWithLabels);
+    res.json(submissions);
   } catch (error) {
     console.error("Error fetching form submissions:", error);
     res.status(500).json({ error: "Server error" });

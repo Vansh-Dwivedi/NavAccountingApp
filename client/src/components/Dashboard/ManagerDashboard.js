@@ -26,6 +26,10 @@ import {
   Form,
   InputNumber,
   DatePicker,
+  message,
+  Spin,
+  Badge,
+  Modal,
 } from "antd";
 import {
   UserOutlined,
@@ -40,6 +44,7 @@ import {
   CloseOutlined,
   DownloadOutlined,
   InboxOutlined,
+  MoonOutlined as SleepOutlined,
 } from "@ant-design/icons";
 import io from "socket.io-client";
 import ChatComponent from "../Chat/ChatComponent";
@@ -57,6 +62,9 @@ import FinancialMetrics from "../shared/FinancialMetrics";
 import ClientInfoDisplay from "../shared/ClientInfoDisplay";
 import moment from "moment";
 import { useEnabledComponents } from "../../hooks/useEnabledComponents";
+import ChatCenter from "../Chat/ChatCenter";
+import LogoutConfirmModal from "../LogoutConfirmModal";
+import SleepMode from "../SleepMode/SleepMode";
 
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -67,6 +75,7 @@ const ManagerDashboard = () => {
   const [managerData, setManagerData] = useState(null);
   const [assignedClients, setAssignedClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
+  const [selectedClientData, setSelectedClientData] = useState(null);
   const [error, setError] = useState(null);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [profilePic, setProfilePic] = useState(null);
@@ -81,6 +90,7 @@ const ManagerDashboard = () => {
   const [clientSearchTerm, setClientSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(0);
   const [formsPerPage] = useState(10);
+  const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const [chatPage, setChatPage] = useState(1);
   const messagesPerPage = 20;
   const [clientDrawerVisible, setClientDrawerVisible] = useState(false);
@@ -88,6 +98,10 @@ const ManagerDashboard = () => {
   const [personnelForm] = Form.useForm();
   const { canShowComponent } = useEnabledComponents(managerData?._id);
   const loading = false;
+  const [isLoading, setIsLoading] = useState(true);
+  const [adminUser, setAdminUser] = useState(null);
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [isSleepMode, setIsSleepMode] = useState(false);
 
   const fetchFormSubmissionsWithStructure = async (userId) => {
     try {
@@ -101,17 +115,47 @@ const ManagerDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchManagerData();
-    fetchAdminUser();
-    fetchSavedForms();
-    fetchCategories();
-    fetchFormSubmissions();
-    fetchSentForms();
-    fetchAssignedClients();
+    const initializeData = async () => {
+      try {
+        await fetchManagerData();
 
-    socketRef.current = io(
-      process.env.REACT_APP_API_URL || "http://localhost:5000"
+        const promises = [
+          fetchAdminUser(),
+          fetchCategories(),
+          fetchSavedForms(),
+        ];
+
+        if (managerData?._id) {
+          promises.push(fetchAssignedClients());
+        }
+
+        await Promise.all(promises);
+
+        // Fetch these last as they might depend on other data
+        await Promise.all([fetchFormSubmissions(), fetchSentForms()]);
+      } catch (error) {
+        console.error("Initialization error:", error);
+      }
+    };
+
+    initializeData();
+  }, []);
+
+  useEffect(() => {
+    const socket = io(
+      process.env.REACT_APP_API_URL || "http://localhost:5000",
+      {
+        reconnection: true,
+        reconnectionAttempts: 5,
+        reconnectionDelay: 1000,
+      }
     );
+
+    socket.on("connect_error", (error) => {
+      console.error("Socket connection error:", error);
+    });
+
+    socketRef.current = socket;
 
     return () => {
       if (socketRef.current) {
@@ -121,29 +165,32 @@ const ManagerDashboard = () => {
   }, []);
 
   useEffect(() => {
-    if (managerData && socketRef.current) {
-      socketRef.current.emit("join", managerData._id);
+    if (!managerData?._id) return;
 
-      socketRef.current.on("newMessage", (message) => {
-        if (message.receiver === managerData._id) {
-          setUnreadCounts((prev) => ({
-            ...prev,
-            [message.sender]: (prev[message.sender] || 0) + 1,
-          }));
-        }
-      });
+    const socket = io(process.env.REACT_APP_API_URL || "http://localhost:5000");
 
-      return () => {
-        socketRef.current.off("newMessage");
-      };
-    }
-  }, [managerData]);
+    socket.on("connect", () => {
+      console.log("Socket connected");
+      socket.emit("register", { userId: managerData?._id });
+    });
 
-  useEffect(() => {
-    if (managerData) {
-      fetchAssignedClients();
-    }
-  }, [managerData]);
+    socket.on("newMessage", (message) => {
+      if (message.sender !== managerData?._id) {
+        setUnreadCounts((prev) => ({
+          ...prev,
+          [message.sender]: (prev[message.sender] || 0) + 1,
+        }));
+      }
+    });
+
+    socketRef.current = socket;
+
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+    };
+  }, [managerData?._id]);
 
   useEffect(() => {
     if (managerData) {
@@ -255,6 +302,7 @@ const ManagerDashboard = () => {
       setFormSubmissions(response.data);
     } catch (error) {
       console.error("Error fetching form submissions:", error);
+      // Add error handling UI feedback here
     }
   };
 
@@ -264,6 +312,10 @@ const ManagerDashboard = () => {
       setSentForms(response.data);
     } catch (error) {
       console.error("Error fetching sent forms:", error);
+      if (error.response?.status === 403) {
+        // Handle unauthorized access
+        console.log("Unauthorized to access sent forms");
+      }
     }
   };
 
@@ -280,17 +332,29 @@ const ManagerDashboard = () => {
 
   const fetchManagerData = async () => {
     try {
+      setIsLoading(true);
       const response = await api.get("/api/users/profile");
-      setManagerData(response.data);
-      const orgprofilepic = getProfilePicUrl(profilePic);
-      const mainData = response.data.orgprofilepic;
+      const userData = response.data;
+      setManagerData(userData);
+
+      if (userData?._id) {
+        const clientsResponse = await api.get(
+          `/api/users/${userData._id}/assigned-clients`
+        );
+        setAssignedClients(clientsResponse.data);
+      }
+
+      const orgProfilePic = getProfilePicUrl(profilePic);
+      const mainData = userData.orgProfilePic;
       setProfilePic(mainData);
     } catch (err) {
       console.error("Error fetching manager data:", err);
       setError("Failed to fetch manager data. Please try again.");
-      if (err.response && err.response.status === 401) {
+      if (err.response?.status === 401) {
         navigate("/login");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -298,7 +362,7 @@ const ManagerDashboard = () => {
     if (!managerData) return;
     try {
       const response = await api.get(
-        `/api/users/${managerData._id}/assigned-clients`
+        `/api/users/${managerData?._id}/assigned-clients`
       );
       setAssignedClients(response.data);
     } catch (err) {
@@ -333,39 +397,25 @@ const ManagerDashboard = () => {
       console.error("Error fetching categories:", error);
     }
   };
-  const handleClientSelect = async (client) => {
-    try {
-      const [clientData, formSubmissions, chatMessages] = await Promise.all([
-        api.get(`/api/users/${client._id}/data`),
-        api.get(`/api/users/${client._id}/form-submissions`),
-        api.get(`/api/users/${client._id}/chat-messages`),
-      ]);
-      setSelectedClient({
-        ...clientData.data,
-        formSubmissions: formSubmissions.data,
-        chatMessages: chatMessages.data,
-      });
-      setClientDrawerVisible(true);
-    } catch (error) {
-      console.error("Error fetching client data:", error);
-      message.error("Failed to fetch client data");
+
+  const handleCloseChat = (userId) => {
+    setOpenChats((prev) => ({
+      ...prev,
+      [userId]: false,
+    }));
+    if (selectedClient?._id === userId) {
+      setSelectedClient(null);
     }
   };
 
-  const handleCloseChat = (clientId) => {
-    setOpenChats((prevChats) => {
-      const newChats = { ...prevChats };
-      delete newChats[clientId];
-      return newChats;
-    });
+  const handleLogoutConfirm = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userRole");
+    navigate("/login");
   };
 
   const handleLogout = () => {
-    const confirmed = window.confirm("Are you sure you want to log out?");
-    if (!confirmed) return;
-
-    localStorage.removeItem("token");
-    navigate("/login");
+    setLogoutModalVisible(true);
   };
 
   const handleProfilePicUpload = async (e) => {
@@ -468,322 +518,10 @@ const ManagerDashboard = () => {
     (currentPage + 1) * formsPerPage
   );
 
-  const renderClientInfo = () => {
-    if (!selectedClient) return null;
-
-    return (
-      <div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            marginBottom: "20px",
-          }}
-        >
-          <Avatar
-            size={64}
-            icon={<UserOutlined />}
-            src={getProfilePicUrl(selectedClient.client.profilePic)}
-          />
-          <Title level={4} style={{ marginTop: "10px" }}>
-            {selectedClient.client.fullName}
-          </Title>
-        </div>
-        <Tabs defaultActiveKey="1">
-          <Tabs.TabPane tab="Personal Info" key="1">
-            <Descriptions bordered column={2}>
-              <Descriptions.Item label="Email">
-                {selectedClient.client.email}
-              </Descriptions.Item>
-              <Descriptions.Item label="Phone">
-                {selectedClient.client.phoneNumber}
-              </Descriptions.Item>
-              <Descriptions.Item label="Cell">
-                {selectedClient.client.cellNo}
-              </Descriptions.Item>
-              <Descriptions.Item label="SSN">
-                {selectedClient.client.ssn}
-              </Descriptions.Item>
-              <Descriptions.Item label="DOB">
-                {selectedClient.client.dateOfBirth &&
-                  new Date(
-                    selectedClient.client.dateOfBirth
-                  ).toLocaleDateString()}
-              </Descriptions.Item>
-              <Descriptions.Item label="Address">
-                {selectedClient.client.addressLine1}{" "}
-                {selectedClient.client.addressLine2}
-              </Descriptions.Item>
-              <Descriptions.Item label="Filing Status">
-                {selectedClient.client.filingStatus}
-              </Descriptions.Item>
-              <Descriptions.Item label="Total Dependents">
-                {selectedClient.client.totalDependents}
-              </Descriptions.Item>
-              <Descriptions.Item label="Spouse Name">
-                {selectedClient.client.spouseName}
-              </Descriptions.Item>
-              <Descriptions.Item label="Spouse SSN">
-                {selectedClient.client.spouseSSN}
-              </Descriptions.Item>
-              <Descriptions.Item label="Spouse DOB">
-                {selectedClient.client.spouseDOB &&
-                  new Date(
-                    selectedClient.client.spouseDOB
-                  ).toLocaleDateString()}
-              </Descriptions.Item>
-            </Descriptions>
-          </Tabs.TabPane>
-
-          <Tabs.TabPane tab="Business Info" key="2">
-            <Descriptions bordered column={2}>
-              <Descriptions.Item label="Business Name">
-                {selectedClient.client.businessName}
-              </Descriptions.Item>
-              <Descriptions.Item label="Business Phone">
-                {selectedClient.client.businessPhone}
-              </Descriptions.Item>
-              <Descriptions.Item label="Business Address">
-                {selectedClient.client.businessAddressLine1}{" "}
-                {selectedClient.client.businessAddressLine2}
-              </Descriptions.Item>
-              <Descriptions.Item label="Business Entity Type">
-                {selectedClient.client.businessEntityType}
-              </Descriptions.Item>
-              <Descriptions.Item label="Business TIN">
-                {selectedClient.client.businessTIN}
-              </Descriptions.Item>
-              <Descriptions.Item label="Business SOS">
-                {selectedClient.client.businessSOS}
-              </Descriptions.Item>
-              <Descriptions.Item label="Business EDD">
-                {selectedClient.client.businessEDD}
-              </Descriptions.Item>
-              <Descriptions.Item label="Accounting Method">
-                {selectedClient.client.businessAccountingMethod}
-              </Descriptions.Item>
-              <Descriptions.Item label="Business Year">
-                {selectedClient.client.businessYear}
-              </Descriptions.Item>
-              <Descriptions.Item label="Business Email">
-                {selectedClient.client.businessEmail}
-              </Descriptions.Item>
-            </Descriptions>
-          </Tabs.TabPane>
-
-          <Tabs.TabPane tab="Financial Info" key="3">
-            <Descriptions bordered column={2}>
-              <Descriptions.Item label="Total Balance">
-                {selectedClient.client.totalBalance}
-              </Descriptions.Item>
-              <Descriptions.Item label="Available Balance">
-                {selectedClient.client.availableBalance}
-              </Descriptions.Item>
-              <Descriptions.Item label="Credit Score">
-                {selectedClient.client.creditScore}
-              </Descriptions.Item>
-              <Descriptions.Item label="Annual Income">
-                {selectedClient.client.annualIncome}
-              </Descriptions.Item>
-              <Descriptions.Item label="Employment Status">
-                {selectedClient.client.employmentStatus}
-              </Descriptions.Item>
-              <Descriptions.Item label="Tax Filing Status">
-                {selectedClient.client.taxFilingStatus}
-              </Descriptions.Item>
-              <Descriptions.Item label="Last Tax Return">
-                {selectedClient.client.lastTaxReturnDate &&
-                  new Date(
-                    selectedClient.client.lastTaxReturnDate
-                  ).toLocaleDateString()}
-              </Descriptions.Item>
-              <Descriptions.Item label="Outstanding Tax">
-                {selectedClient.client.outstandingTaxLiabilities}
-              </Descriptions.Item>
-            </Descriptions>
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Form Submissions" key="5">
-            <List
-              dataSource={formSubmissions}
-              renderItem={(submission) => (
-                <Card
-                  title={submission.formStructure.title || "Untitled Form"}
-                  style={{ marginBottom: 16 }}
-                >
-                  <p>
-                    <strong>Status:</strong> {submission.status}
-                  </p>
-                  <p>
-                    <strong>Submitted:</strong>{" "}
-                    {submission.submittedAt
-                      ? new Date(submission.submittedAt).toLocaleString()
-                      : "Not submitted yet"}
-                  </p>
-                  <Divider orientation="left">Responses</Divider>
-                  {submission.responses.map((response, index) => (
-                    <div key={index}>
-                      <p>
-                        <strong>{response.fieldLabel}:</strong>
-                      </p>
-                      {response.value === "digitalSignature" ? (
-                        <Image
-                          width={200}
-                          src={response.value}
-                          alt="Digital Signature"
-                        />
-                      ) : typeof response.value === "object" ? (
-                        <pre>{JSON.stringify(response.value, null, 2)}</pre>
-                      ) : (
-                        <p>{response.value || "No response"}</p>
-                      )}
-                      {response.value === "file" && (
-                        <Button
-                          type="primary"
-                          icon={<DownloadOutlined />}
-                          size="small"
-                          onClick={() => handleDownload(response.file)}
-                        >
-                          Download
-                        </Button>
-                      )}
-                    </div>
-                  ))}
-                </Card>
-              )}
-            />
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Chat Messages" key="6">
-            <div
-              style={{
-                maxHeight: "800px",
-                overflowY: "auto",
-                scrollbarWidth: "thin",
-                scrollbarColor: "#1890ff #f0f0f0",
-              }}
-            >
-              {selectedClient.chatMessages
-                .slice(
-                  (chatPage - 1) * messagesPerPage,
-                  chatPage * messagesPerPage
-                )
-                .map((message, index) => (
-                  <React.Fragment key={index}>
-                    <Card
-                      key={index}
-                      style={{
-                        textAlign:
-                          message.sender === selectedClient.client._id
-                            ? "left"
-                            : "right",
-                        backgroundColor:
-                          message.sender === selectedClient.client._id
-                            ? "rgba(240, 240, 240, 0.8)"
-                            : "rgba(230, 247, 255, 0.8)",
-                        margin: "10px 0",
-                        borderRadius: "20px",
-                        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-                        backdropFilter: "blur(5px)",
-                      }}
-                    >
-                      <Space direction="vertical" style={{ width: "100%" }}>
-                        <Typography.Text
-                          strong
-                          style={{
-                            fontSize: "1.1em",
-                            color:
-                              message.sender === selectedClient.client._id
-                                ? "#1890ff"
-                                : "#52c41a",
-                            textShadow: "1px 1px 2px rgba(0,0,0,0.1)",
-                          }}
-                        >
-                          {message.sender === selectedClient.client._id
-                            ? "Client"
-                            : "Manager"}
-                        </Typography.Text>
-                        <Typography.Paragraph
-                          style={{
-                            fontSize: "1em",
-                            lineHeight: "1.5",
-                            color: "rgba(0, 0, 0, 0.85)",
-                          }}
-                        >
-                          {message.content}
-                        </Typography.Paragraph>
-                        {message.file && (
-                          <Button
-                            type="primary"
-                            icon={<DownloadOutlined />}
-                            size="small"
-                            onClick={() =>
-                              window.open(
-                                `http://localhost:5000/${message.file.path}`,
-                                "_blank"
-                              )
-                            }
-                            style={{
-                              backgroundColor: "#1890ff",
-                              border: "none",
-                              borderRadius: "15px",
-                              boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
-                              transition: "all 0.3s ease",
-                            }}
-                          >
-                            Download {message.file.filename.slice(0, 10)}...
-                          </Button>
-                        )}
-                        <Typography.Text
-                          type="secondary"
-                          style={{
-                            fontSize: "0.8em",
-                            alignSelf: "flex-end",
-                            fontStyle: "italic",
-                            color: "rgba(0, 0, 0, 0.45)",
-                          }}
-                        >
-                          {new Date(message.timestamp).toLocaleString()}
-                        </Typography.Text>
-                      </Space>
-                    </Card>
-                    <hr
-                      style={{
-                        margin: "50px 0",
-                        border: "none",
-                        borderTop: "1px solid rgba(0,0,0,0.1)",
-                      }}
-                    />
-                  </React.Fragment>
-                ))}
-            </div>
-            <div
-              style={{
-                textAlign: "center",
-                marginTop: "20px",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Pagination
-                current={chatPage}
-                total={selectedClient.chatMessages.length}
-                pageSize={messagesPerPage}
-                onChange={(page) => setChatPage(page)}
-              />
-            </div>
-          </Tabs.TabPane>
-          <Tabs.TabPane tab="Financial Data Input" key="7">
-            <InputForm clientId={selectedClient.client._id} />
-          </Tabs.TabPane>
-        </Tabs>
-      </div>
-    );
-  };
-
   const handlePersonnelSubmit = async (values) => {
     try {
       const response = await api.put(
-        `/api/users/manager-personal-info/${managerData._id}`,
+        `/api/users/manager-personal-info/${managerData?._id}`,
         values
       );
       setManagerData(response.data);
@@ -796,12 +534,50 @@ const ManagerDashboard = () => {
 
   const handleFinancialDataUpdate = async (values) => {
     try {
-      await api.put(`/api/users/${selectedClient._id}/financial-data`, values);
+      await api.put(
+        `/api/users/${selectedClient.client._id}/financial-data`,
+        values
+      );
       message.success("Financial data updated successfully");
-      fetchClientData(selectedClient._id);
+      fetchClientData(selectedClient.client._id);
     } catch (error) {
       console.error("Error updating financial data:", error);
       message.error("Failed to update financial data");
+    }
+  };
+
+  useEffect(() => {
+    if (selectedClient) {
+      const fetchClientData = async () => {
+        try {
+          const response = await api.get(`/api/clients/${selectedClient._id}`);
+          setSelectedClientData(response.data);
+        } catch (error) {
+          console.error("Error fetching client data:", error);
+        }
+      };
+      fetchClientData();
+    }
+  }, [selectedClient]);
+
+  useEffect(() => {
+    const checkSleepMode = async () => {
+      try {
+        const response = await api.get("/api/users/profile");
+        setIsSleepMode(response.data.isInSleepMode);
+      } catch (error) {
+        console.error("Error checking sleep mode:", error);
+      }
+    };
+    checkSleepMode();
+  }, []);
+
+  const handleSleepMode = async () => {
+    try {
+      await api.put("/api/users/sleep-mode", { isInSleepMode: true });
+      setIsSleepMode(true);
+    } catch (error) {
+      console.error("Error activating sleep mode:", error);
     }
   };
 
@@ -810,8 +586,7 @@ const ManagerDashboard = () => {
 
   const menuItems = [
     { key: "dashboard", icon: <DashboardOutlined />, label: "Dashboard" },
-    { key: "chat", icon: <MessageOutlined />, label: "Chat" },
-    { key: "adminChat", icon: <MessageOutlined />, label: "Chat with Admin" },
+    { key: "chat", icon: <MessageOutlined />, label: "Chat Center" },
     { key: "clientData", icon: <UserOutlined />, label: "Client Data" },
     { key: "forms", icon: <FileOutlined />, label: "Forms" },
     { key: "dragAndDrop", icon: <InboxOutlined />, label: "File Transfer" },
@@ -821,8 +596,9 @@ const ManagerDashboard = () => {
       label: "Personnel Settings",
     },
     { key: "logout", icon: <LogoutOutlined />, label: "Logout" },
+    { key: "sleep", icon: <SleepOutlined />, label: "Sleep Mode" },
   ].filter((item) => {
-    if (item.key === "logout") return true;
+    if (item.key === "logout" || item.key === "sleep") return true;
     return canShowComponent(item.key);
   });
 
@@ -846,6 +622,8 @@ const ManagerDashboard = () => {
             onClick={({ key }) => {
               if (key === "logout") {
                 handleLogout();
+              } else if (key === "sleep") {
+                handleSleepMode();
               } else {
                 setActiveTab(key);
               }
@@ -863,7 +641,7 @@ const ManagerDashboard = () => {
           <Content style={{ margin: "0 16px" }}>
             <div style={{ padding: 24, minHeight: 360 }}>
               <Title level={2}>Manager Dashboard</Title>
-              <NotificationBubble userId={managerData._id} />
+              <NotificationBubble userId={managerData?._id} />
 
               {activeTab === "dashboard" && canShowComponent("dashboard") && (
                 <div>
@@ -904,60 +682,8 @@ const ManagerDashboard = () => {
               )}
 
               {activeTab === "chat" && canShowComponent("chat") && (
-                <div className="chat-section">
-                  <Title level={3}>Chat with Clients</Title>
-                  <List
-                    dataSource={assignedClients}
-                    renderItem={(client) => (
-                      <List.Item
-                        key={client._id}
-                        onClick={() => handleClientSelect(client)}
-                        style={{ cursor: "pointer" }}
-                      >
-                        <List.Item.Meta
-                          avatar={<Avatar icon={<UserOutlined />} />}
-                          title={client.username}
-                          description={`Unread: ${
-                            unreadCounts[client._id] || 0
-                          }`}
-                        />
-                      </List.Item>
-                    )}
-                  />
-                  {Object.entries(openChats).map(([clientId, isOpen]) => {
-                    if (!isOpen) return null;
-                    const client = assignedClients.find(
-                      (c) => c._id === clientId
-                    );
-                    if (!client) return null;
-                    return (
-                      <Card key={clientId} style={{ marginTop: 16 }}>
-                        <ChatComponent
-                          currentUser={managerData}
-                          otherUser={client}
-                          onClose={() => handleCloseChat(clientId)}
-                          chatId={`${managerData._id}-${client._id}`}
-                          visible={true}
-                        />
-                      </Card>
-                    );
-                  })}
-                </div>
+                <ChatCenter managerData={managerData} />
               )}
-
-              {activeTab === "adminChat" &&
-                adminUser &&
-                canShowComponent("adminChat") && (
-                  <Card>
-                    <ChatComponent
-                      currentUser={managerData}
-                      otherUser={adminUser}
-                      onClose={() => setActiveTab("dashboard")}
-                      visible={true}
-                    />
-                  </Card>
-                )}
-
               {activeTab === "forms" && canShowComponent("forms") && (
                 <div className="forms-section">
                   <Title level={3}>Saved Forms</Title>
@@ -1316,6 +1042,15 @@ const ManagerDashboard = () => {
             </>
           )}
         </Drawer>
+        <LogoutConfirmModal
+          visible={logoutModalVisible}
+          onConfirm={handleLogoutConfirm}
+          onCancel={() => setLogoutModalVisible(false)}
+        />
+        <SleepMode
+          isActive={isSleepMode}
+          onExit={() => setIsSleepMode(false)}
+        />
       </Layout>
     </RoleChecker>
   );

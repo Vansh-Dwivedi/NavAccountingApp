@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Upload, Card, List, Button, Modal, Input, message, Typography } from 'antd';
-import { InboxOutlined, SearchOutlined } from '@ant-design/icons';
+import { InboxOutlined, SearchOutlined, DownloadOutlined } from '@ant-design/icons';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import RecipientSearchModal from './RecipientSearchModal';
 import { Worker, Viewer } from '@react-pdf-viewer/core';
@@ -19,18 +19,27 @@ const DragAndDropScreen = ({ userRole }) => {
   const [receivedFiles, setReceivedFiles] = useState([]);
 
   useEffect(() => {
-    const fetchUserFiles = async () => {
+    const fetchReceivedFiles = async () => {
       try {
         const userId = jwtDecode(localStorage.getItem('token')).user.id;
         const response = await api.get(`/api/files/${userId}/files`);
-        setReceivedFiles(response.data);
+        
+        if (response.data.success && Array.isArray(response.data.data)) {
+          setReceivedFiles(response.data.data.map(file => ({
+            ...file,
+            key: file._id
+          })));
+        } else {
+          setReceivedFiles([]);
+        }
       } catch (error) {
-        message.error('Error fetching received files');
-        console.error('Error:', error);
+        console.error('Error fetching received files:', error);
+        message.error('Error loading received files');
+        setReceivedFiles([]);
       }
     };
 
-    fetchUserFiles();
+    fetchReceivedFiles();
   }, []);
 
   const onDragEnd = (result) => {
@@ -71,10 +80,11 @@ const DragAndDropScreen = ({ userRole }) => {
     
     if (!['pdf', 'csv', 'txt', 'jpg', 'jpeg', 'png'].includes(extension)) {
       message.error('Only PDF, CSV, TXT, and image files are allowed');
-      return;
+      return false;
     }
 
     const reader = new FileReader();
+    
     reader.onload = async (e) => {
       let content = e.target.result;
       let type = extension;
@@ -98,7 +108,8 @@ const DragAndDropScreen = ({ userRole }) => {
         type: type,
         file: file
       };
-      setItems([...items, newItem]);
+
+      setItems(prevItems => [...prevItems, newItem]);
     };
 
     if (['jpg', 'jpeg', 'png'].includes(extension)) {
@@ -108,11 +119,18 @@ const DragAndDropScreen = ({ userRole }) => {
     } else {
       reader.readAsText(file);
     }
+
+    return false; // Prevent default upload behavior
   };
 
-  const handleSendFile = (item) => {
-    setSelectedFile(item.file);
-    setRecipientModalVisible(true);
+  const handleSendFile = async (item) => {
+    try {
+      setSelectedFile(item.file);
+      setRecipientModalVisible(true);
+    } catch (error) {
+      console.error('Error preparing file for sending');
+      message.error('Error preparing file for sending');
+    }
   };
 
   const handleRecipientSelect = async (recipient) => {
@@ -123,11 +141,10 @@ const DragAndDropScreen = ({ userRole }) => {
         const svgContent = await convertImageToSVG(selectedFile);
         const svgBlob = new Blob([svgContent], { type: 'image/svg+xml' });
         const svgFileName = selectedFile.name.replace(/\.[^/.]+$/, '.svg');
-        formData.append('file', svgBlob);
-        formData.append('file[name]', svgFileName);
+        const svgFile = new File([svgBlob], svgFileName, { type: 'image/svg+xml' });
+        formData.append('file', svgFile);
       } else {
         formData.append('file', selectedFile);
-        formData.append('file[name]', selectedFile.name);
       }
       formData.append('recipientId', recipient._id);
 
@@ -172,7 +189,7 @@ const DragAndDropScreen = ({ userRole }) => {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ padding: '20px', color: 'white', backgroundColor: 'rgba(255, 255, 255, 0.5)' }}>
       <Upload.Dragger
         accept=".pdf,.csv,.txt,.jpg,.jpeg,.png"
         beforeUpload={(file) => {
@@ -226,13 +243,21 @@ const DragAndDropScreen = ({ userRole }) => {
       <List
         dataSource={receivedFiles}
         renderItem={file => (
-          <List.Item>
-            <Card style={{ width: '100%' }}>
-              <Card.Meta
-                title={file.fileName}
-                description={`From: ${file.senderId} | Path: ${file.filePath}`}
-              />
-            </Card>
+          <List.Item
+            key={file.key}
+            actions={[
+              <Button 
+                onClick={() => window.open(`${api.defaults.baseURL}/api/files/download/${file.filePath}`, '_blank')}
+                icon={<DownloadOutlined />}
+              >
+                Download
+              </Button>
+            ]}
+          >
+            <List.Item.Meta
+              title={file.fileName}
+              description={`From: ${file.senderName} | Sent: ${new Date(file.createdAt).toLocaleString()}`}
+            />
           </List.Item>
         )}
       />

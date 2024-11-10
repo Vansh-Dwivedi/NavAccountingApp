@@ -234,6 +234,10 @@ const UserSchema = new mongoose.Schema(
     dashboardConfig: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'DashboardConfig'
+    },
+    isInSleepMode: {
+      type: Boolean,
+      default: false
     }
   },
   { timestamps: true }

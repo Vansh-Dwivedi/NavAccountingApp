@@ -82,6 +82,7 @@ const FormsTab = () => {
         };
         console.log('Updated submissions state:', newSubmissions);
         return newSubmissions;
+        
       });
       
       return response.data;

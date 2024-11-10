@@ -24,5 +24,6 @@ router.get("/notes", auth, auditMiddleware('📋 Viewed all notes'), employeeCon
 router.put("/notes/:noteId", auth, auditMiddleware('✍️ Updated note'), employeeController.updateNote);
 router.delete("/notes/:noteId", auth, auditMiddleware('🗑️ Deleted note'), employeeController.deleteNote);
 router.post("/:taskId/complete", auth, auditMiddleware('✅ Completed task'), employeeController.completeTask);
+router.put("/profile/:userId", auth, auditMiddleware('👤 Updated profile'), employeeController.updateProfile);
 
 module.exports = router;

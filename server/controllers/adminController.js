@@ -43,9 +43,7 @@ exports.getEmployeeNotes = async (req, res) => {
     const { employeeId } = req.params;
     const passbook = await Passbook.findOne({ user: employeeId });
     if (!passbook) {
-      return res
-        .status(404)
-        .json({ message: "Passbook not found for the employee" });
+      return res.json([]);
     }
     res.json(passbook.notes || []);
   } catch (error) {

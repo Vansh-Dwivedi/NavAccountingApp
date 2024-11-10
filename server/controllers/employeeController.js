@@ -13,6 +13,17 @@ exports.getDashboardData = async (req, res) => {
   }
 };
 
+exports.updateProfile = async (req, res) => {
+  try {
+    const { username, email } = req.body;
+    await User.findByIdAndUpdate(req.params.userId, { username, email });
+    res.json({ message: "Profile updated successfully" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 exports.getTaskOfTheDay = async (req, res) => {
   try {
     const task = await Task.findOne({

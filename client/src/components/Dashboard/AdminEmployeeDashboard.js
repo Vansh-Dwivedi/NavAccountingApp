@@ -18,9 +18,6 @@ import {
 import {
   UserOutlined,
   EditOutlined,
-  DeleteOutlined,
-  TrophyOutlined,
-  TeamOutlined,
   ProjectOutlined,
   PlusOutlined,
   InfoCircleOutlined,
@@ -72,6 +69,7 @@ const AdminEmployeeDashboard = ({ employeeId }) => {
   const [employeeStats, setEmployeeStats] = useState({
     taskCompletion: [],
     taskPriorities: { high: 0, medium: 0, low: 0 },
+    taskStats: { completed: 0, pending: 0, completion: [] },
     performanceScore: 0,
     monthLabels: []
   });
@@ -89,13 +87,14 @@ const AdminEmployeeDashboard = ({ employeeId }) => {
   }, [employeeId]);
 
   useEffect(() => {
-    // Initialize editedStats whenever employeeStats changes
-    setEditedStats({
-      taskCompletion: [...employeeStats.taskStats.completion],
-      taskPriorities: { ...employeeStats.taskPriorities },
-      performanceScore: employeeStats.performanceScore,
-      monthLabels: [...employeeStats.monthLabels]
-    });
+    if (employeeStats?.taskStats?.completion && employeeStats?.monthLabels) {
+      setEditedStats({
+        taskCompletion: [...employeeStats.taskStats.completion],
+        taskPriorities: { ...(employeeStats.taskPriorities || { high: 0, medium: 0, low: 0 }) },
+        performanceScore: employeeStats.performanceScore || 0,
+        monthLabels: [...employeeStats.monthLabels]
+      });
+    }
   }, [employeeStats]);
 
   const fetchEmployeeData = async () => {
@@ -148,11 +147,25 @@ const AdminEmployeeDashboard = ({ employeeId }) => {
   const fetchEmployeeStats = async () => {
     try {
       const response = await api.get(`/api/admin/employee-stats/${employeeId}`);
-      setEmployeeStats(response.data);
+      setEmployeeStats(response.data || {
+        taskCompletion: [],
+        taskPriorities: { high: 0, medium: 0, low: 0 },
+        taskStats: { completed: 0, pending: 0, completion: [] },
+        performanceScore: 0,
+        monthLabels: []
+      });
     } catch (error) {
       console.error("Error fetching employee stats:", error);
       message.error("Failed to fetch employee statistics");
     }
+  };
+
+  const handleDateChange = (date) => {
+    if (!date) return;
+    setNewTask({
+      ...newTask,
+      dueDate: date.toISOString(),
+    });
   };
 
   const updatePassbook = async (updatedPassbook) => {
@@ -277,12 +290,14 @@ const AdminEmployeeDashboard = ({ employeeId }) => {
               if (isEditingStats) {
                 handleUpdateStats();
               } else {
-                setEditedStats({
-                  taskCompletion: [...employeeStats.taskStats.completion],
-                  taskPriorities: { ...employeeStats.taskPriorities },
-                  performanceScore: employeeStats.performanceScore,
-                  monthLabels: [...employeeStats.monthLabels]
-                });
+                if (employeeStats?.taskStats?.completion && employeeStats?.monthLabels) {
+                  setEditedStats({
+                    taskCompletion: [...employeeStats.taskStats.completion],
+                    taskPriorities: { ...(employeeStats.taskPriorities || { high: 0, medium: 0, low: 0 }) },
+                    performanceScore: employeeStats.performanceScore || 0,
+                    monthLabels: [...employeeStats.monthLabels]
+                  });
+                }
                 setIsEditingStats(true);
               }
             }}
@@ -316,28 +331,30 @@ const AdminEmployeeDashboard = ({ employeeId }) => {
                 ))}
               </Form>
             ) : (
-              <Line
-                data={{
-                  labels: employeeStats.monthLabels,
-                  datasets: [{
-                    label: "Tasks Completed (%)",
-                    data: employeeStats.taskStats.completion,
-                    borderColor: "rgb(75, 192, 192)",
-                    tension: 0.1,
-                  }],
-                }}
-                options={{
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      max: 100,
-                      ticks: {
-                        callback: (value) => `${value}%`
+              employeeStats?.monthLabels && (
+                <Line
+                  data={{
+                    labels: employeeStats.monthLabels,
+                    datasets: [{
+                      label: "Tasks Completed (%)",
+                      data: employeeStats.taskStats?.completion || [],
+                      borderColor: "rgb(75, 192, 192)",
+                      tension: 0.1,
+                    }],
+                  }}
+                  options={{
+                    scales: {
+                      y: {
+                        beginAtZero: true,
+                        max: 100,
+                        ticks: {
+                          callback: (value) => `${value}%`
+                        }
                       }
                     }
-                  }
-                }}
-              />
+                  }}
+                />
+              )
             )}
           </div>
           <div>
@@ -348,11 +365,11 @@ const AdminEmployeeDashboard = ({ employeeId }) => {
                   <Input
                     type="number"
                     min={0}
-                    value={editedStats.taskPriorities.high}
+                    value={editedStats.taskPriorities?.high || 0}
                     onChange={(e) => setEditedStats({
                       ...editedStats,
                       taskPriorities: {
-                        ...editedStats.taskPriorities,
+                        ...(editedStats.taskPriorities || {}),
                         high: Number(e.target.value)
                       }
                     })}
@@ -362,11 +379,11 @@ const AdminEmployeeDashboard = ({ employeeId }) => {
                   <Input
                     type="number"
                     min={0}
-                    value={editedStats.taskPriorities.medium}
+                    value={editedStats.taskPriorities?.medium || 0}
                     onChange={(e) => setEditedStats({
                       ...editedStats,
                       taskPriorities: {
-                        ...editedStats.taskPriorities,
+                        ...(editedStats.taskPriorities || {}),
                         medium: Number(e.target.value)
                       }
                     })}
@@ -376,11 +393,11 @@ const AdminEmployeeDashboard = ({ employeeId }) => {
                   <Input
                     type="number"
                     min={0}
-                    value={editedStats.taskPriorities.low}
+                    value={editedStats.taskPriorities?.low || 0}
                     onChange={(e) => setEditedStats({
                       ...editedStats,
                       taskPriorities: {
-                        ...editedStats.taskPriorities,
+                        ...(editedStats.taskPriorities || {}),
                         low: Number(e.target.value)
                       }
                     })}
@@ -392,9 +409,9 @@ const AdminEmployeeDashboard = ({ employeeId }) => {
                 labels: ["High", "Medium", "Low"],
                 datasets: [{
                   data: [
-                    employeeStats.taskPriorities.high,
-                    employeeStats.taskPriorities.medium,
-                    employeeStats.taskPriorities.low,
+                    employeeStats.taskPriorities?.high || 0,
+                    employeeStats.taskPriorities?.medium || 0,
+                    employeeStats.taskPriorities?.low || 0,
                   ],
                   backgroundColor: ["#ff4d4f", "#faad14", "#52c41a"],
                 }],
@@ -427,7 +444,7 @@ const AdminEmployeeDashboard = ({ employeeId }) => {
             ) : (
               <Progress
                 type="dashboard"
-                percent={employeeStats.performanceScore}
+                percent={employeeStats.performanceScore || 0}
                 format={(percent) => (
                   <div>
                     <div style={{ fontSize: '24px', fontWeight: 'bold' }}>{percent}%</div>

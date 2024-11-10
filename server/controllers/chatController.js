@@ -5,6 +5,7 @@ const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const Notification = require("../models/Notification");
+const Chat = require('../models/Chat');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {

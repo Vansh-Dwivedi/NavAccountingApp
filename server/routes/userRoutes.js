@@ -6,6 +6,7 @@ const multer = require("multer");
 const path = require("path");
 const roleCheck = require("../middleware/roleCheck");
 const auditMiddleware = require("../middleware/auditMiddleware");
+const User = require("../models/User");
 
 // Set up multer for file uploads
 const storage = multer.diskStorage({
@@ -19,9 +20,73 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage: storage });
 
+// Get admin user
+router.get("/admin", auth, async (req, res) => {
+  try {
+    const admin = await User.findOne({ role: "admin" });
+    if (!admin) {
+      return res.status(404).json({ message: "Admin user not found" });
+    }
+    res.json(admin);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.put("/sleep-mode", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    user.isInSleepMode = req.body.isInSleepMode;
+    await user.save();
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).send("Server Error");
+  }
+});
+
+// Verify password for unlocking
+router.post("/verify-password", auth, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    const isValid = await user.comparePassword(req.body.password);
+    res.json({ isValid });
+  } catch (error) {
+    res.status(500).send("Server Error");
+  }
+});
+
+// Get manager's assigned clients
+router.get("/:managerId/assigned-clients", auth, async (req, res) => {
+  try {
+    const manager = await User.findById(req.params.managerId);
+    if (!manager || manager.role !== "manager") {
+      return res.status(404).json({ message: "Manager not found" });
+    }
+
+    const assignedClients = await User.find({
+      _id: { $in: manager.assignedClients },
+      role: "client",
+    });
+
+    res.json(assignedClients);
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 // Existing routes
-router.get("/profile", auth, auditMiddleware("👤 Viewing user profile"), userController.getProfile);
-router.put("/profile/:id", auth, auditMiddleware("✏️ Updating user profile"), userController.updateProfile);
+router.get(
+  "/profile",
+  auth,
+  auditMiddleware("👤 Viewing user profile"),
+  userController.getProfile
+);
+router.put(
+  "/profile/:id",
+  auth,
+  auditMiddleware("✏️ Updating user profile"),
+  userController.updateProfile
+);
 router.post(
   "/profile-pic",
   auth,
@@ -29,9 +94,24 @@ router.post(
   auditMiddleware("📸 Uploading profile picture"),
   userController.uploadProfilePic
 );
-router.delete("/profile-pic", auth, auditMiddleware("🗑️ Deleting profile picture"), userController.deleteProfilePic);
-router.get("/all", auth, auditMiddleware("📋 Viewing all users"), userController.getAllUsers);
-router.get("/clients-and-managers", auth, auditMiddleware("👥 Viewing clients and managers list"), userController.getClientsAndManagers);
+router.delete(
+  "/profile-pic",
+  auth,
+  auditMiddleware("🗑️ Deleting profile picture"),
+  userController.deleteProfilePic
+);
+router.get(
+  "/all",
+  auth,
+  auditMiddleware("📋 Viewing all users"),
+  userController.getAllUsers
+);
+router.get(
+  "/clients-and-managers",
+  auth,
+  auditMiddleware("👥 Viewing clients and managers list"),
+  userController.getClientsAndManagers
+);
 
 // Routes for the updated role hierarchy
 router.get(
@@ -42,13 +122,41 @@ router.get(
   userController.getRoleHierarchy
 );
 
-router.get("/roles", auth, auditMiddleware("👑 Viewing all roles"), userController.getAllRoles);
-router.get("/admin", auth, auditMiddleware("👨‍💼 Viewing admin user"), userController.getAdminUser);
+router.get(
+  "/roles",
+  auth,
+  auditMiddleware("👑 Viewing all roles"),
+  userController.getAllRoles
+);
+router.get(
+  "/admin",
+  auth,
+  auditMiddleware("👨‍💼 Viewing admin user"),
+  userController.getAdminUser
+);
 
-router.get("/managers/count", auditMiddleware("📊 Getting managers count"), userController.getManagersCount);
-router.get("/clients/count", auditMiddleware("📊 Getting clients count"), userController.getClientsCount);
-router.get("/managers", auth, roleCheck(["admin"]), auditMiddleware("👥 Viewing managers list"), userController.getManagers);
-router.get("/admins/count", auditMiddleware("📊 Getting admins count"), userController.getAdminsCount);
+router.get(
+  "/managers/count",
+  auditMiddleware("📊 Getting managers count"),
+  userController.getManagersCount
+);
+router.get(
+  "/clients/count",
+  auditMiddleware("📊 Getting clients count"),
+  userController.getClientsCount
+);
+router.get(
+  "/managers",
+  auth,
+  roleCheck(["admin"]),
+  auditMiddleware("👥 Viewing managers list"),
+  userController.getManagers
+);
+router.get(
+  "/admins/count",
+  auditMiddleware("📊 Getting admins count"),
+  userController.getAdminsCount
+);
 
 router.post(
   "/client-info",
@@ -58,7 +166,11 @@ router.post(
   userController.submitClientInfo
 );
 
-router.get("/all/nonauthed", auditMiddleware("👥 Viewing non-authenticated users"), userController.getAllUsersNonAuthed);
+router.get(
+  "/all/nonauthed",
+  auditMiddleware("👥 Viewing non-authenticated users"),
+  userController.getAllUsersNonAuthed
+);
 
 router.delete(
   "/:userId",
@@ -68,7 +180,12 @@ router.delete(
   userController.deleteUser
 );
 
-router.get("/profile/:userId", auth, auditMiddleware("👤 Viewing specific user profile"), userController.getUserProfileById);
+router.get(
+  "/profile/:userId",
+  auth,
+  auditMiddleware("👤 Viewing specific user profile"),
+  userController.getUserProfileById
+);
 
 // Admin-only routes
 router.put(
@@ -139,7 +256,12 @@ router.post(
   userController.assignClientToManager
 );
 
-router.get("/:clientId/data", auth, auditMiddleware("📊 Viewing client data"), userController.getClientData);
+router.get(
+  "/:clientId/data",
+  auth,
+  auditMiddleware("📊 Viewing client data"),
+  userController.getClientData
+);
 
 router.post(
   "/submit-financial-data/:clientId",
@@ -149,23 +271,74 @@ router.post(
   userController.submitFinancialData
 );
 
-router.put("/client-personal-info/:clientId", auth, auditMiddleware("✏️ Updating client personal info"), userController.updateClientPersonalInfo);
+router.put(
+  "/client-personal-info/:clientId",
+  auth,
+  auditMiddleware("✏️ Updating client personal info"),
+  userController.updateClientPersonalInfo
+);
 
-router.put('/users/:userId/personal-info', auth, auditMiddleware("✏️ Updating user personal info"), userController.updateUserPersonalInfo);
+router.put(
+  "/users/:userId/personal-info",
+  auth,
+  auditMiddleware("✏️ Updating user personal info"),
+  userController.updateUserPersonalInfo
+);
 
-router.put('/manager-personal-info/:id', auth, auditMiddleware("✏️ Updating manager personal info"), userController.updateManagerPersonalInfo);
-router.put('/employee-personal-info/:id', auth, auditMiddleware("✏️ Updating employee personal info"), userController.updateEmployeePersonalInfo);
-router.put('/admin-personal-info/:id', auth, auditMiddleware("✏️ Updating admin personal info"), userController.updateAdminPersonalInfo);
-router.put('/:userId/financial-data', auth, auditMiddleware("💰 Updating financial data"), userController.updateFinancialData);
-router.put('/:userId/financial-history', auth, auditMiddleware("📈 Updating financial history"), userController.updateFinancialHistory);
-router.get('/:userId/financial-history', auth, auditMiddleware("📊 Viewing financial history"), userController.getFinancialHistory);
-router.delete('/financial-history/:userId', auth, auditMiddleware("🗑️ Deleting financial history"), userController.deleteFinancialHistory);
+router.put(
+  "/manager-personal-info/:id",
+  auth,
+  auditMiddleware("✏️ Updating manager personal info"),
+  userController.updateManagerPersonalInfo
+);
+router.put(
+  "/employee-personal-info/:id",
+  auth,
+  auditMiddleware("✏️ Updating employee personal info"),
+  userController.updateEmployeePersonalInfo
+);
+router.put(
+  "/admin-personal-info/:id",
+  auth,
+  auditMiddleware("✏️ Updating admin personal info"),
+  userController.updateAdminPersonalInfo
+);
+router.put(
+  "/:userId/financial-data",
+  auth,
+  auditMiddleware("💰 Updating financial data"),
+  userController.updateFinancialData
+);
+router.put(
+  "/:userId/financial-history",
+  auth,
+  auditMiddleware("📈 Updating financial history"),
+  userController.updateFinancialHistory
+);
+router.get(
+  "/:userId/financial-history",
+  auth,
+  auditMiddleware("📊 Viewing financial history"),
+  userController.getFinancialHistory
+);
+router.delete(
+  "/financial-history/:userId",
+  auth,
+  auditMiddleware("🗑️ Deleting financial history"),
+  userController.deleteFinancialHistory
+);
+router.get(
+  "/:clientId/form-submissions",
+  auth,
+  auditMiddleware("📋 Viewing form submissions"),
+  userController.getFormSubmissionsWithStructure
+);
 
 // Add this new route
 router.put(
-  '/:userId/dashboard-components',
+  "/:userId/dashboard-components",
   auth,
-  roleCheck(['admin']), // Only admin can modify dashboard components
+  roleCheck(["admin"]), // Only admin can modify dashboard components
   userController.updateDashboardComponents
 );
 

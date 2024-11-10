@@ -1,12 +1,47 @@
 {
   "name": "accounts-management-system",
   "version": "1.0.0",
+  "main": "electron/main.js",
   "scripts": {
-    "client:start": "cd client && npm start",
-    "client:build": "cd client && npm run build",
-    "server:start": "cd server && npm start",
-    "server:build": "cd server && npm run build",
-    "build": "npm run client:build && npm run server:build",
-    "server:start-dev": "cd server && npm run dev"
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-scripts eject",
+    "electron-dev": "concurrently \"cross-env BROWSER=none npm start\" \"wait-on http://localhost:3000 && electron .\""
+  },
+  "dependencies": {
+    "electron": "^33.1.0",
+    "electron-is-dev": "^3.0.1"
+  },
+  "build": {
+    "appId": "com.localhost.employee",
+    "files": [
+      "build/**/*",
+      "node_modules/**/*"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "mac": {
+      "category": "public.app-category.productivity"
+    },
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ]
+    }
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "wait-on": "^7.2.0",
+    "path-browserify": "^1.0.1",
+    "cross-env": "^7.0.3"
   }
 }

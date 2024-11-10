@@ -604,7 +604,7 @@ exports.getAdminsCount = async (req, res) => {
 
 exports.getFormSubmissionsWithStructure = async (req, res) => {
   try {
-    const userId = req.params.userId;
+    const userId = req.params.clientId;
     const user = await User.findById(userId).populate({
       path: "formSubmissions",
       populate: {
@@ -1092,5 +1092,16 @@ exports.updateDashboardComponents = async (req, res) => {
       message: 'Failed to update dashboard components',
       error: error.message 
     });
+  }
+};
+
+exports.getChatMessages = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const messages = await Message.find({ userId });
+    res.json(messages);
+  } catch (error) {
+    console.error('Error fetching chat messages:', error);
+    res.status(500).json({ error: 'Server error' });
   }
 };

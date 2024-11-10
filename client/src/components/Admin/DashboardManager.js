@@ -35,8 +35,7 @@ const DashboardManager = () => {
     ],
     manager: [
       { key: "dashboard", label: "Dashboard" },
-      { key: "chat", label: "Chat" },
-      { key: "adminChat", label: "Admin Chat" },
+      { key: "chat", label: "Chat Center" },
       { key: "clientData", label: "Client Data" },
       { key: "forms", label: "Forms" },
       { key: "dragAndDrop", label: "File Transfer" },

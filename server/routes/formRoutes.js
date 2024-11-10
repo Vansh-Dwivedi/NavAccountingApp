@@ -21,7 +21,7 @@ router.post('/save', auth, roleCheck(['admin']), auditMiddleware('💾 Saved for
 router.get('/saved', auth, roleCheck(['admin', 'manager']), auditMiddleware('📂 Viewed saved forms'), formController.getSavedForms);
 
 // Get all sended forms
-router.get('/sent', auth, roleCheck(['admin']), auditMiddleware('📤 Viewed sent forms'), formController.getSentForms);
+router.get('/sent', auth, formController.getSentForms);
 
 // Get forms for a user
 router.get('/user', auth, auditMiddleware('📋 Viewed my forms'), formController.getUserForms);
