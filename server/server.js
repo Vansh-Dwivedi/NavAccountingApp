@@ -158,7 +158,8 @@ const io = socketIo(server, {
     origin: process.env.CLIENT_URL || "http://localhost:3000",
     methods: ["GET", "POST"],
     credentials: true
-  }
+  },
+  transports: ['websocket', 'polling']
 });
 
 // Initialize our socket utility with the io instance
@@ -168,6 +169,23 @@ initializeSocket(io);
 // Socket connection handling
 io.on("connection", (socket) => {
   console.log("Client connected:", socket.id);
+
+  socket.on("join", (userId) => {
+    if (userId) {
+      socket.join(userId.toString());
+      console.log(`User ${userId} joined`);
+    }
+  });
+
+  socket.on("sendMessage", (message) => {
+    if (message.receiver) {
+      io.to(message.receiver.toString()).emit("newMessage", message);
+    }
+  });
+
+  socket.on("notification", (notification) => {
+    io.to(notification.userId).emit("newNotification", notification);
+  });
 
   socket.on("disconnect", () => {
     console.log("Client disconnected:", socket.id);
@@ -182,11 +200,16 @@ io.on("connection", (socket) => {
   console.log("New client connected");
 
   socket.on("join", (userId) => {
-    socket.join(userId);
+    if (userId) {
+      socket.join(userId.toString());
+      console.log(`User ${userId} joined`);
+    }
   });
 
   socket.on("sendMessage", (message) => {
-    io.to(message.receiver).emit("newMessage", message);
+    if (message.receiver) {
+      io.to(message.receiver.toString()).emit("newMessage", message);
+    }
   });
 
   socket.on("disconnect", () => {
@@ -254,8 +277,5 @@ app.use((err, req, res, next) => {
 // Port configuration
 const PORT = process.env.PORT || 5000;
 
-// Initialize socket.io
-initializeSocket(server);
-
 // Export server
-module.exports = { app, server };
+module.exports = { app, server, io };

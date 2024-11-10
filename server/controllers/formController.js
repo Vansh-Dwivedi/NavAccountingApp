@@ -67,17 +67,17 @@ exports.sendFormToUser = async (req, res) => {
       return res.status(404).json({ error: "User not found" });
     }
 
-    // Create a new form submission
+    // Create a new form submission with correct field names
     const formSubmission = new FormSubmission({
-      form: formId,
-      user: userId,
+      formId: formId,
+      userId: userId,
       status: "pending",
     });
     await formSubmission.save();
 
     const newNotification = new Notification({
       userId: userId,
-      sender: req.user.id, // Set the sender field to the authenticated user's ID
+      sender: req.user.id,
       message: `${req.user.username}`,
       senderProfilePic: req.user.profilePic || "default-profile-pic.jpg",
       createdAt: new Date(),

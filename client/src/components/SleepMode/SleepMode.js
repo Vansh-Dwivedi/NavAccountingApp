@@ -1,16 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Modal, Input, Form, message, Button, Result } from "antd";
 import { LockOutlined, UnlockOutlined } from "@ant-design/icons";
 import api from "../../utils/api";
 
-const SleepMode = ({ isActive, onExit }) => {
+const SleepMode = ({ isActive, onExit, setActiveTab }) => {
   const [unlockModalVisible, setUnlockModalVisible] = useState(false);
+  const [isGoogleUser, setIsGoogleUser] = useState(false);
   const [form] = Form.useForm();
+
+  useEffect(() => {
+    const checkAuthMethod = async () => {
+      try {
+        const response = await api.get("/api/users/profile");
+        setIsGoogleUser(!!response.data.googleId);
+      } catch (error) {
+        console.error("Error checking auth method:", error);
+      }
+    };
+    checkAuthMethod();
+  }, []);
 
   const handleUnlock = async (values) => {
     try {
-      const response = await api.post("/api/users/verify-password", {
-        password: values.password,
+      const endpoint = isGoogleUser ? "/api/users/verify-pin" : "/api/users/verify-password";
+      const response = await api.post(endpoint, {
+        [isGoogleUser ? "pin" : "password"]: values[isGoogleUser ? "pin" : "password"],
       });
 
       if (response.data.isValid) {
@@ -18,8 +32,9 @@ const SleepMode = ({ isActive, onExit }) => {
         onExit();
         setUnlockModalVisible(false);
         form.resetFields();
+        setActiveTab("dashboard");
       } else {
-        message.error("Incorrect password");
+        message.error(isGoogleUser ? "Incorrect PIN" : "Incorrect password");
       }
     } catch (error) {
       console.error("Error unlocking sleep mode:", error);
@@ -87,15 +102,24 @@ const SleepMode = ({ isActive, onExit }) => {
       >
         <Form form={form} onFinish={handleUnlock}>
           <Form.Item
-            name="password"
-            rules={[{ required: true, message: "Please enter your password" }]}
-            style={{ marginTop: "20px" }}
+            name={isGoogleUser ? "pin" : "password"}
+            rules={[{ 
+              required: true, 
+              message: isGoogleUser ? "Please enter your PIN" : "Please enter your password" 
+            }]}
           >
-            <Input.Password
-              prefix={<LockOutlined />}
-              placeholder="Enter your password"
-              autoFocus
-            />
+            {isGoogleUser ? (
+              <Input.Password
+                maxLength={4}
+                placeholder="Enter your 4-digit PIN"
+                type="number"
+                pattern="[0-9]*"
+              />
+            ) : (
+              <Input.Password
+                placeholder="Enter your password"
+              />
+            )}
           </Form.Item>
           <Form.Item>
             <Button

@@ -5,7 +5,7 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import io from "socket.io-client";
+import { getSocket, initializeSocket } from "../../utils/socket";
 import api from "../../utils/api";
 import { AuthContext } from "../../context/AuthContext";
 import { toast } from "react-toastify";
@@ -24,6 +24,7 @@ import {
   DatePicker,
   Spin,
   message,
+  Divider,
 } from "antd";
 import {
   SearchOutlined,
@@ -33,6 +34,7 @@ import {
   CloseOutlined,
   UploadOutlined,
   DeleteOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import "antd/dist/reset.css"; // Import antd styles
 import moment from "moment";
@@ -112,10 +114,10 @@ const ChatComponent = ({
   useEffect(() => {
     if (!visible || !currentUser || !otherUser) return;
 
-    const newSocket = io(process.env.REACT_APP_API_URL);
-    setSocket(newSocket);
+    const socket = getSocket();
+    setSocket(socket);
 
-    newSocket.emit("join", currentUser._id);
+    socket.emit("join", currentUser._id);
 
     const handleNewMessage = (newMessage) => {
       addMessage(newMessage);
@@ -126,17 +128,16 @@ const ChatComponent = ({
       }
     };
 
-    newSocket.on("newMessage", handleNewMessage);
+    socket.on("newMessage", handleNewMessage);
 
     fetchMessages(`${currentUser._id}-${otherUser._id}`);
 
     fetchProfilePics();
 
     return () => {
-      newSocket.off("newMessage", handleNewMessage);
-      newSocket.disconnect();
+      socket.off("newMessage", handleNewMessage);
     };
-  }, [visible, currentUser, otherUser, addMessage, chatId]);
+  }, [visible, currentUser, otherUser, addMessage]);
 
   useEffect(() => {
     if (chatMessagesRef.current) {
@@ -336,9 +337,10 @@ const ChatComponent = ({
               src={
                 otherUserProfilePic
                   ? `${process.env.REACT_APP_API_URL}/uploads/${otherUserProfilePic}`
-                  : "/default-profile-pic.jpg"
+                  : null
               }
-              size="large"
+              icon={<div style={{ backgroundColor: "#808080", width: "100%", height: "100%" }}><UserOutlined /></div>}
+              size="small"
             />
             <span style={{ marginLeft: 10, fontSize: 18 }}>
               Chat with {otherUser.username}
@@ -436,28 +438,27 @@ const ChatComponent = ({
                         boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                       }}
                     >
-                      {!isCurrentUser && (
-                        <div
-                          style={{
-                            display: "flex",
-                            alignItems: "center",
-                            marginBottom: 5,
-                          }}
-                        >
-                          <Avatar
-                            src={
-                              msg.sender.profilePic
-                                ? `${process.env.REACT_APP_API_URL}/uploads/${msg.sender.profilePic}`
-                                : "/default-profile-pic.jpg"
-                            }
-                            size="small"
-                          />
-                          <span style={{ marginLeft: 8 }}>
-                            {msg.sender.username}
-                          </span>
-                        </div>
-                      )}
-                      <div>{msg.content}</div>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          marginBottom: 5,
+                        }}
+                      >
+                        <Avatar
+                          src={
+                            msg.sender.profilePic
+                              ? `${process.env.REACT_APP_API_URL}/uploads/${msg.sender.profilePic}`
+                              : null
+                          }
+                          icon={<UserOutlined />}
+                          size="small"
+                        />
+                        <span style={{ marginLeft: 8 }}>
+                          {msg.sender.username}
+                        </span>
+                      </div>
+                      <div style={{ fontSize: 19.5 }}>{msg.content}</div>
                       {msg.file && (
                         <div style={{ marginTop: 10 }}>
                           <FaFileAlt />{" "}
@@ -472,6 +473,12 @@ const ChatComponent = ({
                           </a>
                         </div>
                       )}
+                      <Divider
+                        style={{
+                          margin: "8px 0",
+                          borderColor: isCurrentUser ? "#fff" : "#d9d9d9",
+                        }}
+                      />
                       <div
                         style={{
                           textAlign: "right",
@@ -479,7 +486,7 @@ const ChatComponent = ({
                           marginTop: 5,
                         }}
                       >
-                        {moment(msg.timestamp).format("HH:mm")}
+                        {moment(msg.timestamp).format("MMM DD, YYYY h:mm A")}
                       </div>
                     </div>
                   </List.Item>

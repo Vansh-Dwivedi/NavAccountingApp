@@ -1008,7 +1008,11 @@ const AdminDashboard = () => {
         onConfirm={handleLogoutConfirm}
         onCancel={() => setLogoutModalVisible(false)}
       />
-      <SleepMode isActive={isSleepMode} onExit={() => setIsSleepMode(false)} />
+      <SleepMode 
+        isActive={isSleepMode} 
+        onExit={() => setIsSleepMode(false)}
+        setActiveTab={setActiveTab}
+      />
     </Layout>
   );
 };

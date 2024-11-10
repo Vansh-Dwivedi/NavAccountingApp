@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Input, Button, DatePicker, Select, Space, Modal } from 'antd';
-import { socket } from '../utils/socket';
+import { getSocket } from '../utils/socket';
 import api from '../utils/api';
 import { SearchOutlined, DeleteOutlined } from '@ant-design/icons';
 
@@ -140,6 +140,7 @@ const AuditLogs = () => {
     fetchLogs();
     
     // Socket connection for real-time updates
+    const socket = getSocket();
     socket.on('newAuditLog', (newLog) => {
       setLogs(prevLogs => [newLog, ...prevLogs]);
     });

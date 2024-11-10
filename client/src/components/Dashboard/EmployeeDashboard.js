@@ -775,7 +775,8 @@ const EmployeeDashboard = () => {
       />
       <SleepMode 
         isActive={isSleepMode} 
-        onExit={() => setIsSleepMode(false)} 
+        onExit={() => setIsSleepMode(false)}
+        setActiveTab={setActiveTab}
       />
     </RoleChecker>
   );

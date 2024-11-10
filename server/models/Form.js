@@ -33,7 +33,7 @@ const FormSchema = new mongoose.Schema(
       default: false,
     },
     deadline: {
-      type: Number,
+      type: Date,
       required: true,
     },
     createdBy: {

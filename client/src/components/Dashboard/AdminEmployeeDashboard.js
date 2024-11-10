@@ -140,7 +140,6 @@ const AdminEmployeeDashboard = ({ employeeId }) => {
       });
     } catch (error) {
       console.error("Error fetching employee data:", error);
-      message.error("Failed to fetch employee data");
     }
   };
 

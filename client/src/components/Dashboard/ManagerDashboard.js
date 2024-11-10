@@ -65,6 +65,7 @@ import { useEnabledComponents } from "../../hooks/useEnabledComponents";
 import ChatCenter from "../Chat/ChatCenter";
 import LogoutConfirmModal from "../LogoutConfirmModal";
 import SleepMode from "../SleepMode/SleepMode";
+import { getSocket } from "../../utils/socket";
 
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -142,27 +143,28 @@ const ManagerDashboard = () => {
   }, []);
 
   useEffect(() => {
-    const socket = io(
-      process.env.REACT_APP_API_URL || "http://localhost:5000",
-      {
-        reconnection: true,
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-      }
-    );
-
-    socket.on("connect_error", (error) => {
-      console.error("Socket connection error:", error);
-    });
-
+    const socket = getSocket();
     socketRef.current = socket;
+
+    if (managerData?._id) {
+      socket.emit("join", managerData._id);
+
+      socket.on("newMessage", (message) => {
+        if (message.sender !== managerData._id) {
+          setUnreadCounts((prev) => ({
+            ...prev,
+            [message.sender]: (prev[message.sender] || 0) + 1,
+          }));
+        }
+      });
+    }
 
     return () => {
       if (socketRef.current) {
-        socketRef.current.disconnect();
+        socketRef.current.off();
       }
     };
-  }, []);
+  }, [managerData?._id]);
 
   useEffect(() => {
     if (!managerData?._id) return;
@@ -640,7 +642,7 @@ const ManagerDashboard = () => {
           <Header />
           <Content style={{ margin: "0 16px" }}>
             <div style={{ padding: 24, minHeight: 360 }}>
-              <Title level={2}>Manager Dashboard</Title>
+              <Title level={2}>Welcome, {managerData.username}</Title>
               <NotificationBubble userId={managerData?._id} />
 
               {activeTab === "dashboard" && canShowComponent("dashboard") && (
@@ -1050,6 +1052,7 @@ const ManagerDashboard = () => {
         <SleepMode
           isActive={isSleepMode}
           onExit={() => setIsSleepMode(false)}
+          setActiveTab={setActiveTab}
         />
       </Layout>
     </RoleChecker>

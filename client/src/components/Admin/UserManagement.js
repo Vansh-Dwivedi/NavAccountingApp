@@ -27,7 +27,7 @@ import ChatComponent from "../Chat/ChatComponent";
 const { Search } = Input;
 const { Option } = Select;
 
-const UserManagement = () => {
+const UserManagement = ({ adminData }) => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [roles, setRoles] = useState([]);
@@ -70,9 +70,7 @@ const UserManagement = () => {
         response.data.map((user) => ({
           ...user,
           key: user._id,
-          assignedManager: user.assignedManager
-            ? user.assignedManager.username
-            : "Not assigned",
+          assignedManager: user.assignedManager?.username
         }))
       );
       setLoading(false);
@@ -269,13 +267,15 @@ const UserManagement = () => {
       key: "assignedManager",
       dataIndex: "assignedManager",
       render: (text, record) =>
-        record.role === "client"
-          ? text || (
-              <Tag color="red">
-                <ExclamationCircleOutlined /> Not Assigned
-              </Tag>
-            )
-          : null,
+        record.role === "client" ? (
+          text ? (
+            text
+          ) : (
+            <Tag color="red">
+              <ExclamationCircleOutlined /> Not Assigned
+            </Tag>
+          )
+        ) : null,
     },
     {
       title: "Assigned Clients",
@@ -486,10 +486,10 @@ const UserManagement = () => {
         return (
           <ChatComponent
             key={userId}
-            currentUser={{ _id: "admin", username: "Admin" }}
+            currentUser={adminData}
             otherUser={user}
             onClose={() => handleCloseChat(userId)}
-            chatId={`admin-${userId}`}
+            chatId={`${adminData._id}-${userId}`}
             visible={isOpen}
           />
         );

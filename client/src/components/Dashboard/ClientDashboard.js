@@ -60,7 +60,7 @@ import ClientFinancialOverview from "./ClientFinancialOverview";
 import DragAndDropScreen from "../DragAndDropScreen";
 import { useEnabledComponents } from "../../hooks/useEnabledComponents";
 import LogoutConfirmModal from "../LogoutConfirmModal";
-import SleepMode from '../SleepMode/SleepMode';
+import SleepMode from "../SleepMode/SleepMode";
 
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -99,10 +99,10 @@ const ClientDashboard = () => {
     fetchForms();
     const checkSleepMode = async () => {
       try {
-        const response = await api.get('/api/users/profile');
+        const response = await api.get("/api/users/profile");
         setIsSleepMode(response.data.isInSleepMode);
       } catch (error) {
-        console.error('Error checking sleep mode:', error);
+        console.error("Error checking sleep mode:", error);
       }
     };
     checkSleepMode();
@@ -228,13 +228,12 @@ const ClientDashboard = () => {
   }, [clientData]);
 
   useEffect(() => {
-    socketRef.current = io(
-      process.env.REACT_APP_API_URL || "http://localhost:5000"
-    );
+    const socket = getSocket();
+    socketRef.current = socket;
 
     return () => {
       if (socketRef.current) {
-        socketRef.current.disconnect();
+        socketRef.current.off();
       }
     };
   }, []);
@@ -444,10 +443,10 @@ const ClientDashboard = () => {
 
   const handleSleepMode = async () => {
     try {
-      await api.put('/api/users/sleep-mode', { isInSleepMode: true });
+      await api.put("/api/users/sleep-mode", { isInSleepMode: true });
       setIsSleepMode(true);
     } catch (error) {
-      console.error('Error activating sleep mode:', error);
+      console.error("Error activating sleep mode:", error);
     }
   };
 
@@ -528,6 +527,7 @@ const ClientDashboard = () => {
           </Sider>
           <Layout className="site-layout" style={{ marginTop: "64px" }}>
             <Content style={{ margin: "0 16px" }}>
+              <Title level={2}>Welcome, {clientData.username}</Title>
               <div style={{ padding: 24, minHeight: 360 }}>
                 {activeTab === "dashboard" &&
                   clientData &&
@@ -934,9 +934,10 @@ const ClientDashboard = () => {
           onConfirm={handleLogoutConfirm}
           onCancel={() => setLogoutModalVisible(false)}
         />
-        <SleepMode 
-          isActive={isSleepMode} 
-          onExit={() => setIsSleepMode(false)} 
+        <SleepMode
+          isActive={isSleepMode}
+          onExit={() => setIsSleepMode(false)}
+          setActiveTab={setActiveTab}
         />
       </Layout>
     </RoleChecker>
