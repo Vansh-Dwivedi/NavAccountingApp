@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUser, FaEnvelope, FaLock } from "react-icons/fa";
+import { FaUser, FaEnvelope, FaLock, FaGlobe } from "react-icons/fa";
 import api from "../../utils/api";
 import { Form, Input, Button, message, Divider } from "antd";
 import GoogleOAuthButton from '../GoogleOAuthButton';
@@ -230,6 +230,110 @@ const Register = () => {
                   >
                     <Input.Password
                       placeholder="Password"
+                      style={{
+                        border: "none",
+                        outline: "none",
+                        fontSize: "14px",
+                        padding: "10px",
+                      }}
+                    />
+                  </Form.Item>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <table style={{ width: "100%", marginBottom: "15px" }}>
+            <tbody>
+              <tr
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  border: "1px solid #ddd",
+                  borderRadius: "4px",
+                }}
+              >
+                <td
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    display: "flex",
+                    alignContent: "center",
+                    alignSelf: "center",
+                    padding: "5px",
+                  }}
+                >
+                  <FaLock />
+                </td>
+                <td style={{ flex: 1 }}>
+                  <Form.Item
+                    name="pin"
+                    rules={[
+                      { required: true, message: "Please input your 4-digit PIN!" },
+                      {
+                        pattern: /^\d{4}$/,
+                        message: "PIN must be exactly 4 digits!",
+                      },
+                    ]}
+                    style={{ margin: 0 }}
+                  >
+                    <Input.Password
+                      placeholder="4-digit PIN for Sleep Mode"
+                      maxLength={4}
+                      type="number"
+                      style={{
+                        border: "none",
+                        outline: "none",
+                        fontSize: "14px",
+                        padding: "10px",
+                      }}
+                    />
+                  </Form.Item>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <table style={{ width: "100%", marginBottom: "20px" }}>
+            <tbody>
+              <tr
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  border: "1px solid #ddd",
+                  borderRadius: "4px",
+                }}
+              >
+                <td
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    display: "flex",
+                    alignContent: "center",
+                    alignSelf: "center",
+                    padding: "5px",
+                  }}
+                >
+                  <FaGlobe />
+                </td>
+                <td style={{ flex: 1 }}>
+                  <Form.Item
+                    name="firmId"
+                    rules={[
+                      { required: true, message: "Please input your Firm ID!" },
+                    ]}
+                    style={{ margin: 0 }}
+                  >
+                    <Input
+                      placeholder="Firm ID"
                       style={{
                         border: "none",
                         outline: "none",

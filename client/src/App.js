@@ -28,6 +28,8 @@ import GoogleCallback from "./components/Auth/GoogleCallback";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
+import About from "./components/About";
+import Services from "./components/Services";
 
 function App() {
   return (
@@ -144,6 +146,8 @@ function App() {
             }
           />
           <Route path="/auth/google/callback" element={<GoogleCallback />} />
+          <Route path="/about-us" element={<About />} />
+          <Route path="/services" element={<Services />} />
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="*" element={<Navigate to="/" />} />
         </Routes>

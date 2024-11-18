@@ -25,7 +25,9 @@ const electron = window?.electron || {
 
 const { ipcRenderer } = electron;
 
+// Modal component for displaying and managing time clock functionality
 const TimeClockModal = ({ visible, onClose }) => {
+  // State to track selected timezone, defaults to user's local timezone
   const [selectedTimezone, setSelectedTimezone] = useState(moment.tz.guess());
   
   return (
@@ -33,20 +35,23 @@ const TimeClockModal = ({ visible, onClose }) => {
       title="Time Clock"
       visible={visible}
       onCancel={onClose}
-      footer={null}
+      footer={null} // No footer buttons needed
       width={600}
     >
       <Space direction="vertical" style={{ width: '100%' }}>
+        {/* Timezone selector dropdown */}
         <Select
           style={{ width: '100%' }}
           value={selectedTimezone}
           onChange={setSelectedTimezone}
         >
+          {/* Map all available timezones to dropdown options */}
           {moment.tz.names().map(tz => (
             <Option key={tz} value={tz}>{tz}</Option>
           ))}
         </Select>
         
+        {/* Clock display section */}
         <div className="clock-display" style={{ 
           textAlign: 'center',
           padding: '40px',
@@ -54,18 +59,15 @@ const TimeClockModal = ({ visible, onClose }) => {
           borderRadius: '10px',
           margin: '20px 0'
         }}>
+          {/* Current time in selected timezone */}
           <Title level={1} style={{ fontFamily: 'monospace' }}>
             {moment().tz(selectedTimezone).format('HH:mm:ss')}
           </Title>
+          {/* Current date in selected timezone */}
           <Text type="secondary">
             {moment().tz(selectedTimezone).format('MMMM Do YYYY')}
           </Text>
         </div>
-        
-        <TimePicker.RangePicker 
-          style={{ width: '100%' }}
-          format="HH:mm"
-        />
       </Space>
     </Modal>
   );

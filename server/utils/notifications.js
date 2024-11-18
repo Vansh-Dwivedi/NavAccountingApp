@@ -1,14 +1,8 @@
 const User = require("../models/User");
-const Notification = require("../models/Notification"); // You'll need to create this model
+const Notification = require("../models/Notification");
+const { getIO } = require('./socket');
 
-exports.sendNotification = async (
-  userId,
-  title,
-  message,
-  senderId,
-  senderProfilePic,
-  formData
-) => {
+exports.sendNotification = async (userId, title, message, senderId, senderProfilePic, formData) => {
   try {
     const notification = new Notification({
       user: userId,
@@ -20,22 +14,22 @@ exports.sendNotification = async (
     });
     await notification.save();
 
-    // Emit a socket event to notify the client immediately
-    const io = require("../server").io;
-    if (io) {
-      io.to(userId.toString()).emit("newNotification", {
-        title,
-        message,
-        createdAt: notification.createdAt,
-        formData,
-      });
-    } else {
-      console.warn("Socket.io instance not available. Real-time notification not sent.");
-    }
+    const io = getIO();
+    io.to(userId.toString()).emit('newNotification', {
+      _id: notification._id,
+      title,
+      message,
+      createdAt: notification.createdAt,
+      formData,
+      read: false,
+      senderProfilePic
+    });
 
     console.log(`Notification sent to user ${userId}: ${title}`);
+    return notification;
   } catch (error) {
     console.error("Error sending notification:", error);
+    throw error;
   }
 };
 

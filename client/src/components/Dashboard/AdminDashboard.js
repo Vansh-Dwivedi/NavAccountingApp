@@ -580,440 +580,447 @@ const AdminDashboard = () => {
   };
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Sider
-        collapsible
-        collapsed={!isSidebarOpen}
-        onCollapse={(collapsed) => setIsSidebarOpen(!collapsed)}
-        style={{
-          background: "#001529",
-          boxShadow: "2px 0 8px rgba(0,0,0,0.15)",
-          marginTop: "60px",
-        }}
-      >
-        <Menu
-          theme="dark"
-          defaultSelectedKeys={["dashboard"]}
-          mode="inline"
-          onClick={({ key }) => {
-            if (key === "logout") {
-              handleLogout();
-            } else if (key === "sleep") {
-              handleSleepMode();
-            } else {
-              setActiveTab(key);
-            }
-          }}
+    <>
+      <Header profilePic={profilePic} />
+      <Layout style={{ minHeight: "100vh" }}>
+        <Sider
+          collapsible
+          collapsed={!isSidebarOpen}
+          onCollapse={(collapsed) => setIsSidebarOpen(!collapsed)}
           style={{
-            background: "transparent",
-            borderRight: 0,
+            background: "#001529",
+            boxShadow: "2px 0 8px rgba(0,0,0,0.15)",
           }}
         >
-          {menuItems.map((item) => (
-            <Menu.Item
-              key={item.key}
-              icon={item.icon}
-              style={{ margin: "8px 0" }}
-            >
-              {item.label}
-            </Menu.Item>
-          ))}
-        </Menu>
-      </Sider>
-      <Layout className="site-layout" style={{ marginTop: "64px" }}>
-        <Header />
-        <Content style={{ margin: "0 16px" }}>
-          <div style={{ padding: 24, minHeight: 360 }}>
-            {activeTab === "dashboard" && (
-              <div>
-                <Title level={2}>Welcome, {adminData?.username}</Title>
-                <Row gutter={16}>
-                  <Col span={8}>
-                    <Card>
-                      <Statistic title="Total Users" value={users.length} />
-                    </Card>
-                  </Col>
-                  <Col span={8}>
-                    <Card>
-                      <Statistic
-                        title="Active Users"
-                        value={users.filter((user) => !user.isBlocked).length}
-                      />
-                    </Card>
-                  </Col>
-                  <Col span={8}>
-                    <Card>
-                      <Statistic
-                        title="Blocked Users"
-                        value={users.filter((user) => user.isBlocked).length}
-                      />
-                    </Card>
-                  </Col>
-                </Row>
-                <ProfileSettings
-                  userData={adminData}
-                  onUpdate={(updatedData) => setAdminData(updatedData)}
-                />
-                <List
-                  header={<Title level={4}>User List</Title>}
-                  dataSource={users}
-                  renderItem={(user) => (
-                    <List.Item
-                      onClick={() => setSelectedUser(user)}
-                      style={{ cursor: "pointer" }}
-                    >
-                      <List.Item.Meta
-                        avatar={
-                          <Avatar
-                            icon={<UserOutlined />}
-                            src={user.profilePic}
-                          />
-                        }
-                        title={user.username}
-                        description={`${user.role} - ${user.email}`}
-                      />
-                    </List.Item>
-                  )}
-                />
-                {selectedUser && renderUserDetails(selectedUser)}
-              </div>
-            )}
-            {activeTab === "users" && <UserManagement adminData={adminData} />}
-            {activeTab === "logs" && <AuditLogs />}
-            {activeTab === "employeeManagement" && (
-              <div>
-                <Title level={3}>Employee Management</Title>
-                {selectedEmployee ? (
-                  <AdminEmployeeDashboard employeeId={selectedEmployee} />
-                ) : (
-                  <>
-                    <List
-                      dataSource={users
-                        .filter((user) => user.role === "employee")
-                        .slice(
-                          (currentPage - 1) * pageSize,
-                          currentPage * pageSize
-                        )}
-                      renderItem={(user) => (
-                        <List.Item
-                          actions={[
-                            <Button
-                              onClick={() => setSelectedEmployee(user._id)}
-                            >
-                              Manage Employee
-                            </Button>,
-                          ]}
-                        >
-                          <List.Item.Meta
-                            title={user.username}
-                            description={user.email}
-                          />
-                        </List.Item>
-                      )}
-                    />
-                    <Pagination
-                      current={currentPage}
-                      pageSize={pageSize}
-                      total={
-                        users.filter((user) => user.role === "employee").length
-                      }
-                      onChange={(page, pageSize) => {
-                        setCurrentPage(page);
-                        setPageSize(pageSize);
-                      }}
-                      style={{ marginTop: "16px", textAlign: "center" }}
-                    />
-                  </>
-                )}
-              </div>
-            )}
-            {activeTab === "dashboardManager" && (
-              <div className="dashboard-manager-section">
-                <Title level={3}>Dashboard Manager</Title>
-                <DashboardManager />
-              </div>
-            )}
-            {activeTab === "dragAndDrop" && (
-              <div className="drag-and-drop-section">
-                <Title level={3}>File Transfer</Title>
-                <DragAndDropScreen userRole="admin" />
-              </div>
-            )}
-            {activeTab === "componentManager" && (
-              <div className="component-manager-section">
-                <ComponentManager />
-              </div>
-            )}
-            {activeTab === "forms" && (
-              <div className="forms-tab">
-                <Tabs activeKey={activeFormsTab} onChange={setActiveFormsTab}>
-                  <TabPane tab="Forms" key="forms">
-                    <FormsTab />
-                  </TabPane>
-                  <TabPane tab="Make Form" key="makeForm">
-                    <MakeFormTab />
-                  </TabPane>
-                  <TabPane tab="Form Submissions" key="formSubmission">
-                    <List
-                      itemLayout="horizontal"
-                      dataSource={paginatedForms}
-                      renderItem={(form) => (
-                        <List.Item
-                          onClick={() => setSelectedFormId(form._id)}
-                          style={{
-                            cursor: "pointer",
-                            backgroundColor:
-                              selectedFormId === form._id ? "#e6f7ff" : "",
-                          }}
-                        >
-                          <List.Item.Meta
-                            title={form.title}
-                            description={form.description}
-                          />
-                        </List.Item>
-                      )}
-                    />
-                    <Pagination
-                      current={currentPage}
-                      pageSize={pageSize}
-                      total={savedForms.length}
-                      onChange={handlePageChange}
-                      style={{ marginTop: "16px", textAlign: "center" }}
-                    />
-                    {selectedFormId && (
-                      <FormSubmissionPage formId={selectedFormId} />
+          <Menu
+            theme="dark"
+            defaultSelectedKeys={["dashboard"]}
+            mode="inline"
+            onClick={({ key }) => {
+              if (key === "logout") {
+                handleLogout();
+              } else if (key === "sleep") {
+                handleSleepMode();
+              } else {
+                setActiveTab(key);
+              }
+            }}
+            style={{
+              background: "transparent",
+              borderRight: 0,
+            }}
+          >
+            {menuItems.map((item) => (
+              <Menu.Item
+                key={item.key}
+                icon={item.icon}
+                style={{ margin: "8px 0" }}
+              >
+                {item.label}
+              </Menu.Item>
+            ))}
+          </Menu>
+        </Sider>
+        <Layout className="site-layout">
+          <Content style={{ margin: "0 16px" }}>
+            <div style={{ padding: 24, minHeight: 360 }}>
+              {activeTab === "dashboard" && (
+                <div>
+                  <Title level={2}>Welcome, {adminData?.username}</Title>
+                  <Row gutter={16}>
+                    <Col span={8}>
+                      <Card>
+                        <Statistic title="Total Users" value={users.length} />
+                      </Card>
+                    </Col>
+                    <Col span={8}>
+                      <Card>
+                        <Statistic
+                          title="Active Users"
+                          value={users.filter((user) => !user.isBlocked).length}
+                        />
+                      </Card>
+                    </Col>
+                    <Col span={8}>
+                      <Card>
+                        <Statistic
+                          title="Blocked Users"
+                          value={users.filter((user) => user.isBlocked).length}
+                        />
+                      </Card>
+                    </Col>
+                  </Row>
+                  <ProfileSettings
+                    userData={adminData}
+                    onUpdate={(updatedData) => setAdminData(updatedData)}
+                  />
+                  <List
+                    header={<Title level={4}>User List</Title>}
+                    dataSource={users}
+                    renderItem={(user) => (
+                      <List.Item
+                        onClick={() => setSelectedUser(user)}
+                        style={{ cursor: "pointer" }}
+                      >
+                        <List.Item.Meta
+                          avatar={
+                            <Avatar
+                              icon={<UserOutlined />}
+                              src={user.profilePic}
+                            />
+                          }
+                          title={user.username}
+                          description={`${user.role} - ${user.email}`}
+                        />
+                      </List.Item>
                     )}
-                  </TabPane>
-                  <TabPane tab="Categories" key="categories">
-                    <CategoriesTab />
-                  </TabPane>
-                </Tabs>
-              </div>
-            )}
-            {activeTab === "personnelSettings" && (
-              <Card title="Personnel Settings">
-                <Form
-                  form={personnelForm}
-                  layout="vertical"
-                  onFinish={handlePersonnelSubmit}
-                >
-                  <Row gutter={16}>
-                    <Col span={8}>
-                      <Form.Item name="fullName" label="Full Name">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item name="occupation" label="Occupation">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item name="spouseName" label="Spouse Name">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item
-                        name="spouseOccupation"
-                        label="Spouse Occupation"
-                      >
-                        <Input />
-                      </Form.Item>
-                      <Form.Item name="phoneNumber" label="Phone Number">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item name="cellNo" label="Cell Number">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item name="ssn" label="SSN">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item name="spouseSSN" label="Spouse SSN">
-                        <Input />
-                      </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                      <Form.Item name="dateOfBirth" label="Date of Birth">
-                        <DatePicker />
-                      </Form.Item>
-                      <Form.Item name="spouseDOB" label="Spouse Date of Birth">
-                        <DatePicker />
-                      </Form.Item>
-                      <Form.Item name="addressLine1" label="Address Line 1">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item name="addressLine2" label="Address Line 2">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item name="businessName" label="Business Name">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item name="businessPhone" label="Business Phone">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item
-                        name="businessAddressLine1"
-                        label="Business Address Line 1"
-                      >
-                        <Input />
-                      </Form.Item>
-                      <Form.Item
-                        name="businessAddressLine2"
-                        label="Business Address Line 2"
-                      >
-                        <Input />
-                      </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                      <Form.Item
-                        name="businessEntityType"
-                        label="Business Entity Type"
-                      >
-                        <Select>
-                          <Option value="llc">LLC</Option>
-                          <Option value="corporation">Corporation</Option>
-                          <Option value="partnership">Partnership</Option>
-                          <Option value="soleProprietorship">
-                            Sole Proprietorship
-                          </Option>
-                        </Select>
-                      </Form.Item>
-                      <Form.Item name="businessTIN" label="Business TIN">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item name="businessSOS" label="Business SOS">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item name="businessEDD" label="Business EDD">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item name="businessEmail" label="Business Email">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item
-                        name="contactPersonName"
-                        label="Contact Person Name"
-                      >
-                        <Input />
-                      </Form.Item>
-                      <Form.Item
-                        name="noOfEmployeesActive"
-                        label="Number of Active Employees"
-                      >
-                        <InputNumber min={0} />
-                      </Form.Item>
-                      <Form.Item
-                        name="businessReferredBy"
-                        label="Business Referred By"
-                      >
-                        <Input />
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                  <Row gutter={16}>
-                    <Col span={8}>
-                      <Form.Item name="accountNumber" label="Account Number">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item name="accountType" label="Account Type">
-                        <Select>
-                          <Option value="checking">Checking</Option>
-                          <Option value="savings">Savings</Option>
-                          <Option value="business">Business</Option>
-                        </Select>
-                      </Form.Item>
-                      <Form.Item name="accountStatus" label="Account Status">
-                        <Select>
-                          <Option value="active">Active</Option>
-                          <Option value="inactive">Inactive</Option>
-                          <Option value="suspended">Suspended</Option>
-                        </Select>
-                      </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                      <Form.Item
-                        name="employmentStatus"
-                        label="Employment Status"
-                      >
-                        <Select>
-                          <Option value="employed">Employed</Option>
-                          <Option value="selfEmployed">Self Employed</Option>
-                          <Option value="unemployed">Unemployed</Option>
-                          <Option value="retired">Retired</Option>
-                        </Select>
-                      </Form.Item>
-                      <Form.Item
-                        name="taxFilingStatus"
-                        label="Tax Filing Status"
-                      >
-                        <Select>
-                          <Option value="single">Single</Option>
-                          <Option value="married">
-                            Married Filing Jointly
-                          </Option>
-                          <Option value="separate">
-                            Married Filing Separately
-                          </Option>
-                          <Option value="headOfHousehold">
-                            Head of Household
-                          </Option>
-                        </Select>
-                      </Form.Item>
-                    </Col>
-                    <Col span={8}>
-                      <Form.Item name="kycStatus" label="KYC Status">
-                        <Select>
-                          <Option value="pending">Pending</Option>
-                          <Option value="approved">Approved</Option>
-                          <Option value="rejected">Rejected</Option>
-                        </Select>
-                      </Form.Item>
-                      <Form.Item name="amlStatus" label="AML Status">
-                        <Select>
-                          <Option value="pending">Pending</Option>
-                          <Option value="approved">Approved</Option>
-                          <Option value="rejected">Rejected</Option>
-                        </Select>
-                      </Form.Item>
-                      <Form.Item
-                        name="riskToleranceLevel"
-                        label="Risk Tolerance Level"
-                      >
-                        <Select>
-                          <Option value="low">Low</Option>
-                          <Option value="medium">Medium</Option>
-                          <Option value="high">High</Option>
-                        </Select>
-                      </Form.Item>
-                      <Form.Item
-                        name="investmentRiskProfile"
-                        label="Investment Risk Profile"
-                      >
-                        <Select>
-                          <Option value="conservative">Conservative</Option>
-                          <Option value="moderate">Moderate</Option>
-                          <Option value="aggressive">Aggressive</Option>
-                        </Select>
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                  <Form.Item>
-                    <Button type="primary" htmlType="submit">
-                      Save Personnel Information
-                    </Button>
-                  </Form.Item>
-                </Form>
-              </Card>
-            )}
-          </div>
-        </Content>
+                  />
+                  {selectedUser && renderUserDetails(selectedUser)}
+                </div>
+              )}
+              {activeTab === "users" && (
+                <UserManagement adminData={adminData} />
+              )}
+              {activeTab === "logs" && <AuditLogs />}
+              {activeTab === "employeeManagement" && (
+                <div>
+                  <Title level={3}>Employee Management</Title>
+                  {selectedEmployee ? (
+                    <AdminEmployeeDashboard employeeId={selectedEmployee} />
+                  ) : (
+                    <>
+                      <List
+                        dataSource={users
+                          .filter((user) => user.role === "employee")
+                          .slice(
+                            (currentPage - 1) * pageSize,
+                            currentPage * pageSize
+                          )}
+                        renderItem={(user) => (
+                          <List.Item
+                            actions={[
+                              <Button
+                                onClick={() => setSelectedEmployee(user._id)}
+                              >
+                                Manage Employee
+                              </Button>,
+                            ]}
+                          >
+                            <List.Item.Meta
+                              title={user.username}
+                              description={user.email}
+                            />
+                          </List.Item>
+                        )}
+                      />
+                      <Pagination
+                        current={currentPage}
+                        pageSize={pageSize}
+                        total={
+                          users.filter((user) => user.role === "employee")
+                            .length
+                        }
+                        onChange={(page, pageSize) => {
+                          setCurrentPage(page);
+                          setPageSize(pageSize);
+                        }}
+                        style={{ marginTop: "16px", textAlign: "center" }}
+                      />
+                    </>
+                  )}
+                </div>
+              )}
+              {activeTab === "dashboardManager" && (
+                <div className="dashboard-manager-section">
+                  <Title level={3}>Dashboard Manager</Title>
+                  <DashboardManager />
+                </div>
+              )}
+              {activeTab === "dragAndDrop" && (
+                <div className="drag-and-drop-section">
+                  <Title level={3}>File Transfer</Title>
+                  <DragAndDropScreen userRole="admin" />
+                </div>
+              )}
+              {activeTab === "componentManager" && (
+                <div className="component-manager-section">
+                  <ComponentManager />
+                </div>
+              )}
+              {activeTab === "forms" && (
+                <div className="forms-tab">
+                  <Tabs activeKey={activeFormsTab} onChange={setActiveFormsTab}>
+                    <TabPane tab="Forms" key="forms">
+                      <FormsTab />
+                    </TabPane>
+                    <TabPane tab="Make Form" key="makeForm">
+                      <MakeFormTab />
+                    </TabPane>
+                    <TabPane tab="Form Submissions" key="formSubmission">
+                      <List
+                        itemLayout="horizontal"
+                        dataSource={paginatedForms}
+                        renderItem={(form) => (
+                          <List.Item
+                            onClick={() => setSelectedFormId(form._id)}
+                            style={{
+                              cursor: "pointer",
+                              backgroundColor:
+                                selectedFormId === form._id ? "#e6f7ff" : "",
+                            }}
+                          >
+                            <List.Item.Meta
+                              title={form.title}
+                              description={form.description}
+                            />
+                          </List.Item>
+                        )}
+                      />
+                      <Pagination
+                        current={currentPage}
+                        pageSize={pageSize}
+                        total={savedForms.length}
+                        onChange={handlePageChange}
+                        style={{ marginTop: "16px", textAlign: "center" }}
+                      />
+                      {selectedFormId && (
+                        <FormSubmissionPage formId={selectedFormId} />
+                      )}
+                    </TabPane>
+                    <TabPane tab="Categories" key="categories">
+                      <CategoriesTab />
+                    </TabPane>
+                  </Tabs>
+                </div>
+              )}
+              {activeTab === "personnelSettings" && (
+                <Card title="Personnel Settings">
+                  <Form
+                    form={personnelForm}
+                    layout="vertical"
+                    onFinish={handlePersonnelSubmit}
+                  >
+                    <Row gutter={16}>
+                      <Col span={8}>
+                        <Form.Item name="fullName" label="Full Name">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="occupation" label="Occupation">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="spouseName" label="Spouse Name">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item
+                          name="spouseOccupation"
+                          label="Spouse Occupation"
+                        >
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="phoneNumber" label="Phone Number">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="cellNo" label="Cell Number">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="ssn" label="SSN">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="spouseSSN" label="Spouse SSN">
+                          <Input />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item name="dateOfBirth" label="Date of Birth">
+                          <DatePicker />
+                        </Form.Item>
+                        <Form.Item
+                          name="spouseDOB"
+                          label="Spouse Date of Birth"
+                        >
+                          <DatePicker />
+                        </Form.Item>
+                        <Form.Item name="addressLine1" label="Address Line 1">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="addressLine2" label="Address Line 2">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="businessName" label="Business Name">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="businessPhone" label="Business Phone">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item
+                          name="businessAddressLine1"
+                          label="Business Address Line 1"
+                        >
+                          <Input />
+                        </Form.Item>
+                        <Form.Item
+                          name="businessAddressLine2"
+                          label="Business Address Line 2"
+                        >
+                          <Input />
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item
+                          name="businessEntityType"
+                          label="Business Entity Type"
+                        >
+                          <Select>
+                            <Option value="llc">LLC</Option>
+                            <Option value="corporation">Corporation</Option>
+                            <Option value="partnership">Partnership</Option>
+                            <Option value="soleProprietorship">
+                              Sole Proprietorship
+                            </Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item name="businessTIN" label="Business TIN">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="businessSOS" label="Business SOS">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="businessEDD" label="Business EDD">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="businessEmail" label="Business Email">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item
+                          name="contactPersonName"
+                          label="Contact Person Name"
+                        >
+                          <Input />
+                        </Form.Item>
+                        <Form.Item
+                          name="noOfEmployeesActive"
+                          label="Number of Active Employees"
+                        >
+                          <InputNumber min={0} />
+                        </Form.Item>
+                        <Form.Item
+                          name="businessReferredBy"
+                          label="Business Referred By"
+                        >
+                          <Input />
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                    <Row gutter={16}>
+                      <Col span={8}>
+                        <Form.Item name="accountNumber" label="Account Number">
+                          <Input />
+                        </Form.Item>
+                        <Form.Item name="accountType" label="Account Type">
+                          <Select>
+                            <Option value="checking">Checking</Option>
+                            <Option value="savings">Savings</Option>
+                            <Option value="business">Business</Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item name="accountStatus" label="Account Status">
+                          <Select>
+                            <Option value="active">Active</Option>
+                            <Option value="inactive">Inactive</Option>
+                            <Option value="suspended">Suspended</Option>
+                          </Select>
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item
+                          name="employmentStatus"
+                          label="Employment Status"
+                        >
+                          <Select>
+                            <Option value="employed">Employed</Option>
+                            <Option value="selfEmployed">Self Employed</Option>
+                            <Option value="unemployed">Unemployed</Option>
+                            <Option value="retired">Retired</Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item
+                          name="taxFilingStatus"
+                          label="Tax Filing Status"
+                        >
+                          <Select>
+                            <Option value="single">Single</Option>
+                            <Option value="married">
+                              Married Filing Jointly
+                            </Option>
+                            <Option value="separate">
+                              Married Filing Separately
+                            </Option>
+                            <Option value="headOfHousehold">
+                              Head of Household
+                            </Option>
+                          </Select>
+                        </Form.Item>
+                      </Col>
+                      <Col span={8}>
+                        <Form.Item name="kycStatus" label="KYC Status">
+                          <Select>
+                            <Option value="pending">Pending</Option>
+                            <Option value="approved">Approved</Option>
+                            <Option value="rejected">Rejected</Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item name="amlStatus" label="AML Status">
+                          <Select>
+                            <Option value="pending">Pending</Option>
+                            <Option value="approved">Approved</Option>
+                            <Option value="rejected">Rejected</Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item
+                          name="riskToleranceLevel"
+                          label="Risk Tolerance Level"
+                        >
+                          <Select>
+                            <Option value="low">Low</Option>
+                            <Option value="medium">Medium</Option>
+                            <Option value="high">High</Option>
+                          </Select>
+                        </Form.Item>
+                        <Form.Item
+                          name="investmentRiskProfile"
+                          label="Investment Risk Profile"
+                        >
+                          <Select>
+                            <Option value="conservative">Conservative</Option>
+                            <Option value="moderate">Moderate</Option>
+                            <Option value="aggressive">Aggressive</Option>
+                          </Select>
+                        </Form.Item>
+                      </Col>
+                    </Row>
+                    <Form.Item>
+                      <Button type="primary" htmlType="submit">
+                        Save Personnel Information
+                      </Button>
+                    </Form.Item>
+                  </Form>
+                </Card>
+              )}
+            </div>
+          </Content>
+        </Layout>
+        <LogoutConfirmModal
+          visible={logoutModalVisible}
+          onConfirm={handleLogoutConfirm}
+          onCancel={() => setLogoutModalVisible(false)}
+        />
+        <SleepMode
+          isActive={isSleepMode}
+          onExit={() => setIsSleepMode(false)}
+          setActiveTab={setActiveTab}
+        />
       </Layout>
-      <LogoutConfirmModal
-        visible={logoutModalVisible}
-        onConfirm={handleLogoutConfirm}
-        onCancel={() => setLogoutModalVisible(false)}
-      />
-      <SleepMode 
-        isActive={isSleepMode} 
-        onExit={() => setIsSleepMode(false)}
-        setActiveTab={setActiveTab}
-      />
-    </Layout>
+    </>
   );
 };
 

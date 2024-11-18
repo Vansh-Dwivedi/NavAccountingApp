@@ -22,23 +22,18 @@ import {
   InputNumber,
   message,
   Empty,
+  Space,
+  Tabs,
+  Badge,
+  Modal,
 } from "antd";
 import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 import { AuthContext } from "../../context/AuthContext";
 import Header from "../Header";
 import {
-  CalendarOutlined,
-  ClockCircleOutlined,
-  FileTextOutlined,
-  ToolOutlined,
   UserOutlined,
   EditOutlined,
-  SettingOutlined,
   CheckOutlined,
-  FilePdfOutlined,
-  ProjectOutlined,
-  CalculatorOutlined,
-  CustomerServiceOutlined,
   SaveOutlined,
   TrophyOutlined,
   UploadOutlined,
@@ -46,6 +41,8 @@ import {
   DashboardOutlined,
   LogoutOutlined,
   MoonOutlined as SleepOutlined,
+  SearchOutlined,
+  MessageOutlined,
 } from "@ant-design/icons";
 import api from "../../utils/api";
 import "antd/dist/reset.css";
@@ -60,7 +57,8 @@ import { useEnabledComponents } from "../../hooks/useEnabledComponents";
 import WallpaperSelector from "./WallpaperSelector";
 import SoftwareShortcuts from "./SoftwareShortcuts";
 import LogoutConfirmModal from "../LogoutConfirmModal";
-import SleepMode from '../SleepMode/SleepMode';
+import SleepMode from "../SleepMode/SleepMode";
+import EmployeeChatCenter from "../Chat/EmployeeChatCenter";
 
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -95,43 +93,9 @@ const COMMON_STYLES = {
 const EmployeeDashboard = () => {
   const { user } = useContext(AuthContext);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [widgets, setWidgets] = useState([
-    { id: "taskOfTheDay", title: "Task of the Day", content: <TaskOfTheDay /> },
-    {
-      id: "softwareShortcuts",
-      title: "Software Shortcuts",
-      content: <SoftwareShortcuts />,
-    },
-    {
-      id: "employeePassbook",
-      title: "Employee Passbook",
-      content: <EmployeePassbook />,
-    },
-    {
-      id: "dragAndDrop",
-      title: "Drag and Drop Screen",
-      content: <DragAndDropScreen />,
-    },
-    {
-      id: "personalWriting",
-      title: "Personal Writing Space",
-      content: <NotesSection />,
-    },
-    {
-      id: "wallpaperSelector",
-      title: "Wallpaper Selector",
-      content: (
-        <WallpaperSelector
-          onWallpaperChange={() => {
-            const handleWallpaperChange = (newWallpaper) => {
-              setWallpaper(newWallpaper);
-            };
-          }}
-        />
-      ),
-    },
-  ]);
-  const [wallpaper, setWallpaper] = useState("default.jpg");
+  const [wallpaper, setWallpaper] = useState(
+    localStorage.getItem("selectedWallpaper") || "default.jpg"
+  );
   const [activeTab, setActiveTab] = useState("dashboard");
   const [profilePic, setProfilePic] = useState(null);
   const [email, setEmail] = useState(user?.email || "");
@@ -152,12 +116,30 @@ const EmployeeDashboard = () => {
   const { canShowComponent } = useEnabledComponents(employeeData?._id);
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const [isSleepMode, setIsSleepMode] = useState(false);
+  const [selectedChatUser, setSelectedChatUser] = useState(null);
+  const [openChats, setOpenChats] = useState({});
+  const [unreadCounts, setUnreadCounts] = useState({});
+  const [userSearchTerm, setUserSearchTerm] = useState("");
+  const [chatUsers, setChatUsers] = useState([]);
 
   useEffect(() => {
     fetchEmployeeData();
     fetchPassbook();
     fetchNotes();
     checkSleepMode();
+    const savedWallpaper = localStorage.getItem("selectedWallpaper");
+    if (savedWallpaper) {
+      setWallpaper(savedWallpaper);
+    }
+    const fetchChatUsers = async () => {
+      try {
+        const response = await api.get("/api/users/chat-users");
+        setChatUsers(response.data);
+      } catch (error) {
+        console.error("Error fetching chat users:", error);
+      }
+    };
+    fetchChatUsers();
   }, []);
 
   const fetchEmployeeData = async () => {
@@ -277,6 +259,12 @@ const EmployeeDashboard = () => {
       onClick: null,
     },
     {
+      key: "chatCenter",
+      icon: <MessageOutlined />,
+      label: "Chat Center",
+      onclick: null,
+    },
+    {
       key: "logout",
       icon: <LogoutOutlined />,
       label: "Logout",
@@ -320,33 +308,93 @@ const EmployeeDashboard = () => {
 
   const checkSleepMode = async () => {
     try {
-      const response = await api.get('/api/users/profile');
+      const response = await api.get("/api/users/profile");
       setIsSleepMode(response.data.isInSleepMode);
     } catch (error) {
-      console.error('Error checking sleep mode:', error);
+      console.error("Error checking sleep mode:", error);
     }
   };
 
   const handleSleepMode = async () => {
     try {
-      await api.put('/api/users/sleep-mode', { isInSleepMode: true });
+      await api.put("/api/users/sleep-mode", { isInSleepMode: true });
       setIsSleepMode(true);
     } catch (error) {
-      console.error('Error activating sleep mode:', error);
+      console.error("Error activating sleep mode:", error);
     }
   };
 
+  const handleWallpaperChange = (wallpaperPath) => {
+    localStorage.setItem("selectedWallpaper", wallpaperPath);
+    setWallpaper(wallpaperPath);
+  };
+
+  const handleChatSelect = (user) => {
+    setSelectedChatUser(user);
+    setOpenChats((prev) => ({
+      ...prev,
+      [user._id]: true,
+    }));
+    setUnreadCounts((prev) => ({ ...prev, [user._id]: 0 }));
+  };
+
+  const handleCloseChat = (userId) => {
+    setOpenChats((prev) => ({
+      ...prev,
+      [userId]: false,
+    }));
+    if (selectedChatUser?._id === userId) {
+      setSelectedChatUser(null);
+    }
+  };
+
+  const widgets = [
+    { id: "taskOfTheDay", title: "Task of the Day", content: <TaskOfTheDay /> },
+    {
+      id: "softwareShortcuts",
+      title: "Software Shortcuts",
+      content: <SoftwareShortcuts />,
+    },
+    {
+      id: "employeePassbook",
+      title: "Employee Passbook",
+      content: <EmployeePassbook />,
+    },
+    {
+      id: "dragAndDrop",
+      title: "Drag and Drop Screen",
+      content: <DragAndDropScreen />,
+    },
+    {
+      id: "personalWriting",
+      title: "Personal Writing Space",
+      content: <NotesSection />,
+    },
+    {
+      id: "wallpaperSelector",
+      title: "Theme Selection",
+      content: <WallpaperSelector onWallpaperChange={handleWallpaperChange} />,
+    },
+  ];
+
   return (
     <RoleChecker userRole={user?.role} userEmail={user?.email}>
-      <Layout style={{ minHeight: "100vh" }}>
-        <Header />
+      <Header profilePic={profilePic} />
+      <Layout
+        style={{
+          minHeight: "100vh",
+          backgroundImage: `url(/wallpapers/${wallpaper})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
         <Layout>
           <Sider
             width={200}
             collapsible
             collapsed={!isSidebarOpen}
             onCollapse={(collapsed) => setIsSidebarOpen(!collapsed)}
-            style={{ marginTop: "60px" }}
           >
             <Menu
               theme="dark"
@@ -376,7 +424,6 @@ const EmployeeDashboard = () => {
           <Layout
             style={{
               padding: "0 24px 24px",
-              marginTop: "60px",
               backgroundImage: `url(/wallpapers/${wallpaper})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
@@ -400,13 +447,19 @@ const EmployeeDashboard = () => {
                 <Title
                   level={2}
                   style={{
-                    color: wallpaper === "default.jpg" ? "#fff" : "#000",
+                    color: "#fff",
                     margin: "24px 0",
                     fontFamily: "Trebuchet MS",
                     fontWeight: "600",
                     textShadow: "2px 2px 4px rgba(0,0,0,0.2)",
                     letterSpacing: "1px",
                     textTransform: "capitalize",
+                    background: "rgba(0, 0, 0, 0.2)",
+                    backdropFilter: "blur(10px)",
+                    padding: "15px 25px",
+                    borderRadius: "10px",
+                    border: "1px solid rgba(255, 255, 255, 0.2)",
+                    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
                   }}
                 >
                   Welcome, {user?.username || "Employee"}
@@ -763,6 +816,10 @@ const EmployeeDashboard = () => {
                       </Form>
                     </Card>
                   )}
+                {activeTab === "chatCenter" &&
+                  canShowComponent("chatCenter") && (
+                    <EmployeeChatCenter employeeData={user} />
+                  )}
               </div>
             </Content>
           </Layout>
@@ -773,8 +830,8 @@ const EmployeeDashboard = () => {
         onConfirm={handleLogoutConfirm}
         onCancel={() => setLogoutModalVisible(false)}
       />
-      <SleepMode 
-        isActive={isSleepMode} 
+      <SleepMode
+        isActive={isSleepMode}
         onExit={() => setIsSleepMode(false)}
         setActiveTab={setActiveTab}
       />
@@ -937,81 +994,5 @@ const NotesSection = () => (
     <EmployeeNotesSection />
   </div>
 );
-
-const ChatSection = () => {
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [users, setUsers] = useState([]);
-  const [openChats, setOpenChats] = useState({});
-
-  useEffect(() => {
-    // Fetch available users to chat with
-    const fetchUsers = async () => {
-      try {
-        const response = await api.get("/api/users/nonauthed");
-        setUsers(response.data);
-      } catch (error) {
-        console.error("Error fetching users:", error);
-      }
-    };
-    fetchUsers();
-  }, []);
-
-  const handleUserSelect = (user) => {
-    setSelectedUser(user);
-    setOpenChats((prev) => ({
-      ...prev,
-      [user._id]: true,
-    }));
-  };
-
-  const handleCloseChat = (userId) => {
-    setOpenChats((prev) => ({
-      ...prev,
-      [userId]: false,
-    }));
-  };
-
-  return (
-    <div style={{ padding: "24px" }}>
-      <Row gutter={16}>
-        <Col span={8}>
-          <Card title="Select User to Chat">
-            <List
-              dataSource={users}
-              renderItem={(user) => (
-                <List.Item
-                  key={user._id}
-                  onClick={() => handleUserSelect(user)}
-                  style={{ cursor: "pointer" }}
-                >
-                  <List.Item.Meta
-                    avatar={<Avatar icon={<UserOutlined />} />}
-                    title={user.username}
-                    description={user.role}
-                  />
-                </List.Item>
-              )}
-            />
-          </Card>
-        </Col>
-        <Col span={16}>
-          {selectedUser && openChats[selectedUser._id] && (
-            <Card title="Chat Window">
-              {users.map((user) => (
-                <ChatComponent
-                  currentUser={user}
-                  otherUser={selectedUser}
-                  onClose={() => handleCloseChat(selectedUser._id)}
-                  chatId={`${user._id}-${selectedUser._id}`}
-                  visible={true}
-                />
-              ))}
-            </Card>
-          )}
-        </Col>
-      </Row>
-    </div>
-  );
-};
 
 export default EmployeeDashboard;

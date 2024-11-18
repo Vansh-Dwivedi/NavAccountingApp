@@ -1,8 +1,10 @@
 const socketIO = require('socket.io');
-
 let io = null;
+const userSockets = new Map();
 
 const initializeSocket = (server) => {
+  if (io) return io;
+
   io = socketIO(server, {
     cors: {
       origin: process.env.CLIENT_URL || "http://localhost:3000",
@@ -12,19 +14,49 @@ const initializeSocket = (server) => {
   });
 
   io.on('connection', (socket) => {
-    console.log('Client connected:', socket.id);
+    console.log('New client connected');
+    const userId = socket.handshake.query.userId;
+    
+    if (userId) {
+      userSockets.set(userId, socket.id);
+      socket.join(userId.toString());
+    }
+
+    socket.on('join', (room) => {
+      socket.join(room);
+    });
+
+    socket.on('register', ({ userId }) => {
+      if (userId) {
+        userSockets.set(userId, socket.id);
+        socket.join(userId.toString());
+      }
+    });
 
     socket.on('disconnect', () => {
-      console.log('Client disconnected:', socket.id);
+      if (userId) {
+        userSockets.delete(userId);
+        socket.leave(userId.toString());
+      }
+      console.log('Client disconnected');
     });
   });
-};
 
-const getIO = () => {
-  if (!io) {
-    throw new Error('Socket.IO not initialized');
-  }
   return io;
 };
 
-module.exports = { initializeSocket, getIO }; 
+const sendNotification = async (userId, notification) => {
+  try {
+    if (!io) throw new Error('Socket.IO not initialized');
+    io.to(userId.toString()).emit('newNotification', notification);
+  } catch (error) {
+    console.error('Error sending notification:', error);
+  }
+};
+
+const getIO = () => {
+  if (!io) throw new Error('Socket.IO not initialized');
+  return io;
+};
+
+module.exports = { initializeSocket, getIO, sendNotification }; 

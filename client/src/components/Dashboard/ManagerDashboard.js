@@ -606,6 +606,7 @@ const ManagerDashboard = () => {
 
   return (
     <RoleChecker userRole={managerData.role} userEmail={managerData.email}>
+      <Header profilePic={profilePic} />
       <Layout style={{ minHeight: "100vh", marginTop: "60px" }}>
         <Sider
           collapsible
@@ -639,7 +640,6 @@ const ManagerDashboard = () => {
           </Menu>
         </Sider>
         <Layout className="site-layout">
-          <Header />
           <Content style={{ margin: "0 16px" }}>
             <div style={{ padding: 24, minHeight: 360 }}>
               <Title level={2}>Welcome, {managerData.username}</Title>

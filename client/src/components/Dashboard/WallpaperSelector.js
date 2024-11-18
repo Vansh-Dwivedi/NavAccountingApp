@@ -12,6 +12,7 @@ const WallpaperSelector = ({ onWallpaperChange }) => {
 
   const handleWallpaperSelect = (wallpaper) => {
     try {
+      localStorage.setItem('selectedWallpaper', wallpaper.path);
       onWallpaperChange(wallpaper.path);
       message.success(`Theme changed to ${wallpaper.name}`);
     } catch (error) {

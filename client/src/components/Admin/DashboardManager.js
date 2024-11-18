@@ -32,6 +32,7 @@ const DashboardManager = () => {
       { key: "settings", label: "Settings" },
       { key: "dragAndDrop", label: "File Transfer" },
       { key: "personnelSettings", label: "Personnel Settings" },
+      { key: "chatCenter", label: "Chat Center"},
     ],
     manager: [
       { key: "dashboard", label: "Dashboard" },

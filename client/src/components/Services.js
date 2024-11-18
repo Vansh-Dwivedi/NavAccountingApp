@@ -12,6 +12,7 @@ import {
   Drawer,
   Typography,
   Space,
+  Collapse,
 } from "antd";
 import {
   MenuOutlined,
@@ -22,14 +23,19 @@ import {
   MailOutlined,
   PhoneOutlined,
   EnvironmentOutlined,
+  CalculatorOutlined,
+  AuditOutlined,
+  FundProjectionScreenOutlined,
+  BookOutlined,
+  PayCircleOutlined,
+  BulbOutlined,
 } from "@ant-design/icons";
 import "antd/dist/reset.css";
 import { jwtDecode } from "jwt-decode";
-import FlipNumbers from "react-flip-numbers";
 import api from "../utils/api";
 
 const { Header, Footer, Content } = Layout;
-const { Title, Paragraph, Text } = Typography;
+const { Panel } = Collapse;
 
 const Home = () => {
   const [userRole, setUserRole] = useState(null);
@@ -258,7 +264,7 @@ const Home = () => {
           <Menu
             theme="dark"
             mode="horizontal"
-            defaultSelectedKeys={["home"]}
+            defaultSelectedKeys={["services"]}
             className="menu"
           >
             {menuItems}
@@ -294,11 +300,11 @@ const Home = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
           >
-            Welcome to Nav Accounts | Chartered Accountants
+            Our Services
           </motion.h1>
           <motion.p
             style={{
-              maxWidth: "600px",
+              maxWidth: "10000px",
               margin: "0 auto 2rem",
               color: "#012e71",
               fontSize: "1.5rem",
@@ -308,142 +314,90 @@ const Home = () => {
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.5 }}
           >
-            At Nav Accounts, we provide comprehensive accounting services that
-            cater to your personal and business needs. Our experienced team is
-            here to guide you every step of the way.
-          </motion.p>
-          <Row gutter={[16, 16]} style={{ margin: "0 0 2rem" }}>
-            {[
-              {
-                title: "Tax Consultancy",
-                description:
-                  "Get expert advice on tax planning and management to save money and ensure compliance.",
-              },
-              {
-                title: "Audit Services",
-                description:
-                  "We provide thorough and accurate auditing services to help maintain transparency in your business.",
-              },
-              {
-                title: "Financial Planning",
-                description:
-                  "Our financial planning services help you secure your future with smart investment decisions.",
-              },
-              {
-                title: "Bookkeeping",
-                description:
-                  "Keep your business finances in order with our professional bookkeeping services.",
-              },
-              {
-                title: "Payroll Management",
-                description:
-                  "Manage employee payroll effortlessly with our easy and accurate payroll management solutions.",
-              },
-              {
-                title: "Business Advisory",
-                description:
-                  "Get strategic advice for growing your business and improving financial performance.",
-              },
-            ].map((service, index) => (
-              <Col key={index} xs={24} sm={12} md={8}>
-                <Card
-                  title={service.title}
-                  style={{
-                    height: "100%",
-                    borderTop: `2px solid ${
-                      index % 2 === 0 ? "#012e71" : "#ffffff"
-                    }`,
-                  }}
-                >
-                  <p>{service.description}</p>
+            <Row gutter={[16, 16]}>
+              <Col xs={24} sm={12} md={8}>
+                <Card title={<><CalculatorOutlined /> Tax Consultancy</>} style={{ height: "100%" }}>
+                  <p>Our tax consultancy services help you navigate the complexities of tax regulations, ensuring compliance while maximizing your tax efficiency.</p>
                 </Card>
               </Col>
-            ))}
-          </Row>
+              <Col xs={24} sm={12} md={8}>
+                <Card title={<><AuditOutlined /> Audit Services</>} style={{ height: "100%" }}>
+                  <p>We provide comprehensive audit services that give you a clear picture of your financial health, helping you make informed decisions.</p>
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Card title={<><FundProjectionScreenOutlined /> Financial Planning</>} style={{ height: "100%" }}>
+                  <p>Our financial planning services are designed to help you set and achieve your financial goals, providing tailored strategies for your unique situation.</p>
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Card title={<><BookOutlined /> Bookkeeping</>} style={{ height: "100%" }}>
+                  <p>We offer meticulous bookkeeping services that keep your financial records organized and up-to-date, allowing you to focus on your business.</p>
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Card title={<><PayCircleOutlined /> Payroll Management</>} style={{ height: "100%" }}>
+                  <p>Our payroll management services ensure that your employees are paid accurately and on time, while also handling all related compliance issues.</p>
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={8}>
+                <Card title={<><BulbOutlined /> Business Advisory</>} style={{ height: "100%" }}>
+                  <p>We provide expert business advisory services to help you identify opportunities for growth and improve your overall business performance.</p>
+                </Card>
+              </Col>
+            </Row>
+          </motion.p>
+
           <motion.div
-            style={{ margin: "0 0 2rem", textAlign: "center" }}
+            style={{ margin: "2rem 0", textAlign: "center" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 1 }}
           >
-            <h2
-              style={{
-                color: "#012e71",
-                fontSize: "2.5rem",
-                margin: "0 0 1rem",
-              }}
-            >
-              How Our App Works
+            <h2 style={{ color: "#012e71", fontSize: "2.5rem", margin: "0 0 1rem" }}>
+              What Our Clients Say
             </h2>
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <img
-                src={`${process.env.REACT_APP_API_URL}/uploads/how-our-app-works.png`}
-                alt="App Screenshot"
-                style={{
-                  width: "500px",
-                  height: "500px",
-                  borderRadius: "10px",
-                }}
-              />
-            </div>
+            <Carousel>
+              <div>
+                <p>"The team at Nav Accounts has transformed our financial management. Their expertise in tax consultancy saved us a significant amount of money!" - Client A</p>
+              </div>
+              <div>
+                <p>"We couldn't have asked for a better partner for our bookkeeping needs. Highly recommend!" - Client B</p>
+              </div>
+            </Carousel>
           </motion.div>
+
           <motion.div
-            style={{ margin: "2rem 0 0", textAlign: "center" }}
+            style={{ margin: "2rem 0", textAlign: "center" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 1.5 }}
+          >
+            <h2 style={{ color: "#012e71", fontSize: "2.5rem", margin: "0 0 1rem" }}>
+              Frequently Asked Questions
+            </h2>
+            <Collapse>
+              <Panel header="What services do you offer?" key="1">
+                <p>We offer a range of services including tax consultancy, audit services, financial planning, bookkeeping, payroll management, and business advisory.</p>
+              </Panel>
+              <Panel header="How can I get started?" key="2">
+                <p>You can contact us through our website or give us a call to schedule a consultation.</p>
+              </Panel>
+            </Collapse>
+          </motion.div>
+
+          <motion.div
+            style={{ margin: "2rem 0", textAlign: "center" }}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 2 }}
           >
-            <h2
-              style={{
-                color: "#012e71",
-                fontSize: "2.5rem",
-                margin: "0 0 1rem",
-              }}
-            >
-              Testimonials
+            <h2 style={{ color: "#012e71", fontSize: "2.5rem", margin: "0 0 1rem" }}>
+              Ready to Get Started?
             </h2>
-            <Carousel autoplay style={{ 
-              border: "2px solid", 
-              fontWeight: 700, 
-              fontFamily: "MS Sans Serif", 
-              color: "black", 
-              backgroundColor: "rgba(255, 255, 255, 0.5)", 
-              backdropFilter: "blur(10px)" 
-            }}>
-              {[
-                {
-                  quote:
-                    "Nav Accounts helped us streamline our financial processes and gave us the confidence we needed to grow our business. Highly recommended!",
-                  author: "A. Sharma, Business Owner",
-                },
-                {
-                  quote:
-                    "Their expertise in accounting and tax consultancy saved us a lot of money and hassle during tax season. Great team to work with!",
-                  author: "R. Kumar, Entrepreneur",
-                },
-                {
-                  quote:
-                    "The financial planning services provided by Nav Accounts have been instrumental in securing our company's future. Excellent service!",
-                  author: "S. Patel, CEO",
-                },
-              ].map((testimonial, index) => (
-                <div key={index}>
-                  <p
-                    style={{
-                      maxWidth: "800px",
-                      color: "#012e71",
-                      fontSize: "1.2rem",
-                      margin: "1rem auto",
-                      padding: "0 50px",
-                      backgroundColor: "rgba(255, 255, 255, 0.5)",
-                      borderRadius: "10px",
-                    }}
-                  >
-                    "{testimonial.quote}" - {testimonial.author}
-                  </p>
-                </div>
-              ))}
-            </Carousel>
+            <Button type="primary" onClick={() => navigate('/contact')} style={{ fontSize: "1.2rem" }}>
+              Contact Us
+            </Button>
           </motion.div>
         </div>
       </Content>

@@ -258,7 +258,7 @@ const Home = () => {
           <Menu
             theme="dark"
             mode="horizontal"
-            defaultSelectedKeys={["home"]}
+            defaultSelectedKeys={["about-us"]}
             className="menu"
           >
             {menuItems}
@@ -275,7 +275,7 @@ const Home = () => {
         <Menu
           theme="light"
           mode="vertical"
-          defaultSelectedKeys={["home"]}
+          defaultSelectedKeys={["about-us"]}
           style={{ borderRight: 0 }}
         >
           {menuItems}
@@ -294,11 +294,11 @@ const Home = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
           >
-            Welcome to Nav Accounts | Chartered Accountants
+            About Nav Accounts
           </motion.h1>
           <motion.p
             style={{
-              maxWidth: "600px",
+              maxWidth: "10000px",
               margin: "0 auto 2rem",
               color: "#012e71",
               fontSize: "1.5rem",
@@ -308,58 +308,29 @@ const Home = () => {
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.5 }}
           >
-            At Nav Accounts, we provide comprehensive accounting services that
-            cater to your personal and business needs. Our experienced team is
-            here to guide you every step of the way.
-          </motion.p>
-          <Row gutter={[16, 16]} style={{ margin: "0 0 2rem" }}>
-            {[
-              {
-                title: "Tax Consultancy",
-                description:
-                  "Get expert advice on tax planning and management to save money and ensure compliance.",
-              },
-              {
-                title: "Audit Services",
-                description:
-                  "We provide thorough and accurate auditing services to help maintain transparency in your business.",
-              },
-              {
-                title: "Financial Planning",
-                description:
-                  "Our financial planning services help you secure your future with smart investment decisions.",
-              },
-              {
-                title: "Bookkeeping",
-                description:
-                  "Keep your business finances in order with our professional bookkeeping services.",
-              },
-              {
-                title: "Payroll Management",
-                description:
-                  "Manage employee payroll effortlessly with our easy and accurate payroll management solutions.",
-              },
-              {
-                title: "Business Advisory",
-                description:
-                  "Get strategic advice for growing your business and improving financial performance.",
-              },
-            ].map((service, index) => (
-              <Col key={index} xs={24} sm={12} md={8}>
-                <Card
-                  title={service.title}
-                  style={{
-                    height: "100%",
-                    borderTop: `2px solid ${
-                      index % 2 === 0 ? "#012e71" : "#ffffff"
-                    }`,
-                  }}
-                >
-                  <p>{service.description}</p>
+            <Row gutter={[16, 16]}>
+              <Col xs={24} sm={12} md={6}>
+                <Card title="Our Mission" style={{ height: "100%" }}>
+                  <p>We're dedicated to providing expert accounting services that cater to your unique needs. Our goal is to empower you with the knowledge and tools necessary to make informed financial decisions.</p>
                 </Card>
               </Col>
-            ))}
-          </Row>
+              <Col xs={24} sm={12} md={6}>
+                <Card title="Our Vision" style={{ height: "100%" }}>
+                  <p>We envision a future where financial management is simplified, and our clients can focus on what matters most – growing their business and achieving their goals.</p>
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Card title="Our Values" style={{ height: "100%" }}>
+                  <p>We operate with integrity, expertise, and a customer-centric approach. We're committed to innovation, collaboration, and delivering exceptional results.</p>
+                </Card>
+              </Col>
+              <Col xs={24} sm={12} md={6}>
+                <Card title="Our Team" style={{ height: "100%" }}>
+                  <p>Our team of experienced professionals is dedicated to providing personalized services that address your unique challenges. We're passionate about helping you achieve your financial goals.</p>
+                </Card>
+              </Col>
+            </Row>
+          </motion.p>
           <motion.div
             style={{ margin: "0 0 2rem", textAlign: "center" }}
             initial={{ opacity: 0 }}
@@ -373,77 +344,53 @@ const Home = () => {
                 margin: "0 0 1rem",
               }}
             >
-              How Our App Works
+              Why Choose Us?
             </h2>
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              <img
-                src={`${process.env.REACT_APP_API_URL}/uploads/how-our-app-works.png`}
-                alt="App Screenshot"
-                style={{
-                  width: "500px",
-                  height: "500px",
-                  borderRadius: "10px",
-                }}
-              />
-            </div>
-          </motion.div>
-          <motion.div
-            style={{ margin: "2rem 0 0", textAlign: "center" }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 1, delay: 2 }}
-          >
-            <h2
+            <motion.p
               style={{
+                maxWidth: "1000px",
+                margin: "0 auto 2rem",
                 color: "#012e71",
-                fontSize: "2.5rem",
-                margin: "0 0 1rem",
+                fontSize: "1.5rem",
+                textAlign: "center",
               }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 0.5 }}
             >
-              Testimonials
-            </h2>
-            <Carousel autoplay style={{ 
-              border: "2px solid", 
-              fontWeight: 700, 
-              fontFamily: "MS Sans Serif", 
-              color: "black", 
-              backgroundColor: "rgba(255, 255, 255, 0.5)", 
-              backdropFilter: "blur(10px)" 
-            }}>
-              {[
-                {
-                  quote:
-                    "Nav Accounts helped us streamline our financial processes and gave us the confidence we needed to grow our business. Highly recommended!",
-                  author: "A. Sharma, Business Owner",
-                },
-                {
-                  quote:
-                    "Their expertise in accounting and tax consultancy saved us a lot of money and hassle during tax season. Great team to work with!",
-                  author: "R. Kumar, Entrepreneur",
-                },
-                {
-                  quote:
-                    "The financial planning services provided by Nav Accounts have been instrumental in securing our company's future. Excellent service!",
-                  author: "S. Patel, CEO",
-                },
-              ].map((testimonial, index) => (
-                <div key={index}>
-                  <p
-                    style={{
-                      maxWidth: "800px",
-                      color: "#012e71",
-                      fontSize: "1.2rem",
-                      margin: "1rem auto",
-                      padding: "0 50px",
-                      backgroundColor: "rgba(255, 255, 255, 0.5)",
-                      borderRadius: "10px",
-                    }}
-                  >
-                    "{testimonial.quote}" - {testimonial.author}
-                  </p>
-                </div>
-              ))}
-            </Carousel>
+              At Nav Accounts, we pride ourselves on our commitment to excellence, integrity, and customer satisfaction. Our team of experienced professionals is dedicated to providing personalized services that address your unique challenges. We're passionate about helping you achieve your financial goals.
+
+              <Row gutter={[16, 16]} style={{ margin: "2rem" }}>
+                <Col xs={24} sm={12} md={6}>
+                  <Card title="Expertise" style={{ height: "100%" }}>
+                    <p>
+                      Our team has extensive experience in accounting, tax consultancy, and financial planning. We stay up-to-date with the latest industry trends and regulations to ensure you receive the best possible advice.
+                    </p>
+                  </Card>
+                </Col>
+                <Col xs={24} sm={12} md={6}>
+                  <Card title="Personalized Service" style={{ height: "100%" }}>
+                    <p>
+                      We understand that every client is unique, and we tailor our services to meet your specific needs. Our goal is to build long-term relationships with our clients, founded on trust, integrity, and exceptional service.
+                    </p>
+                  </Card>
+                </Col>
+                <Col xs={24} sm={12} md={6}>
+                  <Card title="Innovative Solutions" style={{ height: "100%" }}>
+                    <p>
+                      We're committed to innovation and continuously seek new ways to improve our services and deliver exceptional results. Our team is dedicated to finding creative solutions to complex financial challenges.
+                    </p>
+                  </Card>
+                </Col>
+                <Col xs={24} sm={12} md={6}>
+                  <Card title="Customer Satisfaction" style={{ height: "100%" }}>
+                    <p>
+                      We're passionate about delivering exceptional results and exceeding our clients' expectations. Our goal is to build long-term relationships with our clients, founded on trust, integrity, and exceptional service.
+                    </p>
+                  </Card>
+                </Col>
+              </Row>
+            </motion.p>
           </motion.div>
         </div>
       </Content>

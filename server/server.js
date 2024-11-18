@@ -10,6 +10,7 @@ const fileUpload = require('express-fileupload');
 const helmet = require("helmet");
 const mongoose = require("mongoose");
 const socketIo = require("socket.io");
+const { initializeSocket } = require("./utils/socket");
 
 // Load environment variables
 require("dotenv").config();
@@ -153,18 +154,8 @@ app.use("/uploads", (req, res) => {
 const server = http.createServer(app);
 
 // Initialize socket.io
-const io = socketIo(server, {
-  cors: {
-    origin: process.env.CLIENT_URL || "http://localhost:3000",
-    methods: ["GET", "POST"],
-    credentials: true
-  },
-  transports: ['websocket', 'polling']
-});
-
-// Initialize our socket utility with the io instance
-const { initializeSocket } = require('./utils/socket');
-initializeSocket(io);
+const io = initializeSocket(server);
+app.set('io', io);
 
 // Socket connection handling
 io.on("connection", (socket) => {
@@ -192,48 +183,7 @@ io.on("connection", (socket) => {
   });
 });
 
-// Socket user mapping
-const userSockets = {};
-
-// Socket event handlers
-io.on("connection", (socket) => {
-  console.log("New client connected");
-
-  socket.on("join", (userId) => {
-    if (userId) {
-      socket.join(userId.toString());
-      console.log(`User ${userId} joined`);
-    }
-  });
-
-  socket.on("sendMessage", (message) => {
-    if (message.receiver) {
-      io.to(message.receiver.toString()).emit("newMessage", message);
-    }
-  });
-
-  socket.on("disconnect", () => {
-    console.log("Client disconnected");
-  });
-
-  socket.on("notification", (notification) => {
-    io.to(notification.userId).emit("newNotification", notification);
-  });
-});
-
-// Socket messaging utility
-function sendMessageToUser(receiverId, message) {
-  const socketId = userSockets[receiverId];
-  if (socketId) {
-    io.to(socketId).emit("message", message);
-  } else {
-    console.log(`User ${receiverId} is not connected`);
-  }
-}
-
-app.set("sendMessageToUser", sendMessageToUser);
-
-// Message handling route
+// Update message handling route
 app.post("/api/messages", async (req, res) => {
   try {
     const { senderId, receiverId, content } = req.body;
@@ -243,7 +193,8 @@ app.post("/api/messages", async (req, res) => {
       content,
     });
 
-    sendMessageToUser(receiverId, {
+    const io = app.get('io');
+    io.to(receiverId.toString()).emit('newMessage', {
       id: newMessage._id,
       sender: senderId,
       receiver: receiverId,

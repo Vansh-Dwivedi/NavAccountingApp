@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const MessageSchema = new mongoose.Schema({
+const messageSchema = new mongoose.Schema({
   sender: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
@@ -20,14 +20,15 @@ const MessageSchema = new mongoose.Schema({
     originalName: String,
     path: String
   },
-  fileType: {
-    type: String,
-    required: false
+  fileType: String,
+  read: {
+    type: Boolean,
+    default: false
   },
-  timestamp: {
+  createdAt: {
     type: Date,
     default: Date.now
   }
 });
 
-module.exports = mongoose.model('Message', MessageSchema);
+module.exports = mongoose.model('Message', messageSchema);

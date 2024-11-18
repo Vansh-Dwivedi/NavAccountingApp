@@ -6,6 +6,7 @@ const path = require("path");
 const fs = require("fs");
 const Notification = require("../models/Notification");
 const Chat = require('../models/Chat');
+const { getIO } = require('../utils/socket');
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -20,40 +21,42 @@ const upload = multer({ storage: storage }).single("file");
 
 exports.sendMessage = async (req, res) => {
   try {
-    const { receiver, message } = req.body;
-    const sender = req.user.id;
-
-    console.log(`Sending message from ${sender} to ${receiver}`);
+    const { message, receiver, sender } = req.body;
 
     if (!receiver || !message) {
       return res.status(400).json({ error: "Receiver and message are required" });
     }
 
-    // Create and save the message
-    const newMessage = new Message({
+    const newMessage = await Message.create({
       sender,
       receiver,
       content: message
     });
 
-    await newMessage.save();
-    await newMessage.populate("sender", "username profilePic");
-
-    // Create notification
+    // Get sender details for the notification
     const senderUser = await User.findById(sender);
-    const newNotification = new Notification({
-      userId: receiver,
-      sender: sender,
-      message: `${senderUser.username}`,
-      senderProfilePic: senderUser.profilePic || "default-profile-pic.jpg",
-      createdAt: new Date(),
-    });
 
-    await newNotification.save();
+    // Use the notification utility
+    const notification = await require('../utils/notifications').sendNotification(
+      receiver,
+      "New Message",
+      `You have a new message from ${senderUser.username}`,
+      sender,
+      senderUser.profilePic,
+      null
+    );
+
+    await newMessage.populate('sender', 'username profilePic');
+
+    const io = req.app.get('io');
+    if (io) {
+      io.to(receiver.toString()).emit('newMessage', newMessage);
+    }
+
     res.status(201).json(newMessage);
   } catch (error) {
     console.error("Error in sendMessage:", error);
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ error: "Failed to send message" });
   }
 };
 
@@ -278,8 +281,13 @@ exports.sendToAdmin = async (req, res) => {
 
     await submission.save();
 
-    // Notify admin (you can implement a real-time notification system later)
-    console.log("Chat submitted to admin:", submission);
+    // Use the socket utility to send notification
+    const io = getIO();
+    io.to(admin._id.toString()).emit('newNotification', {
+      type: 'CHAT_SUBMISSION',
+      message: 'New chat submission received',
+      submissionId: submission._id
+    });
 
     res.json({ message: "Chat submitted to admin successfully" });
   } catch (error) {

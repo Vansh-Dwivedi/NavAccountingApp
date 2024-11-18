@@ -225,6 +225,7 @@ const UserSchema = new mongoose.Schema(
             'adminChat',
             'clientData',
             'fileTransfer',     
+            'chatCenter',
           ];
           return components.every(comp => validComponents.includes(comp));
         },
@@ -238,6 +239,12 @@ const UserSchema = new mongoose.Schema(
     isInSleepMode: {
       type: Boolean,
       default: false
+    },
+    pin: {
+      type: String,
+      minlength: 4,
+      maxlength: 4,
+      match: /^\d{4}$/,
     }
   },
   { timestamps: true }

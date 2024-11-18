@@ -91,18 +91,14 @@ const ChatComponent = ({
     });
   }, []);
 
-  const fetchMessages = async (chatId, pageNum = 1) => {
+  const fetchMessages = async (chatId) => {
     if (!chatId) return;
     try {
       setLoading(true);
       const response = await api.get(
-        `/api/chat/messages/${chatId}?page=${pageNum}&limit=20`
+        `/api/chat/messages/${chatId}`
       );
-      setMessages((prevMessages) =>
-        pageNum === 1
-          ? response.data.messages
-          : [...response.data.messages, ...prevMessages]
-      );
+      setMessages(response.data.messages);
     } catch (error) {
       console.error("Error fetching messages:", error);
       toast.error("Failed to fetch messages.");
@@ -173,49 +169,47 @@ const ChatComponent = ({
   };
 
   const sendMessage = async () => {
-    if (inputMessage || file) {
-      try {
-        let response;
-        if (!file) {
-          response = await api.post("/api/chat/send", {
-            message: inputMessage,
-            receiver: otherUser?._id || "",
-          });
-        } else {
-          const formData = new FormData();
-          formData.append("message", inputMessage);
-          formData.append("receiver", otherUser?._id || "");
-          formData.append("file", file);
-          formData.append("fileType", fileType || "File");
+    if (!inputMessage && !file) return;
 
-          response = await api.post("/api/chat/send-with-file", formData, {
-            headers: { "Content-Type": "multipart/form-data" },
-          });
-        }
+    try {
+      let response;
+      if (!file) {
+        response = await api.post("/api/chat/send", {
+          message: inputMessage,
+          receiver: otherUser._id,
+          sender: currentUser._id
+        });
+      } else {
+        const formData = new FormData();
+        formData.append("message", inputMessage || file.name);
+        formData.append("receiver", otherUser._id);
+        formData.append("sender", currentUser._id)
+        formData.append("file", file);
+        formData.append("fileType", fileType || "File");
 
-        addMessage(response.data);
-        setInputMessage("");
-        setFile(null);
-        setFileType("");
-
-        if (socket) {
-          socket.emit("sendMessage", response.data);
-        }
-
-        // Scroll to bottom after sending message
-        setTimeout(() => {
-          if (chatMessagesRef.current) {
-            chatMessagesRef.current.scrollTop =
-              chatMessagesRef.current.scrollHeight;
-          }
-        }, 100);
-      } catch (error) {
-        console.error(
-          "Error sending message:",
-          error.response?.data || error.message
-        );
-        toast.error(error.response?.data?.error || "Error sending message");
+        response = await api.post("/api/chat/send-with-file", formData, {
+          headers: { "Content-Type": "multipart/form-data" }
+        });
       }
+
+      addMessage(response.data);
+      setInputMessage("");
+      setFile(null);
+      setFileType("");
+
+      if (socket) {
+        socket.emit("sendMessage", response.data);
+      }
+
+      // Scroll to bottom after sending message
+      setTimeout(() => {
+        if (chatMessagesRef.current) {
+          chatMessagesRef.current.scrollTop = chatMessagesRef.current.scrollHeight;
+        }
+      }, 100);
+    } catch (error) {
+      console.error("Error sending message:", error.response?.data || error.message);
+      toast.error(error.response?.data?.error || "Error sending message");
     }
   };
 
@@ -414,87 +408,82 @@ const ChatComponent = ({
             background: "#e6f7ff",
           }}
         >
-          {loading ? (
-            <Spin tip="Loading..." />
-          ) : (
-            <List
-              dataSource={filteredMessages}
-              renderItem={(msg) => {
-                const isCurrentUser = msg.sender._id === currentUser._id;
-                return (
-                  <List.Item
-                    key={msg._id}
+          <List
+            dataSource={filteredMessages}
+            renderItem={(msg) => {
+              const isCurrentUser = msg.sender._id === currentUser._id;
+              return (
+                <List.Item
+                  key={msg._id}
+                  style={{
+                    justifyContent: isCurrentUser ? "flex-end" : "flex-start",
+                  }}
+                >
+                  <div
                     style={{
-                      justifyContent: isCurrentUser ? "flex-end" : "flex-start",
+                      maxWidth: "70%",
+                      background: isCurrentUser ? "#1890ff" : "#fff",
+                      color: isCurrentUser ? "#fff" : "#000",
+                      padding: "10px",
+                      borderRadius: 10,
+                      boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
                     }}
                   >
                     <div
                       style={{
-                        maxWidth: "70%",
-                        background: isCurrentUser ? "#1890ff" : "#fff",
-                        color: isCurrentUser ? "#fff" : "#000",
-                        padding: "10px",
-                        borderRadius: 10,
-                        boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+                        display: "flex",
+                        alignItems: "center",
+                        marginBottom: 5,
                       }}
                     >
-                      <div
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          marginBottom: 5,
-                        }}
-                      >
-                        <Avatar
-                          src={
-                            msg.sender.profilePic
-                              ? `${process.env.REACT_APP_API_URL}/uploads/${msg.sender.profilePic}`
-                              : null
-                          }
-                          icon={<UserOutlined />}
-                          size="small"
-                        />
-                        <span style={{ marginLeft: 8 }}>
-                          {msg.sender.username}
-                        </span>
-                      </div>
-                      <div style={{ fontSize: 19.5 }}>{msg.content}</div>
-                      {msg.file && (
-                        <div style={{ marginTop: 10 }}>
-                          <FaFileAlt />{" "}
-                          <a
-                            href={`${process.env.REACT_APP_API_URL}/uploads/${msg.file.filename}`}
-                            download={msg.file.originalName}
-                            style={{
-                              color: isCurrentUser ? "#fff" : "#1890ff",
-                            }}
-                          >
-                            {msg.file.originalName}
-                          </a>
-                        </div>
-                      )}
-                      <Divider
-                        style={{
-                          margin: "8px 0",
-                          borderColor: isCurrentUser ? "#fff" : "#d9d9d9",
-                        }}
+                      <Avatar
+                        src={
+                          msg.sender.profilePic
+                            ? `${process.env.REACT_APP_API_URL}/uploads/${msg.sender.profilePic}`
+                            : null
+                        }
+                        icon={<UserOutlined />}
+                        size="small"
                       />
-                      <div
-                        style={{
-                          textAlign: "right",
-                          fontSize: "0.8em",
-                          marginTop: 5,
-                        }}
-                      >
-                        {moment(msg.timestamp).format("MMM DD, YYYY h:mm A")}
-                      </div>
+                      <span style={{ marginLeft: 8 }}>
+                        {msg.sender.username}
+                      </span>
                     </div>
-                  </List.Item>
-                );
-              }}
-            />
-          )}
-          <div ref={messagesEndRef} />
+                    <div style={{ fontSize: 19.5 }}>{msg.content}</div>
+                    {msg.file && (
+                      <div style={{ marginTop: 10 }}>
+                        <FaFileAlt />{" "}
+                        <a
+                          href={`${process.env.REACT_APP_API_URL}/uploads/${msg.file.filename}`}
+                          download={msg.file.originalName}
+                          style={{
+                            color: isCurrentUser ? "#fff" : "#1890ff",
+                          }}
+                        >
+                          {msg.file.originalName}
+                        </a>
+                      </div>
+                    )}
+                    <Divider
+                      style={{
+                        margin: "8px 0",
+                        borderColor: isCurrentUser ? "#fff" : "#d9d9d9",
+                      }}
+                    />
+                    <div
+                      style={{
+                        textAlign: "right",
+                        fontSize: "0.8em",
+                        marginTop: 5,
+                      }}
+                    >
+                      {moment(msg.timestamp).format("MMM DD, YYYY h:mm A")}
+                    </div>
+                  </div>
+                </List.Item>
+              );
+            }}
+          />
         </div>
 
         {/* Message Input */}
@@ -504,8 +493,19 @@ const ChatComponent = ({
               <Button icon={<UploadOutlined />}>Attach</Button>
             </Upload>
             {file && (
-              <div
-                style={{
+              <>
+                <Select
+                  value={fileType}
+                  onChange={(value) => setFileType(value)}
+                  style={{ width: 150, marginRight: 8 }}
+                  placeholder="Select file type"
+                >
+                  <Option value="Tax File">Tax File</Option>
+                  <Option value="Payroll File">Payroll File</Option>
+                  <Option value="Compliance File">Compliance File</Option>
+                  <Option value="File">Other File</Option>
+                </Select>
+                <div style={{
                   display: "flex",
                   alignItems: "center",
                   background: "#fff",
@@ -513,23 +513,21 @@ const ChatComponent = ({
                   border: "1px solid #d9d9d9",
                   borderRadius: 4,
                   marginRight: 8,
-                }}
-              >
-                <span
-                  style={{
+                }}>
+                  <span style={{
                     marginRight: 8,
                     maxWidth: 150,
                     overflow: "hidden",
                     textOverflow: "ellipsis",
-                  }}
-                >
-                  {file.name}
-                </span>
-                <DeleteOutlined
-                  onClick={removeSelectedFile}
-                  style={{ color: "red", cursor: "pointer" }}
-                />
-              </div>
+                  }}>
+                    {file.name}
+                  </span>
+                  <DeleteOutlined
+                    onClick={removeSelectedFile}
+                    style={{ color: "red", cursor: "pointer" }}
+                  />
+                </div>
+              </>
             )}
             <TextArea
               rows={1}

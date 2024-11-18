@@ -22,9 +22,12 @@ const SleepMode = ({ isActive, onExit, setActiveTab }) => {
 
   const handleUnlock = async (values) => {
     try {
-      const endpoint = isGoogleUser ? "/api/users/verify-pin" : "/api/users/verify-password";
+      const endpoint = isGoogleUser
+        ? "/api/users/verify-pin"
+        : "/api/users/verify-password";
       const response = await api.post(endpoint, {
-        [isGoogleUser ? "pin" : "password"]: values[isGoogleUser ? "pin" : "password"],
+        [isGoogleUser ? "pin" : "password"]:
+          values[isGoogleUser ? "pin" : "password"],
       });
 
       if (response.data.isValid) {
@@ -63,7 +66,11 @@ const SleepMode = ({ isActive, onExit, setActiveTab }) => {
       >
         <Result
           icon={<LockOutlined style={{ color: "white", fontSize: "48px" }} />}
-          title={<span style={{ color: "white", fontSize: "24px" }}>Sleep Mode Active</span>}
+          title={
+            <span style={{ color: "white", fontSize: "24px" }}>
+              Sleep Mode Active
+            </span>
+          }
           extra={
             <Button
               type="ghost"
@@ -98,28 +105,30 @@ const SleepMode = ({ isActive, onExit, setActiveTab }) => {
         maskClosable={false}
         centered
         style={{ zIndex: 1002 }}
-        maskStyle={{ backgroundColor: "rgba(0, 0, 0, 0.6)", backdropFilter: "blur(4px)" }}
+        maskStyle={{
+          backgroundColor: "rgba(0, 0, 0, 0.6)",
+          backdropFilter: "blur(4px)",
+        }}
       >
         <Form form={form} onFinish={handleUnlock}>
           <Form.Item
             name={isGoogleUser ? "pin" : "password"}
-            rules={[{ 
-              required: true, 
-              message: isGoogleUser ? "Please enter your PIN" : "Please enter your password" 
-            }]}
+            rules={[
+              {
+                required: true,
+                message: isGoogleUser
+                  ? "Please enter your PIN"
+                  : "Please enter your password",
+              },
+            ]}
           >
-            {isGoogleUser ? (
-              <Input.Password
-                maxLength={4}
-                placeholder="Enter your 4-digit PIN"
-                type="number"
-                pattern="[0-9]*"
-              />
-            ) : (
-              <Input.Password
-                placeholder="Enter your password"
-              />
-            )}
+            <Input.Password
+              maxLength={4}
+              placeholder="Enter your 4-digit PIN"
+              type="number"
+              pattern="[0-9]*"
+              inputMode="numeric"
+            />
           </Form.Item>
           <Form.Item>
             <Button

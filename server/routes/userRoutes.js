@@ -342,4 +342,16 @@ router.put(
   userController.updateDashboardComponents
 );
 
+router.get('/available-for-chat', auth, async (req, res) => {
+  try {
+    const users = await User.find({
+      _id: { $ne: req.user._id },
+      role: { $in: ['employee', 'manager', 'admin'] }
+    }).select('username role');
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching available users" });
+  }
+});
+
 module.exports = router;

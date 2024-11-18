@@ -483,8 +483,8 @@ const ClientDashboard = () => {
 
   return (
     <RoleChecker userRole={clientData?.role} userEmail={clientData?.email}>
+      <Header profilePic={profilePic} />
       <Layout style={{ minHeight: "100vh" }}>
-        <Header />
         <Layout>
           <Sider
             collapsible
@@ -493,7 +493,6 @@ const ClientDashboard = () => {
             style={{
               background: "#001529",
               boxShadow: "2px 0 8px rgba(0,0,0,0.15)",
-              marginTop: "60px",
             }}
           >
             <Menu
@@ -525,7 +524,7 @@ const ClientDashboard = () => {
               ))}
             </Menu>
           </Sider>
-          <Layout className="site-layout" style={{ marginTop: "64px" }}>
+          <Layout className="site-layout">
             <Content style={{ margin: "0 16px" }}>
               <Title level={2}>Welcome, {clientData.username}</Title>
               <div style={{ padding: 24, minHeight: 360 }}>
