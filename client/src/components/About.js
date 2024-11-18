@@ -22,6 +22,12 @@ import {
   MailOutlined,
   PhoneOutlined,
   EnvironmentOutlined,
+  CalculatorOutlined,
+  AuditOutlined,
+  FundProjectionScreenOutlined,
+  BookOutlined,
+  PayCircleOutlined,
+  BulbOutlined,
 } from "@ant-design/icons";
 import "antd/dist/reset.css";
 import { jwtDecode } from "jwt-decode";
@@ -360,33 +366,20 @@ const Home = () => {
             >
               At Nav Accounts, we pride ourselves on our commitment to excellence, integrity, and customer satisfaction. Our team of experienced professionals is dedicated to providing personalized services that address your unique challenges. We're passionate about helping you achieve your financial goals.
 
-              <Row gutter={[16, 16]} style={{ margin: "2rem" }}>
+              <Row gutter={[16, 16]} style={{ margin: "2rem", paddingLeft: "50px" }}>
                 <Col xs={24} sm={12} md={6}>
-                  <Card title="Expertise" style={{ height: "100%" }}>
-                    <p>
-                      Our team has extensive experience in accounting, tax consultancy, and financial planning. We stay up-to-date with the latest industry trends and regulations to ensure you receive the best possible advice.
-                    </p>
+                  <Card title={<><CalculatorOutlined /> Expertise</>} style={{ height: "100%" }}>
+                    <p>Our team has extensive experience in various accounting services.</p>
                   </Card>
                 </Col>
                 <Col xs={24} sm={12} md={6}>
-                  <Card title="Personalized Service" style={{ height: "100%" }}>
-                    <p>
-                      We understand that every client is unique, and we tailor our services to meet your specific needs. Our goal is to build long-term relationships with our clients, founded on trust, integrity, and exceptional service.
-                    </p>
+                  <Card title={<><AuditOutlined /> Transparency</>} style={{ height: "100%" }}>
+                    <p>We maintain transparency in all our dealings and services.</p>
                   </Card>
                 </Col>
                 <Col xs={24} sm={12} md={6}>
-                  <Card title="Innovative Solutions" style={{ height: "100%" }}>
-                    <p>
-                      We're committed to innovation and continuously seek new ways to improve our services and deliver exceptional results. Our team is dedicated to finding creative solutions to complex financial challenges.
-                    </p>
-                  </Card>
-                </Col>
-                <Col xs={24} sm={12} md={6}>
-                  <Card title="Customer Satisfaction" style={{ height: "100%" }}>
-                    <p>
-                      We're passionate about delivering exceptional results and exceeding our clients' expectations. Our goal is to build long-term relationships with our clients, founded on trust, integrity, and exceptional service.
-                    </p>
+                  <Card title={<><FundProjectionScreenOutlined /> Tailored Solutions</>} style={{ height: "100%" }}>
+                    <p>We provide customized solutions to meet your specific needs.</p>
                   </Card>
                 </Col>
               </Row>

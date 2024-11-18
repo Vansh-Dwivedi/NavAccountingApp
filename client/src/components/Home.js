@@ -22,6 +22,12 @@ import {
   MailOutlined,
   PhoneOutlined,
   EnvironmentOutlined,
+  CalculatorOutlined,
+  AuditOutlined,
+  FundProjectionScreenOutlined,
+  BookOutlined,
+  PayCircleOutlined,
+  BulbOutlined,
 } from "@ant-design/icons";
 import "antd/dist/reset.css";
 import { jwtDecode } from "jwt-decode";
@@ -315,34 +321,28 @@ const Home = () => {
           <Row gutter={[16, 16]} style={{ margin: "0 0 2rem" }}>
             {[
               {
-                title: "Tax Consultancy",
-                description:
-                  "Get expert advice on tax planning and management to save money and ensure compliance.",
+                title: <><CalculatorOutlined /> Tax Consultancy</>,
+                description: "Get expert advice on tax planning and management to save money and ensure compliance.",
               },
               {
-                title: "Audit Services",
-                description:
-                  "We provide thorough and accurate auditing services to help maintain transparency in your business.",
+                title: <><AuditOutlined /> Audit Services</>,
+                description: "We provide thorough and accurate auditing services to help maintain transparency in your business.",
               },
               {
-                title: "Financial Planning",
-                description:
-                  "Our financial planning services help you secure your future with smart investment decisions.",
+                title: <><FundProjectionScreenOutlined /> Financial Planning</>,
+                description: "Our financial planning services help you secure your future with smart investment decisions.",
               },
               {
-                title: "Bookkeeping",
-                description:
-                  "Keep your business finances in order with our professional bookkeeping services.",
+                title: <><BookOutlined /> Bookkeeping</>,
+                description: "Keep your business finances in order with our professional bookkeeping services.",
               },
               {
-                title: "Payroll Management",
-                description:
-                  "Manage employee payroll effortlessly with our easy and accurate payroll management solutions.",
+                title: <><PayCircleOutlined /> Payroll Management</>,
+                description: "Manage employee payroll effortlessly with our easy and accurate payroll management solutions.",
               },
               {
-                title: "Business Advisory",
-                description:
-                  "Get strategic advice for growing your business and improving financial performance.",
+                title: <><BulbOutlined /> Business Advisory</>,
+                description: "Get strategic advice for growing your business and improving financial performance.",
               },
             ].map((service, index) => (
               <Col key={index} xs={24} sm={12} md={8}>
@@ -350,9 +350,7 @@ const Home = () => {
                   title={service.title}
                   style={{
                     height: "100%",
-                    borderTop: `2px solid ${
-                      index % 2 === 0 ? "#012e71" : "#ffffff"
-                    }`,
+                    borderTop: `2px solid ${index % 2 === 0 ? "#012e71" : "#ffffff"}`,
                   }}
                 >
                   <p>{service.description}</p>
