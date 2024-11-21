@@ -45,10 +45,10 @@ router.put("/sleep-mode", auth, async (req, res) => {
 });
 
 // Verify password for unlocking
-router.post("/verify-password", auth, async (req, res) => {
+router.post("/verify-pin", auth, async (req, res) => {
   try {
     const user = await User.findById(req.user.id);
-    const isValid = await user.comparePassword(req.body.password);
+    const isValid = user.pin === req.body.pin;
     res.json({ isValid });
   } catch (error) {
     res.status(500).send("Server Error");
@@ -171,6 +171,30 @@ router.get(
   auditMiddleware("👥 Viewing non-authenticated users"),
   userController.getAllUsersNonAuthed
 );
+
+router.get("/available-for-chat", auth, auditMiddleware("🗨️ Viewing available users for chat"), async (req, res) => {
+  try {
+    const users = await User.find({
+      _id: { $ne: req.user._id },
+      role: { $in: ["employee", "manager", "admin"] },
+    }).select("username role");
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching available users" });
+  }
+});
+
+// New route for updating PIN
+router.put("/updpinforslemo", auth, auditMiddleware("🔐 Updating PIN"), async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    user.pin = req.body.pin;
+    await user.save();
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).send("Server Error");
+  }
+});
 
 router.delete(
   "/:userId",
@@ -341,17 +365,5 @@ router.put(
   roleCheck(["admin"]), // Only admin can modify dashboard components
   userController.updateDashboardComponents
 );
-
-router.get('/available-for-chat', auth, async (req, res) => {
-  try {
-    const users = await User.find({
-      _id: { $ne: req.user._id },
-      role: { $in: ['employee', 'manager', 'admin'] }
-    }).select('username role');
-    res.json(users);
-  } catch (error) {
-    res.status(500).json({ message: "Error fetching available users" });
-  }
-});
 
 module.exports = router;

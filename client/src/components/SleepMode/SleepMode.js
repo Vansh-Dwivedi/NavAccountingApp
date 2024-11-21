@@ -1,18 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Modal, Input, Form, message, Button, Result } from "antd";
+import { Modal, Input, Form, message, Button, Result, Spin, Alert } from "antd";
 import { LockOutlined, UnlockOutlined } from "@ant-design/icons";
 import api from "../../utils/api";
 
 const SleepMode = ({ isActive, onExit, setActiveTab }) => {
   const [unlockModalVisible, setUnlockModalVisible] = useState(false);
-  const [isGoogleUser, setIsGoogleUser] = useState(false);
+  const [hasPin, setHasPin] = useState(true); // Assuming the user has a PIN by default
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false); // Added for loading state
 
   useEffect(() => {
     const checkAuthMethod = async () => {
       try {
         const response = await api.get("/api/users/profile");
-        setIsGoogleUser(!!response.data.googleId);
+        setHasPin(!!response.data.pin); // Check if the user has a PIN
       } catch (error) {
         console.error("Error checking auth method:", error);
       }
@@ -22,14 +23,11 @@ const SleepMode = ({ isActive, onExit, setActiveTab }) => {
 
   const handleUnlock = async (values) => {
     try {
-      const endpoint = isGoogleUser
-        ? "/api/users/verify-pin"
-        : "/api/users/verify-password";
-      const response = await api.post(endpoint, {
-        [isGoogleUser ? "pin" : "password"]:
-          values[isGoogleUser ? "pin" : "password"],
+      setLoading(true); // Start loading
+      // If the user has a PIN, verify it
+      const response = await api.post("/api/users/verify-pin", {
+        pin: values.pin,
       });
-
       if (response.data.isValid) {
         await api.put("/api/users/sleep-mode", { isInSleepMode: false });
         onExit();
@@ -37,11 +35,30 @@ const SleepMode = ({ isActive, onExit, setActiveTab }) => {
         form.resetFields();
         setActiveTab("dashboard");
       } else {
-        message.error(isGoogleUser ? "Incorrect PIN" : "Incorrect password");
+        message.error("Incorrect PIN");
       }
     } catch (error) {
       console.error("Error unlocking sleep mode:", error);
       message.error("Failed to unlock sleep mode");
+    } finally {
+      setLoading(false); // Stop loading
+    }
+  };
+
+  const handleCreate = async (values) => {
+    try {
+      setLoading(true); // Start loading
+      await api.put("/api/users/updpinforslemo", { pin: values.pin });
+      message.info("New PIN created successfully.");
+      // After creating PIN, shift to unlock sleep mode
+      setHasPin(true);
+      // Simulate a delay to show loading for 1 second
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    } catch (error) {
+      console.error("Error creating new pin:", error);
+      message.error("Failed to create new pin.");
+    } finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -95,9 +112,15 @@ const SleepMode = ({ isActive, onExit, setActiveTab }) => {
 
       <Modal
         title={
-          <span>
-            <UnlockOutlined /> Unlock Dashboard
-          </span>
+          hasPin ? (
+            <span>
+              <UnlockOutlined /> Unlock Dashboard
+            </span>
+          ) : (
+            <span>
+              <UnlockOutlined /> Create 4-digit PIN
+            </span>
+          )
         }
         open={unlockModalVisible}
         onCancel={() => setUnlockModalVisible(false)}
@@ -110,37 +133,55 @@ const SleepMode = ({ isActive, onExit, setActiveTab }) => {
           backdropFilter: "blur(4px)",
         }}
       >
-        <Form form={form} onFinish={handleUnlock}>
-          <Form.Item
-            name={isGoogleUser ? "pin" : "password"}
-            rules={[
-              {
-                required: true,
-                message: isGoogleUser
-                  ? "Please enter your PIN"
-                  : "Please enter your password",
-              },
-            ]}
-          >
-            <Input.Password
-              maxLength={4}
-              placeholder="Enter your 4-digit PIN"
-              type="number"
-              pattern="[0-9]*"
-              inputMode="numeric"
-            />
-          </Form.Item>
-          <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              icon={<UnlockOutlined />}
-              block
+        <Spin spinning={loading}>
+          {" "}
+          {/* Added Spin component for loading */}
+          <Form form={form} onFinish={hasPin ? handleUnlock : handleCreate}>
+            {!hasPin ? (
+              <Alert
+                description="To enhance your account security, please create a new 4-digit PIN. This will be used to authenticate your access in the future."
+                type="info"
+                showIcon
+                style={{ marginBottom: "10px" }}
+              />
+            ) : (
+              ""
+            )}
+            <Form.Item
+              name="pin"
+              rules={[
+                {
+                  required: true,
+                  message: hasPin
+                    ? "Please enter your PIN"
+                    : "You don't have a PIN. Please enter your new PIN.",
+                },
+              ]}
             >
-              Unlock
-            </Button>
-          </Form.Item>
-        </Form>
+              <Input.Password
+                maxLength={4}
+                placeholder={
+                  hasPin
+                    ? "Enter your 4-digit PIN"
+                    : "Enter your new 4-digit PIN"
+                }
+                type="number"
+                pattern="[0-9]*"
+                inputMode="numeric"
+              />
+            </Form.Item>
+            <Form.Item>
+              <Button
+                type="primary"
+                htmlType="submit"
+                icon={<UnlockOutlined />}
+                block
+              >
+                {hasPin ? "Unlock" : "Create"}
+              </Button>
+            </Form.Item>
+          </Form>
+        </Spin>
       </Modal>
     </>
   );

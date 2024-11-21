@@ -607,7 +607,7 @@ const ManagerDashboard = () => {
   return (
     <RoleChecker userRole={managerData.role} userEmail={managerData.email}>
       <Header profilePic={profilePic} />
-      <Layout style={{ minHeight: "100vh", marginTop: "60px" }}>
+      <Layout style={{ minHeight: "100vh" }}>
         <Sider
           collapsible
           collapsed={!isSidebarOpen}

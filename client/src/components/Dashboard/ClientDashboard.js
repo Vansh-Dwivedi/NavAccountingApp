@@ -61,6 +61,7 @@ import DragAndDropScreen from "../DragAndDropScreen";
 import { useEnabledComponents } from "../../hooks/useEnabledComponents";
 import LogoutConfirmModal from "../LogoutConfirmModal";
 import SleepMode from "../SleepMode/SleepMode";
+import { getSocket } from "../../utils/socket";
 
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -92,6 +93,7 @@ const ClientDashboard = () => {
   const [personnelForm] = Form.useForm();
   const { canShowComponent } = useEnabledComponents(clientData?._id);
   const [isSleepMode, setIsSleepMode] = useState(false);
+  const [profilePic, setProfilePic] = useState("");
 
   useEffect(() => {
     fetchClientData();
@@ -526,12 +528,11 @@ const ClientDashboard = () => {
           </Sider>
           <Layout className="site-layout">
             <Content style={{ margin: "0 16px" }}>
-              <Title level={2}>Welcome, {clientData.username}</Title>
               <div style={{ padding: 24, minHeight: 360 }}>
                 {activeTab === "dashboard" &&
                   clientData &&
                   canShowComponent("dashboard") && (
-                    <div className="dashboard-info">
+                    <div>
                       <Title level={2}>Welcome, {clientData.username}</Title>
                       <ClientFinancialOverview clientData={clientData} />
                       <ProfileSettings
