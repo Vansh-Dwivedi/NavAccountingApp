@@ -286,12 +286,6 @@ const Header = () => {
         trigger={["click"]}
         placement="bottomRight"
         arrow={{ pointAtCenter: true }}
-        onOpenChange={(visible) => {
-          if (visible) {
-            setUnreadCount(0);
-            markAllNotificationsAsRead();
-          }
-        }}
       >
         <Badge count={unreadCount} offset={[-2, 2]}>
           <Avatar

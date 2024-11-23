@@ -5,36 +5,27 @@ import React, {
   useRef,
   useCallback,
 } from "react";
-import { getSocket, initializeSocket } from "../../utils/socket";
+import { getSocket } from "../../utils/socket";
 import api from "../../utils/api";
 import { AuthContext } from "../../context/AuthContext";
 import { toast } from "react-toastify";
-import { FaPaperPlane, FaLink, FaFileAlt } from "react-icons/fa";
+import { FaFileAlt, FaPaperPlane } from "react-icons/fa";
 import {
   Modal,
   Input,
   Button,
   Upload,
-  Dropdown,
-  Menu,
   List,
   Avatar,
-  Tooltip,
   Select,
-  DatePicker,
-  Spin,
-  message,
   Divider,
 } from "antd";
 import {
-  SearchOutlined,
-  FilterOutlined,
-  FullscreenOutlined,
-  FullscreenExitOutlined,
-  CloseOutlined,
-  UploadOutlined,
   DeleteOutlined,
   UserOutlined,
+  UploadOutlined,
+  FullscreenOutlined,
+  FullscreenExitOutlined,
 } from "@ant-design/icons";
 import "antd/dist/reset.css"; // Import antd styles
 import moment from "moment";
@@ -62,26 +53,30 @@ const ChatComponent = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState("date");
-  const [sortOrder, setSortOrder] = useState("desc");
+  const [sortOrder, setSortOrder] = useState("asc"); // Changed to 'asc' for chronological order
   const [detailedSearchParams, setDetailedSearchParams] = useState({
     keyword: "",
     startDate: null,
     endDate: null,
     fileType: "All",
     sortBy: "date",
-    sortOrder: "desc",
+    sortOrder: "asc",
   });
   const [size, setSize] = useState({ width: 600, height: 700 });
-  const resizeRef = useRef(null);
   const chatMessagesRef = useRef(null);
   const [senderProfilePic, setSenderProfilePic] = useState(null);
   const [otherUserProfilePic, setOtherUserProfilePic] = useState(null);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [categories, setCategories] = useState([]); // State for file categories
 
   useEffect(() => {
     if (visible && currentUser && otherUser) {
       const constructedChatId = `${currentUser._id}-${otherUser._id}`;
-      fetchMessages(constructedChatId);
+      setPage(1); // Reset to first page on new chat open
+      fetchMessages(constructedChatId, 1);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, currentUser, otherUser]);
 
   const addMessage = useCallback((message) => {
@@ -91,14 +86,15 @@ const ChatComponent = ({
     });
   }, []);
 
-  const fetchMessages = async (chatId) => {
+  const fetchMessages = async (chatId, pageNumber) => {
     if (!chatId) return;
     try {
       setLoading(true);
-      const response = await api.get(
-        `/api/chat/messages/${chatId}`
-      );
-      setMessages(response.data.messages);
+      const response = await api.get(`/api/chat/messages/${chatId}`);
+      setTotalPages(response.data.totalPages);
+      setMessages((prevMessages) => [
+        ...response.data.messages,
+      ]);
     } catch (error) {
       console.error("Error fetching messages:", error);
       toast.error("Failed to fetch messages.");
@@ -110,10 +106,10 @@ const ChatComponent = ({
   useEffect(() => {
     if (!visible || !currentUser || !otherUser) return;
 
-    const socket = getSocket();
-    setSocket(socket);
+    const socketInstance = getSocket();
+    setSocket(socketInstance);
 
-    socket.emit("join", currentUser._id);
+    socketInstance.emit("join", currentUser._id);
 
     const handleNewMessage = (newMessage) => {
       addMessage(newMessage);
@@ -124,15 +120,18 @@ const ChatComponent = ({
       }
     };
 
-    socket.on("newMessage", handleNewMessage);
+    socketInstance.on("newMessage", handleNewMessage);
 
-    fetchMessages(`${currentUser._id}-${otherUser._id}`);
+    const constructedChatId = `${currentUser._id}-${otherUser._id}`;
+    fetchMessages(constructedChatId, 1);
 
     fetchProfilePics();
+    fetchCategories(); // Fetch file categories
 
     return () => {
-      socket.off("newMessage", handleNewMessage);
+      socketInstance.off("newMessage", handleNewMessage);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, currentUser, otherUser, addMessage]);
 
   useEffect(() => {
@@ -157,6 +156,15 @@ const ChatComponent = ({
     }
   };
 
+  const fetchCategories = async () => {
+    try {
+      const response = await api.get("/api/categories"); // Ensure this endpoint exists
+      setCategories(response.data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+
   const handleFileChange = ({ file }) => {
     setFile(file.originFileObj);
     setInputMessage(file.originFileObj ? file.originFileObj.name : "");
@@ -177,18 +185,18 @@ const ChatComponent = ({
         response = await api.post("/api/chat/send", {
           message: inputMessage,
           receiver: otherUser._id,
-          sender: currentUser._id
+          sender: currentUser._id,
         });
       } else {
         const formData = new FormData();
         formData.append("message", inputMessage || file.name);
         formData.append("receiver", otherUser._id);
-        formData.append("sender", currentUser._id)
+        formData.append("sender", currentUser._id);
         formData.append("file", file);
-        formData.append("fileType", fileType || "File");
+        formData.append("fileType", fileType || "File"); // Include fileType
 
         response = await api.post("/api/chat/send-with-file", formData, {
-          headers: { "Content-Type": "multipart/form-data" }
+          headers: { "Content-Type": "multipart/form-data" },
         });
       }
 
@@ -208,7 +216,10 @@ const ChatComponent = ({
         }
       }, 100);
     } catch (error) {
-      console.error("Error sending message:", error.response?.data || error.message);
+      console.error(
+        "Error sending message:",
+        error.response?.data || error.message
+      );
       toast.error(error.response?.data?.error || "Error sending message");
     }
   };
@@ -299,6 +310,14 @@ const ChatComponent = ({
     showUploadList: false,
   };
 
+  const loadMoreMessages = () => {
+    if (page < totalPages) {
+      const nextPage = page + 1;
+      setPage(nextPage);
+      fetchMessages(chatId, nextPage);
+    }
+  };
+
   return (
     <Modal
       visible={visible}
@@ -333,7 +352,19 @@ const ChatComponent = ({
                   ? `${process.env.REACT_APP_API_URL}/uploads/${otherUserProfilePic}`
                   : null
               }
-              icon={<div style={{ backgroundColor: "#808080", width: "100%", height: "100%" }}><UserOutlined /></div>}
+              icon={
+                !otherUserProfilePic && (
+                  <div
+                    style={{
+                      backgroundColor: "#808080",
+                      width: "100%",
+                      height: "100%",
+                    }}
+                  >
+                    <UserOutlined />
+                  </div>
+                )
+              }
               size="small"
             />
             <span style={{ marginLeft: 10, fontSize: 18 }}>
@@ -392,12 +423,6 @@ const ChatComponent = ({
           />
         </div>
 
-        {/* Detailed Search (Optional) */}
-        {/* You can toggle the visibility of this section based on state if needed */}
-        {/* <div style={{ padding: "10px 20px", background: "#fafafa" }}>
-          // Detailed search components
-        </div> */}
-
         {/* Messages */}
         <div
           ref={chatMessagesRef}
@@ -408,6 +433,16 @@ const ChatComponent = ({
             background: "#e6f7ff",
           }}
         >
+          {page < totalPages && (
+            <Button
+              onClick={loadMoreMessages}
+              loading={loading}
+              style={{ marginBottom: 10 }}
+              block
+            >
+              Load More
+            </Button>
+          )}
           <List
             dataSource={filteredMessages}
             renderItem={(msg) => {
@@ -416,7 +451,9 @@ const ChatComponent = ({
                 <List.Item
                   key={msg._id}
                   style={{
-                    justifyContent: isCurrentUser ? "flex-end" : "flex-start",
+                    justifyContent: isCurrentUser
+                      ? "flex-end"
+                      : "flex-start",
                   }}
                 >
                   <div
@@ -484,6 +521,7 @@ const ChatComponent = ({
               );
             }}
           />
+          <div ref={messagesEndRef} />
         </div>
 
         {/* Message Input */}
@@ -499,27 +537,33 @@ const ChatComponent = ({
                   onChange={(value) => setFileType(value)}
                   style={{ width: 150, marginRight: 8 }}
                   placeholder="Select file type"
+                  required
                 >
-                  <Option value="Tax File">Tax File</Option>
-                  <Option value="Payroll File">Payroll File</Option>
-                  <Option value="Compliance File">Compliance File</Option>
-                  <Option value="File">Other File</Option>
+                  {categories.map((category) => (
+                    <Option key={category.name} value={category.name}>
+                      {category.name}
+                    </Option>
+                  ))}
                 </Select>
-                <div style={{
-                  display: "flex",
-                  alignItems: "center",
-                  background: "#fff",
-                  padding: "0 10px",
-                  border: "1px solid #d9d9d9",
-                  borderRadius: 4,
-                  marginRight: 8,
-                }}>
-                  <span style={{
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    background: "#fff",
+                    padding: "0 10px",
+                    border: "1px solid #d9d9d9",
+                    borderRadius: 4,
                     marginRight: 8,
-                    maxWidth: 150,
-                    overflow: "hidden",
-                    textOverflow: "ellipsis",
-                  }}>
+                  }}
+                >
+                  <span
+                    style={{
+                      marginRight: 8,
+                      maxWidth: 150,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                    }}
+                  >
                     {file.name}
                   </span>
                   <DeleteOutlined
@@ -530,18 +574,19 @@ const ChatComponent = ({
               </>
             )}
             <TextArea
-              rows={1}
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              placeholder="Type a message..."
-              style={{ borderRadius: 4, marginRight: 8 }}
+              placeholder="Type your message..."
+              autoSize={{ minRows: 1, maxRows: 4 }}
+              style={{ width: "60%", marginRight: 8 }}
             />
             <Button
               type="primary"
               icon={<FaPaperPlane />}
               onClick={sendMessage}
-              disabled={!inputMessage && !file}
-            />
+            >
+              Send
+            </Button>
           </Input.Group>
         </div>
       </div>

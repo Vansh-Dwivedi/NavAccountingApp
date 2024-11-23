@@ -110,35 +110,25 @@ exports.sendMessageWithFile = async (req, res) => {
 exports.getMessages = async (req, res) => {
   try {
     const { chatId } = req.params;
-    console.log('Received chatId:', chatId);
 
-    if (!chatId || chatId === 'undefined' || !chatId.includes('-')) {
+    if (!chatId || !chatId.includes('-')) {
       return res.status(400).json({ error: 'Invalid chat ID' });
     }
 
     let [user1Id, user2Id] = chatId.split('-');
-    
-    // If one of the users is identified as "admin", get the actual admin ID
-    if (user1Id === 'admin') {
+
+    // Handle 'admin' identifier
+    if (user1Id === 'admin' || user2Id === 'admin') {
       const adminUser = await User.findOne({ role: 'admin' });
       if (!adminUser) {
         return res.status(404).json({ error: 'Admin user not found' });
       }
-      user1Id = adminUser._id.toString();
-    }
-    
-    if (user2Id === 'admin') {
-      const adminUser = await User.findOne({ role: 'admin' });
-      if (!adminUser) {
-        return res.status(404).json({ error: 'Admin user not found' });
-      }
-      user2Id = adminUser._id.toString();
+      user1Id = user1Id === 'admin' ? adminUser._id.toString() : user1Id;
+      user2Id = user2Id === 'admin' ? adminUser._id.toString() : user2Id;
     }
 
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 20;
-
-    console.log('Querying messages for users:', user1Id, user2Id);
 
     const messages = await Message.find({
       $or: [
@@ -146,11 +136,11 @@ exports.getMessages = async (req, res) => {
         { sender: user2Id, receiver: user1Id },
       ],
     })
-      .sort({ timestamp: -1 })
+      .sort({ timestamp: -1 }) // Changed to descending order
       .skip((page - 1) * limit)
       .limit(limit)
-      .populate("sender", "username profilePic")
-      .populate("receiver", "username profilePic");
+      .populate('sender', 'username profilePic')
+      .populate('receiver', 'username profilePic');
 
     const totalMessages = await Message.countDocuments({
       $or: [
@@ -158,16 +148,16 @@ exports.getMessages = async (req, res) => {
         { sender: user2Id, receiver: user1Id },
       ],
     });
+    const totalPages = Math.ceil(totalMessages / limit);
 
     res.json({
-      messages: messages.reverse(),
+      messages,
+      totalPages,
       currentPage: page,
-      totalPages: Math.ceil(totalMessages / limit),
-      totalMessages,
     });
   } catch (error) {
-    console.error("Error in getMessages:", error);
-    res.status(500).json({ error: "Server error", details: error.message });
+    console.error('Error in getMessages:', error);
+    res.status(500).json({ error: 'Server error', details: error.message });
   }
 };
 
