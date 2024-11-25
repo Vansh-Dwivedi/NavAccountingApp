@@ -150,6 +150,18 @@ app.use("/uploads", (req, res) => {
   res.status(404).send("File not found");
 });
 
+// Define the build path
+const _dirname = path.dirname("");
+const buildpath = path.join(_dirname, "../client/build");
+
+// Serve static files from the React app (or other front-end framework)
+app.use(express.static(buildpath));
+
+// The "catchall" handler: for any request that doesn't match one above, send back index.html.
+app.get("*", (req, res) => {
+  res.sendFile(path.join(buildpath, "index.html"));
+});
+
 // Socket.IO setup
 const server = http.createServer(app);
 

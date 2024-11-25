@@ -6,7 +6,6 @@ import {
   Navigate,
 } from "react-router-dom";
 import Home from "./components/Home";
-import Component from "./components/Secret/main";
 import FormSubmissionPage from "./components/FormSubmissionPage";
 import Login from "./components/Auth/Login";
 import TabbedRegister from "./components/Auth/TabbedRegister";
@@ -88,7 +87,6 @@ function App() {
               />
             }
           />
-          <Route path="/secret/dsoa/main/root/v1" element={<Component />} />
           <Route
             path="/office-head-dashboard"
             element={
