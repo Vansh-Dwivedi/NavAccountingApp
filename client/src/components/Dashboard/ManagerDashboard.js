@@ -66,6 +66,7 @@ import ChatCenter from "../Chat/ChatCenter";
 import LogoutConfirmModal from "../LogoutConfirmModal";
 import SleepMode from "../SleepMode/SleepMode";
 import { getSocket } from "../../utils/socket";
+import WaitlistMessage from "../WaitlistMessage";
 
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -604,6 +605,16 @@ const ManagerDashboard = () => {
     return canShowComponent(item.key);
   });
 
+  const hasActiveComponents = () => {
+    return (
+      activeTab === "dashboard" && canShowComponent("dashboard") ||
+      activeTab === "chatCenter" && canShowComponent("chatCenter") ||
+      activeTab === "clientData" && canShowComponent("clientData") ||
+      activeTab === "forms" && canShowComponent("forms") ||
+      activeTab === "dragAndDrop" && canShowComponent("dragAndDrop")
+    );
+  };
+
   return (
     <RoleChecker userRole={managerData.role} userEmail={managerData.email}>
       <Header profilePic={profilePic} />
@@ -642,6 +653,7 @@ const ManagerDashboard = () => {
         <Layout className="site-layout">
           <Content style={{ margin: "0 16px" }}>
             <div style={{ padding: 24, minHeight: 360 }}>
+              {!hasActiveComponents() && <WaitlistMessage />}
               <Title level={2}>Welcome, {managerData.username}</Title>
               <NotificationBubble userId={managerData?._id} />
 

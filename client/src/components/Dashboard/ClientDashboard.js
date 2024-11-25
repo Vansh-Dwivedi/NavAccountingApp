@@ -62,6 +62,7 @@ import { useEnabledComponents } from "../../hooks/useEnabledComponents";
 import LogoutConfirmModal from "../LogoutConfirmModal";
 import SleepMode from "../SleepMode/SleepMode";
 import { getSocket } from "../../utils/socket";
+import WaitlistMessage from "../WaitlistMessage";
 
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -452,6 +453,19 @@ const ClientDashboard = () => {
     }
   };
 
+  const hasActiveComponents = () => {
+    return (
+      activeTab === "dashboard" && canShowComponent("dashboard") ||
+      activeTab === "submitInformation" && canShowComponent("submitInformation") ||
+      activeTab === "notesAndSignatures" && canShowComponent("notesAndSignatures") ||
+      activeTab === "fileTransfer" && canShowComponent("fileTransfer") ||
+      activeTab === "forms" && canShowComponent("forms") ||
+      activeTab === "chat" && canShowComponent("chat") ||
+      activeTab === "financialInformation" && canShowComponent("financialInformation") ||
+      activeTab === "personnelSettings" && canShowComponent("personnelSettings")
+    );
+  };
+
   if (!user) {
     return <div>Loading...</div>;
   }
@@ -529,6 +543,7 @@ const ClientDashboard = () => {
           <Layout className="site-layout">
             <Content style={{ margin: "0 16px" }}>
               <div style={{ padding: 24, minHeight: 360 }}>
+                {!hasActiveComponents() && <WaitlistMessage />}
                 {activeTab === "dashboard" &&
                   clientData &&
                   canShowComponent("dashboard") && (

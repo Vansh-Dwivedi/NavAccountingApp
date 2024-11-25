@@ -1,12 +1,13 @@
 {
   "name": "nav-accounts",
   "version": "1.0.0",
+  "main": "main.js",
   "scripts": {
     "start": "react-scripts start",
     "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "electron-dev": "concurrently \"BROWSER=none npm start\" \"wait-on http://localhost:3000 && electron .\"",
+    "electron-dev": "concurrently \"cross-env BROWSER=none npm start\" \"wait-on http://localhost:3000 && electron .\"",
     "electron-build": "npm run build && electron-builder"
   },
   "dependencies": {

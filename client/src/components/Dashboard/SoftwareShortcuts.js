@@ -89,9 +89,10 @@ const SoftwareShortcuts = () => {
 
   const openNativeApp = (appName) => {
     try {
+      console.log(`Attempting to open: ${appName}`);
       ipcRenderer.send('open-native-app', appName);
     } catch (error) {
-      message.error(`Failed to open ${appName}`);
+      message.error(`Failed to open ${appName}: ${error.message}`);
     }
   };
 
@@ -127,7 +128,7 @@ const SoftwareShortcuts = () => {
       description: "Open system calculator"
     },
     {
-      name: "Music Stress Detox",
+      name: "Music Detox",
       icon: <CustomerServiceOutlined />,
       url: "https://open.spotify.com/playlist/37i9dQZF1DWXe9gFZP0gtP",
       description: "Listen to relaxing music"

@@ -59,6 +59,7 @@ import SoftwareShortcuts from "./SoftwareShortcuts";
 import LogoutConfirmModal from "../LogoutConfirmModal";
 import SleepMode from "../SleepMode/SleepMode";
 import EmployeeChatCenter from "../Chat/EmployeeChatCenter";
+import WaitlistMessage from "../WaitlistMessage"; // New Import
 
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -113,7 +114,6 @@ const EmployeeDashboard = () => {
   const [fileType, setFileType] = useState(null);
   const [personnelForm] = Form.useForm();
   const [employeeData, setEmployeeData] = useState(null);
-  const { canShowComponent } = useEnabledComponents(employeeData?._id);
   const [logoutModalVisible, setLogoutModalVisible] = useState(false);
   const [isSleepMode, setIsSleepMode] = useState(false);
   const [selectedChatUser, setSelectedChatUser] = useState(null);
@@ -121,6 +121,16 @@ const EmployeeDashboard = () => {
   const [unreadCounts, setUnreadCounts] = useState({});
   const [userSearchTerm, setUserSearchTerm] = useState("");
   const [chatUsers, setChatUsers] = useState([]);
+  const canShowComponent = (component) => true; // Replace with actual logic
+  const hasActiveComponents = () => {
+    return (
+      (activeTab === "dashboard" && canShowComponent("dashboard")) ||
+      (activeTab === "chatCenter" && canShowComponent("chatCenter")) ||
+      (activeTab === "profile" && canShowComponent("profile")) ||
+      (activeTab === "settings" && canShowComponent("settings")) ||
+      (activeTab === "personnelSettings" && canShowComponent("personnelSettings"))
+    );
+  };
 
   useEffect(() => {
     fetchEmployeeData();
@@ -244,12 +254,6 @@ const EmployeeDashboard = () => {
       key: "profile",
       icon: <EditOutlined />,
       label: "Edit Profile",
-      onClick: null,
-    },
-    {
-      key: "dragAndDrop",
-      icon: <InboxOutlined />,
-      label: "File Transfer",
       onClick: null,
     },
     {
@@ -444,6 +448,7 @@ const EmployeeDashboard = () => {
                 }}
               />
               <div style={{ position: "relative", zIndex: 1 }}>
+                {!hasActiveComponents() && <WaitlistMessage />}
                 <Title
                   level={2}
                   style={{
