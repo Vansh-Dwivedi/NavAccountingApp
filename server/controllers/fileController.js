@@ -28,10 +28,10 @@ exports.sendFile = async (req, res) => {
     const originalName = uploadedFile.name;
     const extension = path.extname(originalName);
     const uniqueFilename = `${timestamp}-${originalName}`;
-    const uploadPath = path.join(__dirname, "../uploads", uniqueFilename);
+    const uploadPath = path.join(__dirname, "../api/uploads", uniqueFilename);
 
     // Ensure uploads directory exists
-    const uploadsDir = path.join(__dirname, "../uploads");
+    const uploadsDir = path.join(__dirname, "../api/uploads");
     if (!fs.existsSync(uploadsDir)) {
       fs.mkdirSync(uploadsDir, { recursive: true });
     }
@@ -97,7 +97,7 @@ exports.getFiles = async (req, res) => {
 exports.downloadFile = async (req, res) => {
   try {
     const { filename } = req.params;
-    const filePath = path.join(__dirname, "../uploads", filename);
+    const filePath = path.join(__dirname, "../api/uploads", filename);
 
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({

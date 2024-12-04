@@ -264,7 +264,7 @@ exports.uploadProfilePic = async (req, res) => {
     user.profilePic = req.file.filename;
     await user.save();
 
-    const fullUrl = `/uploads/${user.profilePic}`; // This is the correct path
+    const fullUrl = `/api/uploads/${user.profilePic}`; // This is the correct path
     console.log("Profile picture uploaded:", fullUrl);
     res.json({ profilePic: user.profilePic }); // Send just the filename
   } catch (error) {

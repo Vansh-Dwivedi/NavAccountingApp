@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, List, Tooltip, Modal, TimePicker, Select, Space, Typography, message } from 'antd';
+import { Button, List, Tooltip, Modal, TimePicker, Select, Space, Typography, message, InputNumber, Input } from 'antd';
 import {
   FilePdfOutlined,
   ProjectOutlined,
@@ -9,6 +9,8 @@ import {
   CustomerServiceOutlined,
 } from '@ant-design/icons';
 import moment from 'moment-timezone';
+import EmployeeNotesSection from './EmployeeNotesSection'; // Import the EmployeeNotesSection component
+import { useReducer } from 'react';
 
 const Title = Typography;
 const Text = Typography;
@@ -73,28 +75,110 @@ const TimeClockModal = ({ visible, onClose }) => {
   );
 };
 
-const SoftwareShortcuts = () => {
-  const [timeClockVisible, setTimeClockVisible] = useState(false);
+// Reducer for managing calculator state
+const calculatorReducer = (state, action) => {
+  switch (action.type) {
+    case 'UPDATE_DISPLAY':
+      return { ...state, display: action.value };
+    case 'UPDATE_OPERAND':
+      return { ...state, operand: action.value };
+    case 'UPDATE_OPERATOR':
+      return { ...state, operator: action.value };
+    case 'CLEAR':
+      return { display: '', operand: '', operator: '' };
+    case 'SET_OPERAND':
+      return { ...state, operand: action.value };
+    case 'SET_OPERATOR':
+      return { ...state, operator: action.value };
+    case 'CALCULATE':
+      const result = eval(`${state.operand} ${state.operator} ${state.display}`);
+      return { display: result.toString(), operand: '', operator: '' };
+    default:
+      return state;
+  }
+};
 
-  // Listen for native app errors
-  React.useEffect(() => {
-    ipcRenderer.on('native-app-error', (event, { appName, error }) => {
-      message.error(`Failed to open ${appName}: ${error}`);
-    });
+const ScientificCalculator = () => {
+  const [{ display, operand, operator }, dispatch] = useReducer(calculatorReducer, { display: '', operand: '', operator: '' });
 
-    return () => {
-      ipcRenderer.removeAllListeners('native-app-error');
-    };
-  }, []);
-
-  const openNativeApp = (appName) => {
-    try {
-      console.log(`Attempting to open: ${appName}`);
-      ipcRenderer.send('open-native-app', appName);
-    } catch (error) {
-      message.error(`Failed to open ${appName}: ${error.message}`);
-    }
+  const handleNumberClick = (number) => {
+    dispatch({ type: 'UPDATE_DISPLAY', value: display + number });
   };
+
+  const handleOperatorClick = (op) => {
+    dispatch({ type: 'SET_OPERATOR', value: op });
+    dispatch({ type: 'SET_OPERAND', value: display });
+    dispatch({ type: 'UPDATE_DISPLAY', value: '' });
+  };
+
+  const handleCalculate = () => {
+    dispatch({ type: 'CALCULATE' });
+  };
+
+  const handleClear = () => {
+    dispatch({ type: 'CLEAR' });
+  };
+
+  const handleFunctionClick = (func) => {
+    let result;
+    switch (func) {
+      case 'sqrt':
+        result = Math.sqrt(parseFloat(display));
+        break;
+      case 'sin':
+        result = Math.sin(parseFloat(display) * (Math.PI / 180));
+        break;
+      case 'cos':
+        result = Math.cos(parseFloat(display) * (Math.PI / 180));
+        break;
+      case 'tan':
+        result = Math.tan(parseFloat(display) * (Math.PI / 180));
+        break;
+      default:
+        return;
+    }
+    dispatch({ type: 'UPDATE_DISPLAY', value: result.toString() });
+  };
+
+  return (
+    <div style={{ padding: '20px', backgroundColor: '#282c34', borderRadius: '10px' }}>
+      <h2 style={{ color: 'white' }}>Scientific Calculator</h2>
+      <input
+        type="text"
+        value={display}
+        readOnly
+        style={{ width: '100%', textAlign: 'right', padding: '10px', fontSize: '24px', borderRadius: '5px', border: 'none', color: 'black' }}
+      />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginTop: '10px' }}>
+        <Button onClick={handleClear}>C</Button>
+        <Button onClick={() => handleFunctionClick('sqrt')}>√</Button>
+        <Button onClick={() => handleFunctionClick('sin')}>sin</Button>
+        <Button onClick={() => handleFunctionClick('cos')}>cos</Button>
+        <Button onClick={() => handleFunctionClick('tan')}>tan</Button>
+        <Button onClick={() => handleNumberClick('7')}>7</Button>
+        <Button onClick={() => handleNumberClick('8')}>8</Button>
+        <Button onClick={() => handleNumberClick('9')}>9</Button>
+        <Button onClick={() => handleOperatorClick('/')}>/</Button>
+        <Button onClick={() => handleNumberClick('4')}>4</Button>
+        <Button onClick={() => handleNumberClick('5')}>5</Button>
+        <Button onClick={() => handleNumberClick('6')}>6</Button>
+        <Button onClick={() => handleOperatorClick('*')}>*</Button>
+        <Button onClick={() => handleNumberClick('1')}>1</Button>
+        <Button onClick={() => handleNumberClick('2')}>2</Button>
+        <Button onClick={() => handleNumberClick('3')}>3</Button>
+        <Button onClick={() => handleOperatorClick('-')}>-</Button>
+        <Button onClick={() => handleNumberClick('0')}>0</Button>
+        <Button onClick={handleCalculate}>=</Button>
+        <Button onClick={() => handleOperatorClick('+')}>+</Button>
+      </div>
+    </div>
+  );
+};
+
+const SoftwareShortcuts = () => {
+  const [notesModalVisible, setNotesModalVisible] = useState(false);
+  const [calculatorModalVisible, setCalculatorModalVisible] = useState(false);
+  const [timeClockVisible, setTimeClockVisible] = useState(false);
 
   const shortcuts = [
     {
@@ -118,14 +202,14 @@ const SoftwareShortcuts = () => {
     {
       name: "Notepad",
       icon: <FileTextOutlined />,
-      action: () => openNativeApp('notepad'),
-      description: "Open system notepad"
+      action: () => setNotesModalVisible(true),
+      description: "Open employee notes"
     },
     {
       name: "Calculator",
       icon: <CalculatorOutlined />,
-      action: () => openNativeApp('calculator'),
-      description: "Open system calculator"
+      action: () => setCalculatorModalVisible(true),
+      description: "Open calculator"
     },
     {
       name: "Music Detox",
@@ -146,8 +230,8 @@ const SoftwareShortcuts = () => {
               <Button
                 icon={item.icon}
                 onClick={() => item.url ? window.open(item.url, '_blank') : item.action()}
-                style={{ 
-                  width: '100%', 
+                style={{
+                  width: '100%',
                   height: '100%',
                   minHeight: '80px',
                   display: 'flex',
@@ -158,7 +242,6 @@ const SoftwareShortcuts = () => {
                   borderRadius: '8px',
                   transition: 'all 0.3s'
                 }}
-                className="shortcut-button"
               >
                 <span>{item.name}</span>
               </Button>
@@ -166,7 +249,27 @@ const SoftwareShortcuts = () => {
           </List.Item>
         )}
       />
-      
+
+      <Modal
+        title="Employee Notes"
+        visible={notesModalVisible}
+        onCancel={() => setNotesModalVisible(false)}
+        footer={null}
+        width={600}
+      >
+        <EmployeeNotesSection />
+      </Modal>
+
+      <Modal
+        title="Scientific Calculator"
+        visible={calculatorModalVisible}
+        onCancel={() => setCalculatorModalVisible(false)}
+        footer={null}
+        width={400}
+      >
+        <ScientificCalculator />
+      </Modal>
+
       <TimeClockModal 
         visible={timeClockVisible}
         onClose={() => setTimeClockVisible(false)}

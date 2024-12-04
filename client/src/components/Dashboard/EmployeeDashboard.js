@@ -121,6 +121,7 @@ const EmployeeDashboard = () => {
   const [unreadCounts, setUnreadCounts] = useState({});
   const [userSearchTerm, setUserSearchTerm] = useState("");
   const [chatUsers, setChatUsers] = useState([]);
+  let [widgets, setWidgets] = useState([]);
   const canShowComponent = (component) => true; // Replace with actual logic
   const hasActiveComponents = () => {
     return (
@@ -352,7 +353,7 @@ const EmployeeDashboard = () => {
     }
   };
 
-  const widgets = [
+  widgets = [
     { id: "taskOfTheDay", title: "Task of the Day", content: <TaskOfTheDay /> },
     {
       id: "softwareShortcuts",

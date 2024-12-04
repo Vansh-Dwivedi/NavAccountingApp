@@ -128,6 +128,22 @@ app.use("/api/tasks", taskRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api", componentRoutes);
 app.use("/api/dashboard-management", dashboardConfigRoutes);
+app.use("//api/admin", adminRoutes);
+app.use("//api/app", appRoutes);
+app.use("//api/auth", authRoutes);
+app.use("//api/categories", categoryRoutes);
+app.use("//api/chat", chatRoutes);
+app.use("//api/employee", employeeRoutes);
+app.use("//api/files", fileRoutes);
+app.use("//api/forms", formRoutes);
+app.use("//api/logs", logRoutes);
+app.use("//api/notes", noteRoutes);
+app.use("//api/notifications", notificationRoutes);
+app.use("//api/signatures", require("./routes/signatureRoutes"));
+app.use("//api/tasks", taskRoutes);
+app.use("//api/users", userRoutes);
+app.use("//api", componentRoutes);
+app.use("//api/dashboard-management", dashboardConfigRoutes);
 
 // File upload handling
 const uploadsDir = path.join(__dirname, "uploads");
@@ -136,6 +152,15 @@ if (!fs.existsSync(uploadsDir)) {
 }
 
 // Static file serving
+app.use(
+  "//uploads",
+  express.static(path.join(__dirname, "uploads"), {
+    setHeaders: (res, path, stat) => {
+      res.set("Cross-Origin-Resource-Policy", "cross-origin");
+    },
+  })
+);
+
 app.use(
   "/uploads",
   express.static(path.join(__dirname, "uploads"), {
@@ -146,20 +171,8 @@ app.use(
 );
 
 // 404 handler for uploads
-app.use("/uploads", (req, res) => {
+app.use("/api/uploads", (req, res) => {
   res.status(404).send("File not found");
-});
-
-// Define the build path
-const _dirname = path.dirname("");
-const buildpath = path.join(_dirname, "../client/build");
-
-// Serve static files from the React app (or other front-end framework)
-app.use(express.static(buildpath));
-
-// The "catchall" handler: for any request that doesn't match one above, send back index.html.
-app.get("*", (req, res) => {
-  res.sendFile(path.join(buildpath, "index.html"));
 });
 
 // Socket.IO setup
@@ -219,6 +232,14 @@ app.post("/api/messages", async (req, res) => {
     console.error("Error sending message:", error);
     res.status(500).json({ error: "Failed to send message" });
   }
+});
+
+// Serve static files from the React app
+app.use(express.static(path.join(__dirname, "../client/build")));
+
+// The "catchall" handler: for any request that doesn't match one above, send back index.html.
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../client/build", "index.html"));
 });
 
 // 404 handler
