@@ -6,8 +6,8 @@
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
-    "eject": "react-scripts eject",
-    "electron-dev": "concurrently \"cross-env BROWSER=none npm start\" \"wait-on http://localhost:3000 && electron .\"",
+    "eject": "react-app-rewired eject",
+    "electron-dev": "concurrently \"cross-env BROWSER=none npm start\" \"wait-on http://54.193.201.23:5000 && electron .\"",
     "electron-build": "npm run build && electron-builder"
   },
   "dependencies": {

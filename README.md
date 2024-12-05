@@ -49,13 +49,13 @@ To set up and run this Application made in MERN Stack, follow these steps:
 
 3. Set up environment variables:
    - Create a `.env` file in the `server` directory and add necessary variables (e.g., MongoDB URI, JWT secret)
-   - Create a `.env.development.local` file in the `client` directory and add `REACT_APP_API_URL=http://localhost:5000`
+   - Create a `.env.development.local` file in the `client` directory and add `REACT_APP_API_URL=http://54.193.201.23:5000`
 
 4. Start the development servers:
    - For the client: `npm run client:start`
    - For the server: `npm run server:start`
 
-5. Access the application at `http://localhost:3000` in your web browser
+5. Access the application at `http://54.193.201.23:5000` in your web browser
 
 ## Additional Instructions
 

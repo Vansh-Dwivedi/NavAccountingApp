@@ -42,7 +42,7 @@ const app = express();
 
 // CORS configuration
 const corsOptions = {
-  origin: "http://localhost:3000", // Replace with your frontend URL
+  origin: "http://54.193.201.23:5000", // Replace with your frontend URL
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
@@ -53,7 +53,7 @@ app.use(cors(corsOptions));
 
 // Manual CORS headers for more control
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.header("Access-Control-Allow-Origin", "http://54.193.201.23:5000");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
   res.header("Access-Control-Allow-Credentials", true);
@@ -163,6 +163,15 @@ app.use(
 
 app.use(
   "/uploads",
+  express.static(path.join(__dirname, "uploads"), {
+    setHeaders: (res, path, stat) => {
+      res.set("Cross-Origin-Resource-Policy", "cross-origin");
+    },
+  })
+);
+
+app.use(
+  "/api/uploads",
   express.static(path.join(__dirname, "uploads"), {
     setHeaders: (res, path, stat) => {
       res.set("Cross-Origin-Resource-Policy", "cross-origin");

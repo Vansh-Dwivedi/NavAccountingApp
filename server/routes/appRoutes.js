@@ -8,7 +8,7 @@ const auditMiddleware = require("../middleware/auditMiddleware");
 router.get(
   "/utils/app-logo.png",
   cors({
-    origin: ["http://localhost:3000", "http://localhost:5000"],
+    origin: ["http://54.193.201.23:5000", "http://54.193.201.23:5000"],
     methods: ["GET"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),

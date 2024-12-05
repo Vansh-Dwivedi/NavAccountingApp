@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useReducer } from 'react';
 import { Button, List, Tooltip, Modal, TimePicker, Select, Space, Typography, message, InputNumber, Input } from 'antd';
 import {
   FilePdfOutlined,
@@ -10,22 +10,11 @@ import {
 } from '@ant-design/icons';
 import moment from 'moment-timezone';
 import EmployeeNotesSection from './EmployeeNotesSection'; // Import the EmployeeNotesSection component
-import { useReducer } from 'react';
+import './calc.scss';
 
 const Title = Typography;
 const Text = Typography;
 const Option = Select;
-
-// Replace window.require with a safe electron import
-const electron = window?.electron || {
-  ipcRenderer: {
-    on: () => {},
-    send: () => {},
-    removeAllListeners: () => {}
-  }
-};
-
-const { ipcRenderer } = electron;
 
 // Modal component for displaying and managing time clock functionality
 const TimeClockModal = ({ visible, onClose }) => {
@@ -80,10 +69,6 @@ const calculatorReducer = (state, action) => {
   switch (action.type) {
     case 'UPDATE_DISPLAY':
       return { ...state, display: action.value };
-    case 'UPDATE_OPERAND':
-      return { ...state, operand: action.value };
-    case 'UPDATE_OPERATOR':
-      return { ...state, operator: action.value };
     case 'CLEAR':
       return { display: '', operand: '', operator: '' };
     case 'SET_OPERAND':
@@ -98,82 +83,334 @@ const calculatorReducer = (state, action) => {
   }
 };
 
-const ScientificCalculator = () => {
-  const [{ display, operand, operator }, dispatch] = useReducer(calculatorReducer, { display: '', operand: '', operator: '' });
-
-  const handleNumberClick = (number) => {
-    dispatch({ type: 'UPDATE_DISPLAY', value: display + number });
+class CustomCalculator extends React.Component {
+  state = {
+    display: '0',
+    firstVal: '',
+    secondVal: '',
+    operator: ''
   };
 
-  const handleOperatorClick = (op) => {
-    dispatch({ type: 'SET_OPERATOR', value: op });
-    dispatch({ type: 'SET_OPERAND', value: display });
-    dispatch({ type: 'UPDATE_DISPLAY', value: '' });
-  };
+  componentDidMount() {
+    document.addEventListener('keyup', this.keypressHandler);
+  }
 
-  const handleCalculate = () => {
-    dispatch({ type: 'CALCULATE' });
-  };
+  componentWillUnmount() {
+    document.removeEventListener('keyup', this.keypressHandler);
+  }
 
-  const handleClear = () => {
-    dispatch({ type: 'CLEAR' });
-  };
+  keypressHandler = (ev) => {
+    const { setNumberValue, setOperatorValue, equalHandler, allClear, deleteChar } = this;
+    const key = ev.key;
 
-  const handleFunctionClick = (func) => {
-    let result;
-    switch (func) {
-      case 'sqrt':
-        result = Math.sqrt(parseFloat(display));
-        break;
-      case 'sin':
-        result = Math.sin(parseFloat(display) * (Math.PI / 180));
-        break;
-      case 'cos':
-        result = Math.cos(parseFloat(display) * (Math.PI / 180));
-        break;
-      case 'tan':
-        result = Math.tan(parseFloat(display) * (Math.PI / 180));
-        break;
-      default:
-        return;
+    // Handle numpad and regular number keys
+    if (/^[0-9.]$/.test(key) || /^Numpad[0-9]$/.test(key)) {
+      const numValue = key.replace('Numpad', '');
+      setNumberValue(numValue);
     }
-    dispatch({ type: 'UPDATE_DISPLAY', value: result.toString() });
-  };
+    
+    // Handle operators
+    if (['+', '-', '*', '/', ':'].includes(key) || 
+        ['NumpadAdd', 'NumpadSubtract', 'NumpadMultiply', 'NumpadDivide'].includes(key)) {
+      const opMap = {
+        'NumpadAdd': '+',
+        'NumpadSubtract': '-',
+        'NumpadMultiply': '*',
+        'NumpadDivide': ':',
+        '/': ':'
+      };
+      const operator = opMap[key] || key;
+      setOperatorValue(operator);
+    }
 
-  return (
-    <div style={{ padding: '20px', backgroundColor: '#282c34', borderRadius: '10px' }}>
-      <h2 style={{ color: 'white' }}>Scientific Calculator</h2>
-      <input
-        type="text"
-        value={display}
-        readOnly
-        style={{ width: '100%', textAlign: 'right', padding: '10px', fontSize: '24px', borderRadius: '5px', border: 'none', color: 'black' }}
-      />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '10px', marginTop: '10px' }}>
-        <Button onClick={handleClear}>C</Button>
-        <Button onClick={() => handleFunctionClick('sqrt')}>√</Button>
-        <Button onClick={() => handleFunctionClick('sin')}>sin</Button>
-        <Button onClick={() => handleFunctionClick('cos')}>cos</Button>
-        <Button onClick={() => handleFunctionClick('tan')}>tan</Button>
-        <Button onClick={() => handleNumberClick('7')}>7</Button>
-        <Button onClick={() => handleNumberClick('8')}>8</Button>
-        <Button onClick={() => handleNumberClick('9')}>9</Button>
-        <Button onClick={() => handleOperatorClick('/')}>/</Button>
-        <Button onClick={() => handleNumberClick('4')}>4</Button>
-        <Button onClick={() => handleNumberClick('5')}>5</Button>
-        <Button onClick={() => handleNumberClick('6')}>6</Button>
-        <Button onClick={() => handleOperatorClick('*')}>*</Button>
-        <Button onClick={() => handleNumberClick('1')}>1</Button>
-        <Button onClick={() => handleNumberClick('2')}>2</Button>
-        <Button onClick={() => handleNumberClick('3')}>3</Button>
-        <Button onClick={() => handleOperatorClick('-')}>-</Button>
-        <Button onClick={() => handleNumberClick('0')}>0</Button>
-        <Button onClick={handleCalculate}>=</Button>
-        <Button onClick={() => handleOperatorClick('+')}>+</Button>
+    // Handle equals
+    if (key === 'Enter' || key === '=' || key === 'NumpadEnter') {
+      equalHandler();
+    }
+
+    // Handle delete/backspace
+    if (key === 'Delete' || key === 'Backspace') {
+      deleteChar();
+    }
+
+    // Handle escape (clear)
+    if (key === 'Escape') {
+      allClear();
+    }
+  }
+
+  resetState = (resetAll) => {
+    if (resetAll) {
+      this.setState({
+        display: '0',
+        firstVal: '',
+        secondVal: '',
+        operator: ''
+      });
+    } else {
+      this.setState({
+        display: '0',
+        firstVal: '',
+        secondVal: '',
+        operator: ''
+      });
+    }
+  }
+
+  hasPoint = (value) => {
+    return value.indexOf('.') > -1;
+  }
+
+  setNumberValue = (value) => {
+    const { firstVal, secondVal, operator } = this.state;
+    const { fixNumberString, setDisplay } = this;
+    let total;
+
+    // if point is pressed, check if we already have it in current states
+    if (value === '.') {
+      if (!operator && !this.hasPoint(firstVal)) {
+        total = fixNumberString(firstVal + value);
+        this.setState({
+          firstVal: total
+        });
+      }
+      if (!!operator && !this.hasPoint(secondVal)) {
+        total = fixNumberString(secondVal + value);
+        this.setState({
+          secondVal: total
+        });
+      }
+      if (total) {
+        setDisplay(total + '');
+      }
+      return;
+    }
+
+    // if input is a number, check if it's first or second number
+    if (!operator) {
+      total = fixNumberString(firstVal + value);
+      this.setState({
+        firstVal: total
+      });
+    } else {
+      total = fixNumberString(secondVal + value);
+      this.setState({
+        secondVal: total
+      });
+    }
+    setDisplay(total + '');
+  }
+
+  getOverall = () => {
+    const { firstVal, secondVal, operator } = this.state;
+    return firstVal + ' ' + operator + ' ' + secondVal;
+  }
+
+  setDisplay = (value) => {
+    const { firstVal, secondVal } = this.state;
+
+    this.setState({
+      display: value
+    });
+  }
+
+  getCurrentTargetValue = () => {
+    const { firstVal, secondVal, operator } = this.state;
+    return !operator ? firstVal : secondVal;
+  }
+
+  numberClickHandler = (e) => {
+    e.preventDefault();
+    const value = e.target.dataset.value;
+    if (value) {
+      this.setNumberValue(value);
+    }
+  }
+
+  setOperatorValue = (operatorInput) => {
+    const { firstVal, secondVal, operator, display } = this.state;
+    const { fixNumberString, calculate, setDisplay } = this;
+    const fixedNumber = fixNumberString(firstVal, false);
+
+    if (firstVal && !secondVal) {
+      this.setState({
+        operator: operatorInput,
+        display: fixedNumber
+      });
+    } else if (firstVal && operator && secondVal) {
+      const total = calculate();
+      this.setState({
+        operator: operatorInput,
+        firstVal: total + '',
+        secondVal: ''
+      });
+      setDisplay(total + '');
+    } else {
+      this.setState({
+        operator: operatorInput,
+        firstVal: fixNumberString(display, false)
+      });
+    }
+  }
+
+  allClear = () => {
+    this.resetState(true);
+  }
+
+  deleteChar = () => {
+    const { firstVal, secondVal, operator } = this.state;
+    const opRegex = /[+|\-|:|*]/g;
+
+    if (!operator) {
+      const newVal = firstVal.slice(0, -1);
+      this.setState({
+        firstVal: newVal,
+        display: newVal ? newVal : '0'
+      });
+    } else if (operator && !secondVal) {
+      this.setState({
+        display: firstVal,
+        operator: ''
+      });
+    } else {
+      const newVal = secondVal.slice(0, -1);
+      this.setState({
+        secondVal: newVal,
+        display: newVal ? newVal : '0'
+      });
+    }
+  }
+
+  removeZeroAtStart = (value) => {
+    return value.indexOf('0') === 0 ? value.substring(1) : value;
+  }
+
+  fixNumberString = (value, finalize = false) => {
+    // if input has hanging point e.g. '0.'/'1.', add trailing zero
+    // should only run when moving to second value / begin calculation
+    if (finalize && value.indexOf('.') === value.length - 1 && value.length > 1) {
+      return value + '0';
+    }
+    // if value has zero prefix but not a decimal value, e.g. '01'/'03', remove zero
+    if (value.indexOf('0') === 0 && !value.indexOf('0.') === 0) {
+      return value.substring(1);
+    }
+    // if value is a first point input '.', add zero prefix
+    if (value.indexOf('.') === 0 && value.length === 1) {
+      return '0.';
+    }
+    if (!value) {
+      return '0';
+    }
+    return value;
+  }
+
+  calculate = () => {
+    const { firstVal, secondVal, operator } = this.state;
+    const { fixNumberString } = this;
+
+    const vfirstVal = fixNumberString(firstVal, true);
+    const vsecondVal = fixNumberString(secondVal, true);
+    let total = '0';
+
+    switch (operator) {
+      case '-':
+        total = parseFloat(vfirstVal) - parseFloat(vsecondVal);
+        break;
+      case '*':
+        total = parseFloat(vfirstVal) * parseFloat(vsecondVal);
+        break;
+      case ':':
+      case '/':
+        total = parseFloat(vfirstVal) / parseFloat(vsecondVal);
+        break;
+      case '+':
+      default:
+        total = parseFloat(vfirstVal) + parseFloat(vsecondVal);
+        break;
+    }
+
+    // Format the result to handle decimals properly
+    return Number(total.toFixed(8)).toString();
+  }
+
+  equalHandler = () => {
+    const { firstVal, secondVal, operator } = this.state;
+    const { calculate } = this;
+
+    if (firstVal && secondVal && operator) {
+      const total = calculate();
+      this.setState({
+        display: total,
+        firstVal: total,
+        secondVal: '',
+        operator: ''
+      });
+    }
+  }
+
+  render() {
+    const { display, operator } = this.state;
+    const { numberClickHandler, setOperatorValue, equalHandler, allClear, deleteChar } = this;
+    
+    const activeOperator = (op) => operator === op ? 'active' : '';
+
+    return (
+      <div className="calculator">
+        <div className="display">
+          <div className="display-overall">{this.getOverall()}</div>
+          <div className="display-text">{display || '0'}</div>
+        </div>
+        <div className="inputs">
+          <div className="main">
+            <div className="operator">
+              <div className="row">
+                <button 
+                  className={activeOperator('+')}
+                  onClick={() => setOperatorValue('+')}>+</button>
+                <button 
+                  className={activeOperator('-')}
+                  onClick={() => setOperatorValue('-')}>-</button>
+                <button 
+                  className={activeOperator(':')}
+                  onClick={() => setOperatorValue(':')}>:</button>
+                <button 
+                  className={activeOperator('*')}
+                  onClick={() => setOperatorValue('*')}>*</button>
+              </div>
+            </div>
+            <div className="numbers">
+              <div className="row">
+                <button onClick={numberClickHandler} data-value="1">1</button>
+                <button onClick={numberClickHandler} data-value="2">2</button>
+                <button onClick={numberClickHandler} data-value="3">3</button>
+              </div>
+              <div className="row">
+                <button onClick={numberClickHandler} data-value="4">4</button>
+                <button onClick={numberClickHandler} data-value="5">5</button>
+                <button onClick={numberClickHandler} data-value="6">6</button>
+              </div>
+              <div className="row">
+                <button onClick={numberClickHandler} data-value="7">7</button>
+                <button onClick={numberClickHandler} data-value="8">8</button>
+                <button onClick={numberClickHandler} data-value="9">9</button>
+              </div>
+              <div className="row">
+                <button onClick={numberClickHandler} data-value=".">.</button>
+                <button onClick={numberClickHandler} data-value="0">0</button>
+                <button onClick={deleteChar}>C</button>
+              </div>
+            </div>
+            <div className="column sides">
+              <button className="ac" onClick={allClear}>AC</button>
+              <button className="equal" onClick={equalHandler}>=</button>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  );
-};
+    )
+  }
+}
 
 const SoftwareShortcuts = () => {
   const [notesModalVisible, setNotesModalVisible] = useState(false);
@@ -209,7 +446,7 @@ const SoftwareShortcuts = () => {
       name: "Calculator",
       icon: <CalculatorOutlined />,
       action: () => setCalculatorModalVisible(true),
-      description: "Open calculator"
+      description: "Open Calculator"
     },
     {
       name: "Music Detox",
@@ -261,13 +498,13 @@ const SoftwareShortcuts = () => {
       </Modal>
 
       <Modal
-        title="Scientific Calculator"
+        title="Custom Calculator"
         visible={calculatorModalVisible}
         onCancel={() => setCalculatorModalVisible(false)}
         footer={null}
         width={400}
       >
-        <ScientificCalculator />
+        <CustomCalculator />
       </Modal>
 
       <TimeClockModal 
@@ -278,4 +515,4 @@ const SoftwareShortcuts = () => {
   );
 };
 
-export default SoftwareShortcuts; 
+export default SoftwareShortcuts;

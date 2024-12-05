@@ -170,7 +170,7 @@ const ManagerDashboard = () => {
   useEffect(() => {
     if (!managerData?._id) return;
 
-    const socket = io(process.env.REACT_APP_API_URL || "http://localhost:5000");
+    const socket = io(process.env.REACT_APP_API_URL || "http://54.193.201.23:5000");
 
     socket.on("connect", () => {
       console.log("Socket connected");
