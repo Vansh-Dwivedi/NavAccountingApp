@@ -1,14 +1,12 @@
 {
   "name": "nav-accounts",
   "version": "1.0.0",
-  "main": "main.js",
+  "homepage": "http://54.193.201.23:5000",
   "scripts": {
     "start": "react-scripts start",
     "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "electron-dev": "concurrently \"cross-env BROWSER=none npm start\" \"wait-on http://54.193.201.23:5000 && electron .\"",
-    "electron-build": "npm run build && electron-builder"
+    "eject": "react-scripts eject"
   },
   "dependencies": {
     "@ant-design/charts": "^2.2.1",

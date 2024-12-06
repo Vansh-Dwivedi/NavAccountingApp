@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/nav-accounting';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://54.193.201.23:27017/nav-accounting';
 
 mongoose.connect(MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))

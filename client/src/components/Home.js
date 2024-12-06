@@ -205,7 +205,7 @@ const Home = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <img src="http://54.193.201.23:5000/api/uploads/hometittle.png" alt="Nav Accounts" style={{ padding: '50px' }} />
+            <img src="http://localhost:5000/api/uploads/hometittle.png" alt="Nav Accounts" style={{ padding: '50px' }} />
             <p>At Nav Accounts, we provide comprehensive accounting services that cater to your personal and business needs.
               Our experienced team is here to guide you every step of the way.</p>
             <Button type="primary" size="large" className="cta-button">

@@ -4,7 +4,7 @@ let socket = null;
 
 export const initializeSocket = () => {
   if (!socket) {
-    socket = io(process.env.REACT_APP_API_URL || 'http://54.193.201.23:5000', {
+    socket = io(process.env.REACT_APP_API_URL || 'http://localhost:5000', {
       transports: ['websocket'],
       reconnection: true,
       reconnectionAttempts: 5,

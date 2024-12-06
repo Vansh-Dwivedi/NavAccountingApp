@@ -96,9 +96,9 @@ const About = () => {
 
           <Title level={1} className="section-title">Leadership</Title>
           <div style={{ textAlign: "center" }}>
-            <img src="http://54.193.201.23:5000/api/uploads/nav-profile.png" alt="Navrisham Khaira" />
+            <img src="http://localhost:5000/api/uploads/nav-profile.png" alt="Navrisham Khaira" />
             <br />
-            <Button type="primary" size="large" icon={<DownloadOutlined />} href="http://54.193.201.23:5000/api/uploads/nk-resume.pdf" download>
+            <Button type="primary" size="large" icon={<DownloadOutlined />} href="http://localhost:5000/api/uploads/nk-resume.pdf" download>
               Download Resume
             </Button>
           </div>

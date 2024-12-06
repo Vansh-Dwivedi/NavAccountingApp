@@ -206,7 +206,7 @@ const Services = () => {
   ];
 
   // Generate array of image URLs
-  const carouselImages = Array.from({ length: 11 }, (_, i) => `http://54.193.201.23:5000/api/uploads/${i + 1}.png`);
+  const carouselImages = Array.from({ length: 11 }, (_, i) => `http://localhost:5000/api/uploads/${i + 1}.png`);
 
   return (
     <Layout className="layout">

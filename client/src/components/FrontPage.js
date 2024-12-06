@@ -134,7 +134,7 @@ export const FrontHeader = ({ activeKey }) => {
         <div className="logo">
           <Link to="/">
             <img
-              src="http://54.193.201.23:5000/uploads/app-logo.png"
+              src="http://localhost:5000/uploads/app-logo.png"
               alt="App Logo"
               style={{ width: "60px", height: "60px", marginRight: "20px", marginTop: "-20px" }}
             />
@@ -229,18 +229,18 @@ export const FrontFooter = () => {
             </div>
           </Col>
           <Col xs={24} sm={12} md={8}>
-            <Image src="http://54.193.201.23:5000/uploads/nav-overview.png" style={{ maxWidth: '100%' }} />
+            <Image src="http://localhost:5000/uploads/nav-overview.png" style={{ maxWidth: '100%' }} />
           </Col>
         </Row>
         <Row gutter={[32, 32]} style={{ maxWidth: "1200px", margin: "0 auto", display: "none" }}>
           <Col xs={24} sm={12} md={8}>
-            <Image src="http://54.193.201.23:5000/uploads/Brochure1.png" style={{ maxWidth: '100%', maxHeight: '300px' }} />
+            <Image src="http://localhost:5000/uploads/Brochure1.png" style={{ maxWidth: '100%', maxHeight: '300px' }} />
           </Col>
           <Col xs={24} sm={12} md={8}>
-            <Image src="http://54.193.201.23:5000/uploads/Brochure2.png" style={{ maxWidth: '100%', maxHeight: '300px' }} />
+            <Image src="http://localhost:5000/uploads/Brochure2.png" style={{ maxWidth: '100%', maxHeight: '300px' }} />
           </Col>
           <Col xs={24} sm={12} md={8}>
-            <Image src="http://54.193.201.23:5000/uploads/Brochure3.png" style={{ maxWidth: '100%', maxHeight: '300px' }} />
+            <Image src="http://localhost:5000/uploads/Brochure3.png" style={{ maxWidth: '100%', maxHeight: '300px' }} />
           </Col>
         </Row>
         <div
