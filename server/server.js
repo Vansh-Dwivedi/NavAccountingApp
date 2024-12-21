@@ -35,9 +35,7 @@ const app = express();
 // CORS configuration
 const corsOptions = {
   origin: [
-    'https://navaccounts.com',
-    'https://www.navaccounts.com',
-    process.env.NODE_ENV === 'development' ? 'https://ec2-54-241-155-145.us-west-1.compute.amazonaws.com:8443' : false
+    'https://ec2-54-241-155-145.us-west-1.compute.amazonaws.com:8443'
   ].filter(Boolean),
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
