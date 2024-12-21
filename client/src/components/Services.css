@@ -1,0 +1,383 @@
+.layout {
+  min-height: 100vh;
+  font-family: 'Roboto', sans-serif;
+}
+
+.header {
+  position: fixed;
+  z-index: 1;
+  width: 100%;
+  padding: 0 20px;
+  background-color: #012e71;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  height: 50px;
+  margin: 7px 0;
+}
+
+.menu-button {
+  display: none;
+  background-color: transparent;
+  border: none;
+  color: #ffffff;
+}
+
+.menu {
+  background-color: #012e71;
+}
+
+.content {
+  padding: 0 50px;
+  margin-top: 64px;
+}
+
+.services-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+.services-hero {
+  text-align: center;
+  margin-bottom: 60px;
+  padding: 3rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: 15px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.services-hero h1 {
+  font-size: 2.5rem;
+  color: #002e6d;
+  margin-bottom: 20px;
+  font-weight: bold;
+}
+
+.services-intro {
+  font-size: 1.2rem;
+  color: #666;
+  max-width: 800px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 30px;
+  margin-bottom: 60px;
+}
+
+.service-card {
+  height: 100%;
+  background: #fff;
+  border-radius: 12px;
+  padding: 30px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.service-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.service-icon {
+  font-size: 2.5rem;
+  color: #1890ff;
+  margin-bottom: 20px;
+}
+
+.service-header h2 {
+  margin: 0;
+  margin-left: 15px;
+  color: #002e6d;
+  font-size: 1.5rem;
+}
+
+.service-collapse {
+  margin-top: 20px;
+  background: none;
+  border: none;
+}
+
+.subservice-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #002e6d;
+}
+
+.subservice-header .anticon {
+  font-size: 1.2rem;
+}
+
+.subservice-list {
+  list-style: none;
+  padding: 0;
+  margin: 10px 0;
+}
+
+.subservice-list li {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  color: #666;
+}
+
+.subservice-list .anticon {
+  color: #002e6d;
+  margin-right: 10px;
+  margin-top: 4px;
+}
+
+.subservice-details {
+  color: #666;
+  font-style: italic;
+  margin: 10px 0;
+  padding-left: 24px;
+}
+
+.cta-section {
+  margin-top: 60px;
+}
+
+.cta-card {
+  background: linear-gradient(135deg, #002e6d 0%, #004db3 100%);
+  border-radius: 12px;
+  color: white;
+}
+
+.cta-card h2 {
+  color: white;
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+.cta-card p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  margin-bottom: 0;
+}
+
+.cta-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: flex-end;
+}
+
+.contact-button {
+  background-color: white !important;
+  color: #002e6d !important;
+  border: none !important;
+  font-weight: bold;
+}
+
+.learn-button {
+  background: transparent !important;
+  border-color: white !important;
+  color: white !important;
+}
+
+.packages-section {
+  padding: 4rem 0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border-radius: 15px;
+  margin-bottom: 4rem;
+}
+
+.packages-title {
+  text-align: center;
+  font-size: 2.5rem;
+  color: #002e6d;
+  margin-bottom: 3rem;
+}
+
+.package-card {
+  height: 100%;
+  padding: 2rem;
+  text-align: center;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.package-card:hover {
+  transform: translateY(-5px);
+}
+
+.package-icon {
+  font-size: 2.5rem;
+  color: #002e6d;
+  margin-bottom: 1.5rem;
+}
+
+.package-card h3 {
+  color: #002e6d;
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+}
+
+.package-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+  text-align: left;
+}
+
+.package-card li {
+  color: #666;
+  font-size: 1.1rem;
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.package-card li svg {
+  color: #002e6d;
+}
+
+.package-price {
+  font-size: 1.2rem;
+  color: #002e6d;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+}
+
+.package-button {
+  width: 100%;
+  height: auto;
+  padding: 0.8rem;
+  font-size: 1.1rem;
+  background: #002e6d;
+  border: none;
+  border-radius: 8px;
+}
+
+.dashboard-btn,
+.login-btn {
+  background-color: #012e71;
+  border-color: #012e71;
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 14px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  height: 32px;
+  padding: 4px 15px;
+}
+
+.register-btn {
+  border-color: #012e71;
+  color: #012e71;
+  font-weight: bold;
+  font-size: 14px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+  height: 32px;
+  padding: 4px 15px;
+}
+
+/* Carousel Styles */
+.ant-carousel .slick-slide {
+  text-align: center;
+  background: #364d79;
+  overflow: hidden;
+}
+
+.ant-carousel .slick-slide img {
+  display: block;
+  margin: 0 auto;
+  transition: transform 0.3s ease;
+}
+
+.ant-carousel .slick-dots li button {
+  background: #000;
+  opacity: 0.4;
+}
+
+.ant-carousel .slick-dots li.slick-active button {
+  opacity: 1;
+  background: #1890ff;
+}
+
+/* Add hover effect */
+.ant-carousel .slick-slide:hover img {
+  transform: scale(1.02);
+}
+
+@media (max-width: 768px) {
+  .menu-button {
+    display: block;
+  }
+
+  .menu {
+    display: none;
+  }
+
+  .content {
+    padding: 0 20px;
+  }
+
+  .services-hero {
+    padding: 2rem;
+  }
+
+  .services-hero h1 {
+    font-size: 2rem;
+  }
+
+  .services-intro {
+    font-size: 1.1rem;
+  }
+
+  .service-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .service-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .packages-title {
+    font-size: 2rem;
+  }
+
+  .cta-buttons {
+    justify-content: center;
+    margin-top: 20px;
+  }
+
+  .service-card {
+    margin-bottom: 20px;
+  }
+}
+
+/* Ant Design Overrides */
+.ant-collapse-header {
+  padding: 12px !important;
+}
+
+.ant-collapse-content-box {
+  padding: 12px !important;
+}
+
+.ant-card-body {
+  padding: 24px !important;
+}
