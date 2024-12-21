@@ -22,8 +22,8 @@ console.log("MONGODB_URI:", process.env.MONGODB_URI);
 console.log("PORT:", process.env.PORT);
 
 // SSL Certificate configuration
-const privateKey = fs.readFileSync('certificates/privatekey.pem', 'utf8');
-const certificate = fs.readFileSync('certificates/certificate.pem', 'utf8');
+const privateKey = fs.readFileSync('/home/ubuntu/NavAccountingApp/ubuntu/certificates/privatekey.pem', 'utf8');
+const certificate = fs.readFileSync('/home/ubuntu/NavAccountingApp/ubuntu/certificates/certificate.pem', 'utf8');
 const credentials = { 
   key: privateKey, 
   cert: certificate,
