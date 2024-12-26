@@ -1,0 +1,67 @@
+.virtual-meeting-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  padding: 60px 20px;
+  margin-top: 60px;
+  text-align: center;
+}
+
+.meeting-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.meeting-content h2 {
+  color: #002e6d;
+  margin-bottom: 16px;
+}
+
+.meeting-content p {
+  color: #666;
+  font-size: 18px;
+  margin-bottom: 32px;
+}
+
+.meeting-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.meeting-buttons .ant-btn {
+  min-width: 200px;
+  height: 48px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.meeting-buttons .ant-btn-primary {
+  background: #002e6d;
+  border-color: #002e6d;
+}
+
+.meeting-buttons .ant-btn-primary:hover {
+  background: #004aad;
+  border-color: #004aad;
+}
+
+@media (max-width: 768px) {
+  .virtual-meeting-section {
+    padding: 40px 20px;
+  }
+
+  .meeting-content p {
+    font-size: 16px;
+  }
+
+  .meeting-buttons {
+    flex-direction: column;
+  }
+
+  .meeting-buttons .ant-btn {
+    width: 100%;
+  }
+}
