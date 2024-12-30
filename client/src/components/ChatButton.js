@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Button, Modal, Input, Space, Spin, Avatar } from 'antd';
-import { MessageOutlined, SendOutlined, CloseOutlined, RobotOutlined, UserOutlined } from '@ant-design/icons';
+import { Button, Modal, Input, Space, Spin, Avatar, Tooltip } from 'antd';
+import { MessageOutlined, SendOutlined, CloseOutlined, RobotOutlined, UserOutlined, CommentOutlined } from '@ant-design/icons';
 import { sendMessageToOpenAI } from '../services/openaiService';
 import './ChatButton.css';
 
@@ -19,6 +19,7 @@ const ChatButton = () => {
   const [currentMessage, setCurrentMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [open, setOpen] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -71,40 +72,21 @@ const ChatButton = () => {
   };
 
   return (
-    <>
-      <Button
-        type="primary"
-        className="floating-chat-button"
-        icon={<MessageOutlined />}
-        onClick={showModal}
-      />
-      <Modal
-        title={
+    <div className="chat-container">
+      {open && (
+        <div className="chat-window">
           <div className="chat-header">
-            <Space align="center">
-              <Avatar icon={<UserOutlined />} className="bot-avatar" />
-              <div className="chat-header-text">
-                <h3>Nav Accounts Assistant</h3>
-              </div>
-            </Space>
+            <span>Sunny</span>
+            <Button type="text" onClick={() => setOpen(false)} icon={<CloseOutlined />} />
           </div>
-        }
-        open={isModalVisible}
-        onCancel={handleCancel}
-        footer={null}
-        className="chat-modal"
-        closeIcon={<CloseOutlined className="close-icon" />}
-        width={400}
-      >
-        <div className="chat-container">
-          <div className="messages-container">
+          <div className="chat-messages">
             {messages.map((message, index) => (
               <div
                 key={index}
                 className={`message ${message.sender === 'user' ? 'user-message' : 'bot-message'}`}
               >
                 <Avatar 
-                  icon={message.sender === 'user' ? <UserOutlined /> : <UserOutlined />}
+                  src={message.sender === 'user' ? null : 'https://i.imgur.com/LqD4m5s.png'}
                   className={`message-avatar ${message.sender}-avatar`}
                 />
                 <div className="message-content">
@@ -114,7 +96,7 @@ const ChatButton = () => {
             ))}
             {isLoading && (
               <div className="message bot-message">
-                <Avatar icon={<UserOutlined />} className="message-avatar bot-avatar" />
+                <Avatar src="https://i.imgur.com/LqD4m5s.png" className="message-avatar bot-avatar" />
                 <div className="message-content">
                   <div className="typing-indicator">
                     <span></span>
@@ -131,7 +113,7 @@ const ChatButton = () => {
             )}
             <div ref={messagesEndRef} />
           </div>
-          <div className="input-container">
+          <div className="chat-input">
             <TextArea
               ref={inputRef}
               value={currentMessage}
@@ -149,8 +131,16 @@ const ChatButton = () => {
             />
           </div>
         </div>
-      </Modal>
-    </>
+      )}
+      <Button
+        type="primary"
+        shape="circle"
+        size="large"
+        className="chat-toggle-button"
+        icon={<MessageOutlined />}
+        onClick={() => setOpen(true)}
+      />
+    </div>
   );
 };
 

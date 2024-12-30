@@ -1,101 +1,201 @@
-import React from "react";
-import { Layout, Row, Col, Card, Typography, Space, Button } from "antd";
-import { FrontHeader, FrontFooter } from "./FrontPage";
+import React from 'react';
+import { Layout, Typography, Row, Col, Timeline, Card } from 'antd';
 import {
+  BankOutlined,
   TeamOutlined,
+  RocketOutlined,
   TrophyOutlined,
-  CheckCircleOutlined,
-  HeartOutlined,
-  DownloadOutlined
-} from "@ant-design/icons";
-import "./About.css";
-
-import VirtualMeetingSection from './VirtualMeetingSection';
+  FlagOutlined,
+  StarOutlined
+} from '@ant-design/icons';
+import { FrontHeader, FrontFooter } from './Header&Footer';
+import { createUseStyles } from 'react-jss';
 
 const { Content } = Layout;
 const { Title, Paragraph } = Typography;
 
+const useStyles = createUseStyles({
+  container: {
+    paddingTop: 84,
+    minHeight: '100vh',
+    background: '#fff'
+  },
+  section: {
+    padding: '60px 24px',
+    maxWidth: 1200,
+    margin: '0 auto',
+    '& h2': {
+      marginBottom: 40,
+      textAlign: 'center',
+      color: '#001529'
+    },
+    '& h3': {
+      marginBottom: 24,
+      color: '#001529'
+    }
+  },
+  intro: {
+    textAlign: 'center',
+    marginBottom: 60,
+    '& p': {
+      fontSize: 18,
+      lineHeight: 1.6,
+      color: '#666',
+      maxWidth: 800,
+      margin: '0 auto'
+    }
+  },
+  journey: {
+    background: '#f8f9fa',
+    '& .ant-timeline': {
+      maxWidth: 800,
+      margin: '0 auto'
+    },
+    '& .ant-timeline-item-content': {
+      padding: '0 0 0 24px'
+    }
+  },
+  timelineCard: {
+    marginBottom: 24,
+    borderRadius: 8,
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.05)',
+    border: 'none',
+    '& .ant-card-head': {
+      borderBottom: 'none',
+      paddingBottom: 0
+    },
+    '& .ant-card-body': {
+      padding: 24
+    }
+  },
+  timelineIcon: {
+    fontSize: 24,
+    color: '#1890ff',
+    backgroundColor: '#e6f7ff',
+    padding: 16,
+    borderRadius: '50%',
+    marginRight: 16
+  },
+  timelineYear: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#1890ff',
+    marginBottom: 8
+  },
+  timelineTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#001529',
+    marginBottom: 8
+  },
+  timelineDescription: {
+    fontSize: 16,
+    color: '#666',
+    lineHeight: 1.6
+  }
+});
+
 const About = () => {
-  const values = [
+  const classes = useStyles();
+
+  const journeyMilestones = [
     {
-      icon: <TeamOutlined className="value-icon" />,
-      title: "Teamwork",
-      description:
-        "We believe in the power of collaboration and working together to achieve exceptional results.",
+      year: '2020',
+      title: 'The Beginning',
+      description: 'Started as a personal practice, meeting clients at Starbucks and working from an apartment. Operating under Navrisham K Khaira E.A.',
+      icon: <RocketOutlined />
     },
     {
-      icon: <TrophyOutlined className="value-icon" />,
-      title: "Excellence",
-      description:
-        "We strive for excellence in everything we do, maintaining the highest standards of quality.",
+      year: '2022',
+      title: 'Official Registration',
+      description: 'Registered as Nav Accounts, joined Yuba City Chamber of Commerce. Expanded services to include Sales Tax Reporting and Financial Statement preparation.',
+      icon: <TrophyOutlined />
     },
     {
-      icon: <CheckCircleOutlined className="value-icon" />,
-      title: "Integrity",
-      description:
-        "We conduct our business with honesty, transparency, and ethical principles.",
+      year: '2024',
+      title: 'Service Expansion',
+      description: 'Added comprehensive Business Compliance services, including business formation, licensing, and industry-specific compliance solutions. Became a member of NFIB.',
+      icon: <BankOutlined />
     },
     {
-      icon: <HeartOutlined className="value-icon" />,
-      title: "Client Focus",
-      description:
-        "Our clients' success is our priority. We're dedicated to delivering value and exceeding expectations.",
-    },
+      year: '2025',
+      title: 'Virtual Evolution',
+      description: 'Launching virtual meeting capabilities to serve clients across different time zones and locations, making our services more accessible than ever.',
+      icon: <StarOutlined />
+    }
   ];
 
-  const team = [
+  const coreValues = [
     {
-      name: "John Smith",
-      position: "CEO & Founder",
-      image: "https://randomuser.me/api/portraits/men/1.jpg",
-      description:
-        "With over 20 years of experience in accounting and finance, John leads our team with vision and expertise.",
+      icon: <CheckCircleOutlined />,
+      title: "Integrity",
+      description: "We maintain the highest standards of professional ethics and transparency."
     },
     {
-      name: "Sarah Johnson",
-      position: "Senior Accountant",
-      image: "https://randomuser.me/api/portraits/women/1.jpg",
-      description:
-        "Sarah specializes in tax planning and compliance, helping clients navigate complex financial regulations.",
+      icon: <TeamOutlined />,
+      title: "Community",
+      description: "Committed to uplifting our local community and empowering youth."
     },
     {
-      name: "Michael Chen",
-      position: "Financial Advisor",
-      image: "https://randomuser.me/api/portraits/men/2.jpg",
-      description:
-        "Michael brings innovative solutions to help businesses grow and achieve their financial goals.",
+      icon: <StarOutlined />,
+      title: "Excellence",
+      description: "Delivering exceptional service and results for every client."
     },
+    {
+      icon: <BulbOutlined />,
+      title: "Innovation",
+      description: "Embracing modern solutions while maintaining traditional expertise."
+    }
   ];
 
   return (
-    <Layout className="layout">
+    <Layout>
       <FrontHeader activeKey="/about-us" />
       <Content>
-        <div className="about-container">
-          <section className="about-section">
-            <Title level={2} className="section-title">About Us</Title>
-            <Paragraph className="about-text">
-              Nav Accounts is a leading accounting and financial services firm dedicated to helping businesses
-              and individuals achieve their financial goals. With years of experience and a team of expert
-              professionals, we provide comprehensive solutions tailored to your specific needs.
-            </Paragraph>
+        <div className={classes.container}>
+          <section className={classes.section}>
+            <div className={classes.intro}>
+              <Title level={2}>About Nav Accounts</Title>
+              <Paragraph>
+                Your trusted partner in financial success since 2020. We're committed to providing exceptional accounting and tax services with integrity and expertise.
+              </Paragraph>
+            </div>
           </section>
 
-          <section className="values-section">
-            <Title level={2} className="section-title">Our Values</Title>
+          <section className={classes.section}>
+            <Title level={2}>Our Core Values</Title>
             <Row gutter={[24, 24]}>
-              {values.map((value, index) => (
-                <Col xs={24} sm={12} md={6} key={index}>
-                  <Card className="value-card">
-                    <div className="value-icon-wrapper">{value.icon}</div>
-                    <Title level={4} className="value-title">{value.title}</Title>
-                    <Paragraph className="value-description">{value.description}</Paragraph>
+              {coreValues.map((value, index) => (
+                <Col xs={24} sm={12} lg={6} key={index}>
+                  <Card>
+                    {value.icon}
+                    <Title level={4}>{value.title}</Title>
+                    <Paragraph>
+                      {value.description}
+                    </Paragraph>
                   </Card>
                 </Col>
               ))}
             </Row>
           </section>
-          <VirtualMeetingSection />
+
+          <section className={`${classes.section} ${classes.journey}`}>
+            <Title level={2}>Our Journey</Title>
+            <Timeline mode="alternate">
+              {journeyMilestones.map((milestone, index) => (
+                <Timeline.Item 
+                  key={index}
+                  dot={<span className={classes.timelineIcon}>{milestone.icon}</span>}
+                >
+                  <Card className={classes.timelineCard}>
+                    <div className={classes.timelineYear}>{milestone.year}</div>
+                    <div className={classes.timelineTitle}>{milestone.title}</div>
+                    <div className={classes.timelineDescription}>{milestone.description}</div>
+                  </Card>
+                </Timeline.Item>
+              ))}
+            </Timeline>
+          </section>
         </div>
       </Content>
       <FrontFooter />

@@ -26,7 +26,6 @@ import Unauthorized from "./components/Unauthorized";
 import GoogleCallback from "./components/Auth/GoogleCallback";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import "./App.css";
 import About from "./components/About";
 import Services from "./components/Services";
 import Contact from "./components/Contact";

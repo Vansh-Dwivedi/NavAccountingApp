@@ -135,152 +135,192 @@
 .resources-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 0 20px;
 }
 
+/* Hero Section */
 .resources-hero {
-  text-align: center;
-  margin-bottom: 60px;
-  padding: 60px 40px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  position: relative;
+  background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
+  color: white;
+  padding: 80px 40px;
+  margin: 20px 0 40px;
   border-radius: 15px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 
-.resources-hero h1 {
-  font-size: 36px;
-  color: #002e6d;
-  margin-bottom: 20px;
-  font-weight: bold;
-}
-
-.resources-intro {
-  font-size: 18px;
-  color: #666;
+.hero-content {
   max-width: 800px;
   margin: 0 auto;
+}
+
+.hero-content h1.ant-typography {
+  color: white;
+  font-size: 3rem;
+  margin-bottom: 1.5rem;
+}
+
+.hero-content .ant-typography {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.2rem;
   line-height: 1.6;
 }
 
+.hero-content .ant-btn {
+  margin-top: 2rem;
+  height: 48px;
+  padding: 0 32px;
+  font-size: 1.1rem;
+  background: white;
+  color: #1a237e;
+  border: none;
+}
+
+.hero-content .ant-btn:hover {
+  background: #f5f5f5;
+  color: #0d47a1;
+}
+
+/* Resources Grid */
 .resources-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 30px;
-  margin-bottom: 60px;
+  margin: 40px 0;
 }
 
 .resource-card {
   height: 100%;
-  background: #fff;
   border-radius: 12px;
-  padding: 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border: none;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .resource-card:hover {
   transform: translateY(-5px);
-  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.resource-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
 }
 
 .resource-icon {
-  font-size: 36px;
-  color: #1890ff;
-  margin-bottom: 20px;
+  font-size: 2rem;
+  color: #1a237e;
+  margin-right: 1rem;
 }
 
-.resource-title {
-  color: #002e6d;
-  font-size: 24px;
-  margin-bottom: 16px;
+.resource-header h3.ant-typography {
+  color: #2c3e50;
+  margin: 0;
 }
 
 .resource-description {
   color: #666;
-  font-size: 16px;
-  line-height: 1.6;
-  margin-bottom: 20px;
+  margin-bottom: 1.5rem;
+}
+
+.resource-list .ant-list-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.resource-list .ant-list-item:last-child {
+  border-bottom: none;
 }
 
 .resource-link {
-  display: inline-block;
-  color: #1890ff;
-  font-size: 16px;
-  font-weight: 500;
-  text-decoration: none;
+  color: #2c3e50;
   transition: color 0.3s ease;
+  width: 100%;
 }
 
 .resource-link:hover {
-  color: #40a9ff;
+  color: #1a237e;
 }
 
-/* Responsive Design */
-@media (max-width: 1200px) {
-  .resources-container {
-    padding: 40px;
-  }
+.resource-link .anticon {
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: all 0.3s ease;
 }
 
-@media (max-width: 992px) {
-  .resources-hero {
-    padding: 40px 30px;
-  }
-
-  .resources-hero h1 {
-    font-size: 32px;
-  }
-
-  .resources-intro {
-    font-size: 16px;
-  }
-
-  .resource-card {
-    padding: 25px;
-  }
-
-  .resource-icon {
-    font-size: 32px;
-  }
-
-  .resource-title {
-    font-size: 22px;
-  }
+.resource-link:hover .anticon {
+  opacity: 1;
+  transform: translateX(0);
 }
 
+/* Help Section */
+.help-section {
+  margin: 60px 0;
+}
+
+.help-card {
+  background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.help-card h2.ant-typography {
+  color: #2c3e50;
+  margin-bottom: 1rem;
+}
+
+.help-card .ant-typography {
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+.help-card .ant-btn {
+  background: #1a237e;
+  border: none;
+}
+
+.help-card .ant-btn:hover {
+  background: #0d47a1;
+}
+
+.help-image {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+
+/* Responsive Styles */
 @media (max-width: 768px) {
-  .resources-container {
-    padding: 20px;
-  }
-
   .resources-hero {
-    padding: 30px 20px;
-    margin-bottom: 40px;
+    padding: 60px 20px;
   }
 
-  .resources-hero h1 {
-    font-size: 28px;
+  .hero-content h1.ant-typography {
+    font-size: 2.5rem;
   }
 
-  .resources-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
+  .resource-card {
+    margin-bottom: 20px;
+  }
+
+  .help-image {
+    margin-top: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .resources-hero {
+    padding: 40px 20px;
+  }
+
+  .hero-content h1.ant-typography {
+    font-size: 2rem;
+  }
+
+  .hero-content .ant-btn {
+    width: 100%;
   }
 
   .resource-card {
     padding: 20px;
-  }
-
-  .resource-icon {
-    font-size: 28px;
-  }
-
-  .resource-title {
-    font-size: 20px;
-  }
-
-  .resource-description {
-    font-size: 14px;
   }
 }

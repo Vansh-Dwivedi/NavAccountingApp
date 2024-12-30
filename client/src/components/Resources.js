@@ -1,77 +1,127 @@
 import React from 'react';
-import { Card, List, Typography } from 'antd';
-import './components.css';
-import { FrontFooter, FrontHeader } from './FrontPage';
+import { Layout, Card, List, Typography, Row, Col, Space } from 'antd';
+import { 
+  FileOutlined, 
+  BankOutlined, 
+  GlobalOutlined, 
+  ArrowRightOutlined,
+  DollarOutlined,
+  SafetyCertificateOutlined,
+  MedicineBoxOutlined,
+  IdcardOutlined,
+  CarOutlined,
+  ShopOutlined,
+  CalculatorOutlined,
+  AuditOutlined
+} from '@ant-design/icons';
+import './Resources.css';
+import { FrontFooter, FrontHeader } from './Header&Footer';
 
-const { Title } = Typography;
+const { Content } = Layout;
+const { Title, Text, Paragraph } = Typography;
 
 const Resources = () => {
-  const resourceLinks = [
-    {
-      category: 'IRS Links',
+  const resourcesData = {
+    irs: {
+      title: "IRS Resources",
+      icon: <BankOutlined className="resource-icon" />,
+      description: "Official IRS services and tools for tax management",
       links: [
-        { title: 'IRS Online Account Setup (Personal)', url: 'https://sa.www4.irs.gov/sso/?resumePath=%2Fas%2Fy9J05AM7FB%2Fresume%2Fas%2Fauthorization.ping&allowInteraction=true&reauth=false&connectionId=SADIPACLIENT&REF=DDCC2AEE8C8D02665CFB0168A611FB2E9574A9797CD84E014DF80000007A&vnd_pi_requested_resource=https%3A%2F%2Fsa.www4.irs.gov%2Fola%2F&vnd_pi_application_name=OLA' },
-        { title: 'IRS Online Account Setup (Business)', url: 'https://sa.www4.irs.gov/sso/?resumePath=%2Fas%2Fy9J05AM7FB%2Fresume%2Fas%2Fauthorization.ping&allowInteraction=true&reauth=false&connectionId=SADIPACLIENT&REF=DDCC2AEE8C8D02665CFB0168A611FB2E9574A9797CD84E014DF80000007A&vnd_pi_requested_resource=https%3A%2F%2Fsa.www4.irs.gov%2Fola%2F&vnd_pi_application_name=OLA' },
-        { title: 'IRS Tax Refund', url: 'https://sa.www4.irs.gov/wmr/' },
-        { title: 'IRS Personal Tax Payment', url: 'https://directpay.irs.gov/directpay/payment?execution=e1s1' },
-        { title: 'IRS Business Tax Payment', url: 'https://directpay.irs.gov/directpay/businesspayment?execution=e3s1' },
-        { title: 'IRS W4 Tax Withholding Calculator', url: 'https://apps.irs.gov/app/tax-withholding-estimator' },
+        { text: "Personal Online Account", url: "https://www.irs.gov/payments/your-online-account", icon: <IdcardOutlined /> },
+        { text: "Business Online Account", url: "https://www.irs.gov/payments/view-your-tax-account", icon: <SafetyCertificateOutlined /> },
+        { text: "Personal Tax Payment", url: "https://www.irs.gov/payments", icon: <DollarOutlined /> },
+        { text: "Business Tax Payment", url: "https://www.irs.gov/payments/pay-your-business-taxes", icon: <CalculatorOutlined /> },
+        { text: "Tax Refund Status", url: "https://www.irs.gov/refunds", icon: <AuditOutlined /> }
       ]
     },
-    {
-      category: 'FTB Links',
+    ftb: {
+      title: "California FTB Resources",
+      icon: <GlobalOutlined className="resource-icon" />,
+      description: "California state tax resources through the Franchise Tax Board",
       links: [
-        { title: 'FTB Online Account Setup', url: 'https://webapp.ftb.ca.gov/MyFTBAccess/Registration/Terms' },
-        { title: 'FTB Personal Tax Refund', url: 'https://webapp.ftb.ca.gov/refund/login?Submit=Check+refund&Lang=en-us' },
-        { title: 'FTB Personal Tax Payment (Bank Direct Debit)', url: 'https://webapp.ftb.ca.gov/webpay/login/login?Submit=Use+Web+Pay+personal' },
-        { title: 'FTB Business Tax Payment (Bank Direct Debit)', url: 'https://webapp.ftb.ca.gov/webpay/login/belogin?Submit=Use+Web+Pay+business' },
-        { title: 'FTB Personal & Business Tax Payment (Credit Card)', url: 'https://www.officialpayments.com/pc_template_standard.jsp?body=pc_step2_body.jsp&OWASP_CSRFTOKEN=MT86-MI7S-0Z2Z-5UDH-ZQTG-XAZB-X2G0-Y034' },
+        { text: "MyFTB Account Access", url: "https://www.ftb.ca.gov/myftb/", icon: <IdcardOutlined /> },
+        { text: "Make a Payment", url: "https://www.ftb.ca.gov/pay/", icon: <DollarOutlined /> },
+        { text: "Check Refund Status", url: "https://www.ftb.ca.gov/refund/", icon: <AuditOutlined /> },
+        { text: "Business Services", url: "https://www.ftb.ca.gov/businesses/", icon: <ShopOutlined /> }
       ]
     },
-    {
-      category: 'Covered California',
+    healthcare: {
+      title: "Healthcare & Employment",
+      icon: <MedicineBoxOutlined className="resource-icon" />,
+      description: "Access healthcare and employment resources",
       links: [
-        { title: 'Covered California Registration', url: 'https://apply.coveredca.com/static/lw-web/account-creation/choose-application' },
+        { text: "Covered California", url: "https://www.coveredca.com/", icon: <SafetyCertificateOutlined /> },
+        { text: "EDD Services", url: "https://www.edd.ca.gov/", icon: <IdcardOutlined /> },
+        { text: "UI Online", url: "https://www.edd.ca.gov/unemployment/", icon: <GlobalOutlined /> }
       ]
     },
-    {
-      category: 'EDD for Claiming Unemployment Benefits',
+    business: {
+      title: "Business Resources",
+      icon: <ShopOutlined className="resource-icon" />,
+      description: "Essential business compliance resources",
       links: [
-        { title: 'Platform Weblink', url: 'https://myedd.edd.ca.gov/s/login/?language=en_US&ec=302&startURL=%2Fs%2F' },
+        { text: "Secretary of State Business Portal", url: "https://bizfile.sos.ca.gov/", icon: <SafetyCertificateOutlined /> },
+        { text: "CDTFA Tax Service", url: "https://www.cdtfa.ca.gov/", icon: <DollarOutlined /> },
+        { text: "DMV Commercial Services", url: "https://www.dmv.ca.gov/portal/vehicle-industry-services/", icon: <CarOutlined /> }
       ]
     }
-  ];
+  };
+
+  const ResourceSection = ({ title, icon, description, links }) => (
+    <Card className="resource-card">
+      <div className="resource-header">
+        {icon}
+        <Title level={3}>{title}</Title>
+      </div>
+      <Paragraph className="resource-description">{description}</Paragraph>
+      <List
+        className="resource-list"
+        dataSource={links}
+        renderItem={item => (
+          <List.Item>
+            <a href={item.url} target="_blank" rel="noopener noreferrer" className="resource-link">
+              <Space>
+                {item.icon}
+                <span>{item.text}</span>
+                <ArrowRightOutlined className="arrow-icon" />
+              </Space>
+            </a>
+          </List.Item>
+        )}
+      />
+    </Card>
+  );
 
   return (
-    <>
-      <FrontHeader />
-      <div className="resources-container">
-        <div className="resources-banner">
-          <img 
-            src="https://localhost:8443/uploads/resources-banner.png" 
-            alt="Resources"
-            style={{ width: '100%', height: 'auto', marginBottom: '2rem' }}
-          />
+    <Layout className="layout">
+      <FrontHeader activeKey="/resources" />
+      <Content>
+        <div className="resources-container">
+          <section className="resources-hero">
+            <Title>Resources & Tools</Title>
+            <Paragraph>
+              Access official government resources, tax tools, and business services all in one place.
+            </Paragraph>
+          </section>
+
+          <section className="resources-grid">
+            <Row gutter={[32, 32]}>
+              {Object.entries(resourcesData).map(([key, section]) => (
+                <Col xs={24} md={12} key={key}>
+                  <ResourceSection 
+                    title={section.title} 
+                    icon={section.icon}
+                    description={section.description}
+                    links={section.links} 
+                  />
+                </Col>
+              ))}
+            </Row>
+          </section>
         </div>
-        <div className="resources-grid">
-          {resourceLinks.map((category, index) => (
-            <Card key={index} title={category.category} className="resource-card">
-              <List
-                dataSource={category.links}
-                renderItem={item => (
-                  <List.Item>
-                    <a href={item.url} target="_blank" rel="noopener noreferrer">
-                      {item.title}
-                    </a>
-                  </List.Item>
-                )}
-              />
-            </Card>
-          ))}
-        </div>
-      </div>
+      </Content>
       <FrontFooter />
-    </>
+    </Layout>
   );
 };
 
