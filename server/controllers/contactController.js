@@ -6,7 +6,7 @@ exports.submitContactForm = async (req, res) => {
 
         // Create a transporter using SMTP
         const transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
+            host: 'smtp.mail.yahoo.com',
             port: 465,
             secure: true, // use SSL
             auth: {

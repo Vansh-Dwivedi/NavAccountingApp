@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Form, Input, Button, List, Pagination, message, Modal } from "antd";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
 import api from "../../utils/api";
-import "antd/dist/reset.css";
+
 
 const { TextArea } = Input;
 

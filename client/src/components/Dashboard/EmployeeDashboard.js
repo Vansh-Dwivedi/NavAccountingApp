@@ -45,7 +45,7 @@ import {
   MessageOutlined,
 } from "@ant-design/icons";
 import api from "../../utils/api";
-import "antd/dist/reset.css";
+
 import "@react-pdf-viewer/core/lib/styles/index.css";
 import "@react-pdf-viewer/default-layout/lib/styles/index.css";
 import EmployeeNotesSection from "./EmployeeNotesSection";

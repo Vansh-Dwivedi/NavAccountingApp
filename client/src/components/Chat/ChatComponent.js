@@ -27,7 +27,7 @@ import {
   FullscreenOutlined,
   FullscreenExitOutlined,
 } from "@ant-design/icons";
-import "antd/dist/reset.css";
+
 import moment from "moment";
 
 const { TextArea } = Input;

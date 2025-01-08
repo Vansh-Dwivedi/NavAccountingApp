@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Card, Avatar, Typography, List, Image } from "antd";
 import { UserOutlined } from "@ant-design/icons";
-import "antd/dist/reset.css";
+
 import api from "../utils/api";
 import "./components.css";
 

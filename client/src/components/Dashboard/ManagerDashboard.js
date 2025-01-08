@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../utils/api";
-import "antd/dist/reset.css";
+
 import {
   Layout,
   Menu,
@@ -52,7 +52,7 @@ import Header from "../Header";
 import NotificationBubble from "../NotificationBubble";
 import ReactPaginate from "react-paginate";
 import InputForm from "../InputForm";
-import "antd/dist/reset.css";
+
 import FinancialInfoSection from "./FinancialInfoSection";
 import RoleChecker from "../../Authentication/main";
 import DragAndDropScreen from "../DragAndDropScreen";

@@ -1,67 +1,43 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Button, Modal, Input, Space, Spin, Avatar, Tooltip } from 'antd';
-import { MessageOutlined, SendOutlined, CloseOutlined, RobotOutlined, UserOutlined, CommentOutlined } from '@ant-design/icons';
-import { sendMessageToOpenAI } from '../services/openaiService';
-import './ChatButton.css';
-
-const { TextArea } = Input;
-
-const OPENAI_API_KEY = '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';
+import React, { useState } from 'react';
+import { Button, Input, message } from 'antd';
+import { SendOutlined, CloseOutlined } from '@ant-design/icons';
+import api from '../utils/api';
 
 const ChatButton = () => {
-  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
     {
-      text: "Hello! How can I help you with accounting, tax, or business matters today?",
-      sender: 'bot'
+      type: 'bot',
+      content: 'Hello! How can I help you with accounting, tax, or business matters today?'
     }
   ]);
-  const [currentMessage, setCurrentMessage] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [open, setOpen] = useState(false);
-  const messagesEndRef = useRef(null);
-  const inputRef = useRef(null);
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-    if (isModalVisible && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [messages, isModalVisible]);
-
-  const showModal = () => {
-    setIsModalVisible(true);
-    setError(null);
-  };
-
-  const handleCancel = () => {
-    setIsModalVisible(false);
-    setError(null);
-  };
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleSend = async () => {
-    if (currentMessage.trim() && !isLoading) {
-      const userMessage = currentMessage.trim();
-      setMessages(prev => [...prev, { text: userMessage, sender: 'user' }]);
-      setCurrentMessage('');
-      setIsLoading(true);
-      setError(null);
+    if (!input.trim()) return;
 
-      try {
-        const response = await sendMessageToOpenAI(userMessage, OPENAI_API_KEY);
-        setMessages(prev => [...prev, { text: response, sender: 'bot' }]);
-      } catch (err) {
-        setError('Sorry, I encountered an error. Please try again.');
-        console.error('Error sending message:', err);
-      } finally {
-        setIsLoading(false);
-      }
+    const userMessage = {
+      type: 'user',
+      content: input
+    };
+
+    setMessages(prev => [...prev, userMessage]);
+    setInput('');
+    setLoading(true);
+
+    try {
+      const response = await api.post('/api/chat', { message: input });
+      const botMessage = {
+        type: 'bot',
+        content: response.data.reply
+      };
+      setMessages(prev => [...prev, botMessage]);
+    } catch (error) {
+      message.error('Failed to send message. Please try again.');
     }
+
+    setLoading(false);
   };
 
   const handleKeyPress = (e) => {
@@ -71,75 +47,149 @@ const ChatButton = () => {
     }
   };
 
-  return (
-    <div className="chat-container">
-      {open && (
-        <div className="chat-window">
-          <div className="chat-header">
-            <span>Sunny</span>
-            <Button type="text" onClick={() => setOpen(false)} icon={<CloseOutlined />} />
-          </div>
-          <div className="chat-messages">
-            {messages.map((message, index) => (
-              <div
-                key={index}
-                className={`message ${message.sender === 'user' ? 'user-message' : 'bot-message'}`}
-              >
-                <Avatar 
-                  src={message.sender === 'user' ? null : 'https://i.imgur.com/LqD4m5s.png'}
-                  className={`message-avatar ${message.sender}-avatar`}
-                />
-                <div className="message-content">
-                  <div className="message-text" style={{ color: message.sender === 'user' ? 'white' : 'black' }}>{message.text}</div>
-                </div>
-              </div>
-            ))}
-            {isLoading && (
-              <div className="message bot-message">
-                <Avatar src="https://i.imgur.com/LqD4m5s.png" className="message-avatar bot-avatar" />
-                <div className="message-content">
-                  <div className="typing-indicator">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                </div>
-              </div>
-            )}
-            {error && (
-              <div className="error-message">
-                {error}
-              </div>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-          <div className="chat-input">
-            <TextArea
-              ref={inputRef}
-              value={currentMessage}
-              onChange={e => setCurrentMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Type your message here..."
-              autoSize={{ minRows: 1, maxRows: 4 }}
-              disabled={isLoading}
-            />
-            <Button
-              type="primary"
-              icon={<SendOutlined />}
-              onClick={handleSend}
-              disabled={!currentMessage.trim() || isLoading}
-            />
-          </div>
-        </div>
-      )}
+  if (!isOpen) {
+    return (
       <Button
         type="primary"
         shape="circle"
         size="large"
-        className="chat-toggle-button"
-        icon={<MessageOutlined />}
-        onClick={() => setOpen(true)}
-      />
+        onClick={() => setIsOpen(true)}
+        style={{
+          position: 'fixed',
+          bottom: '30px',
+          right: '30px',
+          width: '60px',
+          height: '60px',
+          backgroundColor: '#002E6D',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000
+        }}
+      >
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20 2H4C2.9 2 2 2.9 2 4V22L6 18H20C21.1 18 22 17.1 22 16V4C22 2.9 21.1 2 20 2ZM20 16H6L4 18V4H20V16Z" fill="white"/>
+        </svg>
+      </Button>
+    );
+  }
+
+  return (
+    <div style={{
+      position: 'fixed',
+      bottom: '30px',
+      right: '30px',
+      width: '350px',
+      height: '500px',
+      backgroundColor: 'white',
+      borderRadius: '12px',
+      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+      display: 'flex',
+      flexDirection: 'column',
+      zIndex: 1000,
+      overflow: 'hidden'
+    }}>
+      {/* Header */}
+      <div style={{
+        padding: '15px 20px',
+        backgroundColor: '#002E6D',
+        color: 'white',
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <img 
+            src={process.env.REACT_APP_API_URL + "/uploads/app-logo.png"}
+            alt="App Logo"
+            style={{ height: '24px', width: 'auto' }}
+          />
+          <h3 style={{ margin: 0, color: 'white' }}>Chat with Sunny</h3>
+        </div>
+        <Button
+          type="text"
+          icon={<CloseOutlined style={{ color: 'white' }} />}
+          onClick={() => setIsOpen(false)}
+        />
+      </div>
+
+      {/* Messages */}
+      <div style={{
+        flex: 1,
+        overflowY: 'auto',
+        padding: '20px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '15px',
+        backgroundColor: '#f5f5f5'
+      }}>
+        {messages.map((msg, index) => (
+          <div
+            key={index}
+            style={{
+              alignSelf: msg.type === 'user' ? 'flex-end' : 'flex-start',
+              maxWidth: '80%',
+              backgroundColor: msg.type === 'user' ? '#002E6D' : 'white',
+              color: msg.type === 'user' ? 'white' : 'black',
+              padding: '12px 16px',
+              borderRadius: msg.type === 'user' ? '12px 12px 0 12px' : '12px 12px 12px 0',
+              wordBreak: 'break-word',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+            }}
+          >
+            {msg.content}
+          </div>
+        ))}
+        {loading && (
+          <div style={{
+            alignSelf: 'flex-start',
+            backgroundColor: 'white',
+            padding: '12px 16px',
+            borderRadius: '12px 12px 12px 0',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          }}>
+            Typing...
+          </div>
+        )}
+      </div>
+
+      {/* Input */}
+      <div style={{
+        padding: '15px 20px',
+        borderTop: '1px solid #f0f0f0',
+        display: 'flex',
+        gap: '10px',
+        backgroundColor: 'white'
+      }}>
+        <Input
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyPress={handleKeyPress}
+          placeholder="Type your message here..."
+          style={{ 
+            flex: 1,
+            borderRadius: '20px',
+            padding: '8px 16px'
+          }}
+        />
+        <Button
+          type="primary"
+          icon={<SendOutlined />}
+          onClick={handleSend}
+          loading={loading}
+          style={{ 
+            backgroundColor: '#002E6D',
+            borderRadius: '50%',
+            width: '40px',
+            height: '40px',
+            padding: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        />
+      </div>
     </div>
   );
 };

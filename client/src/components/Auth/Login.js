@@ -4,7 +4,6 @@ import { FaEnvelope, FaLock, FaGlobe } from "react-icons/fa";
 import api from "../../utils/api";
 import GoogleOAuthButton from '../GoogleOAuthButton';
 import { Divider } from 'antd';
-import styles from './Auth.module.css';
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -75,83 +74,248 @@ const Login = () => {
   };
 
   return (
-    <div className={styles.authContainer}>
-      <div className={styles.authCard}>
-        <h1 className={styles.authTitle}>Nav Accounts</h1>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+        width: "100%",
+        background: "#fff",
+        padding: "20px",
+        boxSizing: "border-box",
+      }}
+    >
+      <div
+        style={{
+          width: "100%",
+          maxWidth: "400px",
+          background: "#fff",
+          borderRadius: "8px",
+          padding: "40px",
+          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+        }}
+      >
+        <h1
+          style={{
+            textAlign: "center",
+            marginBottom: "20px",
+            color: "#333",
+          }}
+        >
+          Nav Accounts
+        </h1>
         <img
           src={process.env.REACT_APP_API_URL + "/api/app/utils/app-logo.png"}
           alt="Logo"
-          className={styles.authLogo}
+          style={{
+            display: "block",
+            margin: "0 auto 20px",
+            maxWidth: "200px",
+          }}
         />
-        <h2 className={styles.authSubtitle}>LOGIN</h2>
-        <p className={styles.authDescription}>
+        <h2
+          style={{
+            textAlign: "center",
+            marginBottom: "20px",
+            color: "#333",
+          }}
+        >
+          LOGIN
+        </h2>
+        <p
+          style={{
+            textAlign: "center",
+            marginBottom: "20px",
+            color: "#666",
+            fontSize: "14px",
+          }}
+        >
           Enter your credentials below to log in to your account
         </p>
-        <form onSubmit={handleSubmit} className={styles.form}>
-          {error && <div className={styles.authError}>{error}</div>}
-          
-          <div className={styles.authInputGroup}>
-            <div className={styles.authInputRow}>
-              <div className={styles.authInputIcon}>
-                <FaEnvelope />
-              </div>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Email"
-                required
-                className={styles.authInput}
-              />
+        <form onSubmit={handleSubmit}>
+          {error && (
+            <div
+              style={{
+                backgroundColor: "#ffebee",
+                color: "#c62828",
+                padding: "10px",
+                borderRadius: "4px",
+                marginBottom: "20px",
+                textAlign: "center",
+                fontSize: "14px",
+              }}
+            >
+              {error}
             </div>
-          </div>
-
-          <div className={styles.authInputGroup}>
-            <div className={styles.authInputRow}>
-              <div className={styles.authInputIcon}>
-                <FaLock />
-              </div>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                required
-                className={styles.authInput}
-              />
-            </div>
-          </div>
-
-          <div className={styles.authInputGroup}>
-            <div className={styles.authInputRow}>
-              <div className={styles.authInputIcon}>
-                <FaGlobe />
-              </div>
-              <input
-                type="text"
-                value={firmId}
-                onChange={(e) => setFirmId(e.target.value)}
-                placeholder="Firm ID"
-                required
-                className={styles.authInput}
-              />
-            </div>
-          </div>
-
-          <button type="submit" className={styles.authButton}>
+          )}
+          <table style={{ width: "100%", marginBottom: "15px" }}>
+            <tbody>
+              <tr
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  border: "1px solid #ddd",
+                  borderRadius: "4px",
+                }}
+              >
+                <td
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    display: "flex",
+                    alignContent: "center",
+                    alignSelf: "center",
+                    padding: "5px",
+                  }}
+                >
+                  <FaEnvelope />
+                </td>
+                <td style={{ flex: 1 }}>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Email"
+                    required
+                    style={{
+                      border: "none",
+                      outline: "none",
+                      fontSize: "14px",
+                      padding: "10px",
+                    }}
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <table style={{ width: "100%", marginBottom: "15px" }}>
+            <tbody>
+              <tr
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  border: "1px solid #ddd",
+                  borderRadius: "4px",
+                }}
+              >
+                <td
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    display: "flex",
+                    alignContent: "center",
+                    alignSelf: "center",
+                    padding: "5px",
+                  }}
+                >
+                  <FaLock />
+                </td>
+                <td style={{ flex: 1 }}>
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Password"
+                    required
+                    style={{
+                      border: "none",
+                      outline: "none",
+                      fontSize: "14px",
+                      padding: "10px",
+                    }}
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <table style={{ width: "100%", marginBottom: "20px" }}>
+            <tbody>
+              <tr
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  border: "1px solid #ddd",
+                  borderRadius: "4px",
+                }}
+              >
+                <td
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    textAlign: "center",
+                    border: "1px solid #ddd",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    display: "flex",
+                    alignContent: "center",
+                    alignSelf: "center",
+                    padding: "5px",
+                  }}
+                >
+                  <FaGlobe />
+                </td>
+                <td style={{ flex: 1 }}>
+                  <input
+                    type="text"
+                    value={firmId}
+                    onChange={(e) => setFirmId(e.target.value)}
+                    placeholder="Firm ID"
+                    required
+                    style={{
+                      border: "none",
+                      outline: "none",
+                      fontSize: "14px",
+                      padding: "10px",
+                    }}
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <button
+            type="submit"
+            style={{
+              width: "100%",
+              padding: "12px",
+              backgroundColor: "#012e71",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+              fontSize: "16px",
+              fontWeight: "600",
+            }}
+          >
             Login
           </button>
-          
-          <Divider className={styles.authDivider}>Or</Divider>
+          <Divider>Or</Divider>
           <GoogleOAuthButton mode="login" />
         </form>
-        
-        <div className={styles.authFooter}>
+        <p
+          style={{
+            textAlign: "center",
+            marginTop: "20px",
+            fontSize: "14px",
+            color: "#666",
+          }}
+        >
           Don't have an account?{" "}
-          <a href="/register" className={styles.authLink}>
+          <a
+            href="/register"
+            style={{ color: "#012e71", textDecoration: "none" }}
+          >
             Sign up
           </a>
-        </div>
+        </p>
       </div>
     </div>
   );

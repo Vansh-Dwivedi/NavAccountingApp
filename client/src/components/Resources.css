@@ -133,7 +133,7 @@
 /* New Styles */
 
 .resources-container {
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 0 20px;
 }
@@ -141,29 +141,45 @@
 /* Hero Section */
 .resources-hero {
   position: relative;
-  background: linear-gradient(135deg, #1a237e 0%, #0d47a1 100%);
-  color: white;
-  padding: 80px 40px;
-  margin: 20px 0 40px;
-  border-radius: 15px;
+  width: 100%;
+  height: 700px;
+  background: url('https://localhost:8443/uploads/common-hero.jpg');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
+  margin-bottom: 64px;
+}
+
+.resources-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
 }
 
 .hero-content {
-  max-width: 800px;
-  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  padding: 48px 24px;
 }
 
 .hero-content h1.ant-typography {
-  color: white;
-  font-size: 3rem;
-  margin-bottom: 1.5rem;
+  font-size: 48px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #ffffff;
 }
 
 .hero-content .ant-typography {
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1.2rem;
-  line-height: 1.6;
+  font-size: 18px;
+  margin-bottom: 32px;
+  color: #ffffff;
 }
 
 .hero-content .ant-btn {

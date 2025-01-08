@@ -1,9 +1,9 @@
 import React from 'react';
 import { Layout, Card, List, Typography, Row, Col, Space } from 'antd';
-import { 
-  FileOutlined, 
-  BankOutlined, 
-  GlobalOutlined, 
+import {
+  FileOutlined,
+  BankOutlined,
+  GlobalOutlined,
   ArrowRightOutlined,
   DollarOutlined,
   SafetyCertificateOutlined,
@@ -15,7 +15,7 @@ import {
   AuditOutlined
 } from '@ant-design/icons';
 import './Resources.css';
-import { FrontFooter, FrontHeader } from './Header&Footer';
+import { FrontFooter, FrontHeader } from './HeaderFooter';
 
 const { Content } = Layout;
 const { Title, Text, Paragraph } = Typography;
@@ -96,29 +96,28 @@ const Resources = () => {
     <Layout className="layout">
       <FrontHeader activeKey="/resources" />
       <Content>
-        <div className="resources-container">
-          <section className="resources-hero">
-            <Title>Resources & Tools</Title>
-            <Paragraph>
-              Access official government resources, tax tools, and business services all in one place.
-            </Paragraph>
-          </section>
+        <section className="hero-section" style={{ backgroundImage: `url(${process.env.REACT_APP_API_URL}/uploads/common-hero.jpg)` }}>
+          <div className="hero-overlay"></div>
+          <div className="hero-content">
+            <h1 className="hero-title">Resources & Tools</h1>
+            <p className="hero-subtitle">Access official government resources, tax tools, and business services all in one place.</p>
+          </div>
+        </section>
 
-          <section className="resources-grid">
-            <Row gutter={[32, 32]}>
-              {Object.entries(resourcesData).map(([key, section]) => (
-                <Col xs={24} md={12} key={key}>
-                  <ResourceSection 
-                    title={section.title} 
-                    icon={section.icon}
-                    description={section.description}
-                    links={section.links} 
-                  />
-                </Col>
-              ))}
-            </Row>
-          </section>
-        </div>
+        <section className="resources-grid">
+          <Row gutter={[32, 32]}>
+            {Object.entries(resourcesData).map(([key, section]) => (
+              <Col xs={24} md={12} key={key}>
+                <ResourceSection
+                  title={section.title}
+                  icon={section.icon}
+                  description={section.description}
+                  links={section.links}
+                />
+              </Col>
+            ))}
+          </Row>
+        </section>
       </Content>
       <FrontFooter />
     </Layout>

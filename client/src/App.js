@@ -5,6 +5,7 @@ import {
   Routes,
   Navigate,
 } from "react-router-dom";
+import { Layout } from "antd";
 import Home from "./components/Home";
 import FormSubmissionPage from "./components/FormSubmissionPage";
 import Login from "./components/Auth/Login";
@@ -14,7 +15,6 @@ import AdminDashboard from "./components/Dashboard/AdminDashboard";
 import ManagerDashboard from "./components/Dashboard/ManagerDashboard";
 import UserDashboard from "./components/Dashboard/UserDashboard";
 import ClientDashboard from "./components/Dashboard/ClientDashboard";
-// Add imports for new dashboard components
 import OfficeHeadDashboard from "./components/Dashboard/OfficeHeadDashboard";
 import HeadDirectorDashboard from "./components/Dashboard/HeadDirectorDashboard";
 import MasterDeptDashboard from "./components/Dashboard/MasterDeptDashboard";
@@ -30,30 +30,55 @@ import About from "./components/About";
 import Services from "./components/Services";
 import Contact from "./components/Contact";
 import Resources from "./components/Resources";
+import Employment from './components/Employment';
 import ChatButton from "./components/ChatButton";
-import Footer from "./components/Footer";
+import { FrontHeader, FrontFooter } from "./components/HeaderFooter";
+import "./App.css";
+
+const { Content } = Layout;
+
+// Wrap component with header/footer
+const withHeaderFooter = (Component) => {
+  return (props) => (
+    <Layout style={{ minHeight: "100vh" }}>
+      <Content style={{ marginTop: 150 }}>
+        <Component {...props} />
+      </Content>
+      <ChatButton />
+      <ToastContainer />
+    </Layout>
+  );
+};
+
+// Pages that need header/footer
+const HomeWithLayout = withHeaderFooter(Home);
+const AboutWithLayout = withHeaderFooter(About);
+const ServicesWithLayout = withHeaderFooter(Services);
+const ResourcesWithLayout = withHeaderFooter(Resources);
+const ContactWithLayout = withHeaderFooter(Contact);
+const EmploymentWithLayout = withHeaderFooter(Employment);
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />
+        {/* Public routes with header/footer */}
+        <Route path="/" element={<HomeWithLayout />} />
+        <Route path="/about-us" element={<AboutWithLayout />} />
+        <Route path="/services" element={<ServicesWithLayout />} />
+        <Route path="/contact" element={<ContactWithLayout />} />
+        <Route path="/resources" element={<ResourcesWithLayout />} />
+        <Route path="/employment" element={<EmploymentWithLayout />} />
+        
+        {/* Routes without header/footer */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<TabbedRegister />} />
-        <Route path="/about-us" element={<About />} />
-        <Route path="/services" element={<Services />} />
-        <Route path="/contact" element={<Contact />} />
-        <Route path="/resources" element={<Resources />} />
-        <Route
-          path="/form-submissions/:id"
-          element={<FormSubmissionPage />}
-        />
         <Route
           path="/admin-dashboard"
           element={
             <RoleBasedRoute
-              component={AdminDashboard}
-              allowedRoles={["admin"]}
+              role="admin"
+              element={<AdminDashboard />}
             />
           }
         />
@@ -61,17 +86,8 @@ function App() {
           path="/manager-dashboard"
           element={
             <RoleBasedRoute
-              component={ManagerDashboard}
-              allowedRoles={["manager"]}
-            />
-          }
-        />
-        <Route
-          path="/user-dashboard"
-          element={
-            <RoleBasedRoute
-              component={UserDashboard}
-              allowedRoles={["user"]}
+              role="manager"
+              element={<ManagerDashboard />}
             />
           }
         />
@@ -79,8 +95,8 @@ function App() {
           path="/client-dashboard"
           element={
             <RoleBasedRoute
-              component={ClientDashboard}
-              allowedRoles={["client"]}
+              role="client"
+              element={<ClientDashboard />}
             />
           }
         />
@@ -88,8 +104,8 @@ function App() {
           path="/employee-dashboard"
           element={
             <RoleBasedRoute
-              component={EmployeeDashboard}
-              allowedRoles={["employee"]}
+              role="employee"
+              element={<EmployeeDashboard />}
             />
           }
         />
@@ -97,8 +113,8 @@ function App() {
           path="/office-head-dashboard"
           element={
             <RoleBasedRoute
-              component={OfficeHeadDashboard}
-              allowedRoles={["office_head"]}
+              role="office_head"
+              element={<OfficeHeadDashboard />}
             />
           }
         />
@@ -106,8 +122,8 @@ function App() {
           path="/head-director-dashboard"
           element={
             <RoleBasedRoute
-              component={HeadDirectorDashboard}
-              allowedRoles={["head_director"]}
+              role="head_director"
+              element={<HeadDirectorDashboard />}
             />
           }
         />
@@ -115,14 +131,8 @@ function App() {
           path="/master-dept-dashboard"
           element={
             <RoleBasedRoute
-              component={MasterDeptDashboard}
-              allowedRoles={[
-                "master_dept_a",
-                "master_dept_b",
-                "master_dept_c",
-                "master_dept_d",
-                "master_dept_e",
-              ]}
+              role="master_dept"
+              element={<MasterDeptDashboard />}
             />
           }
         />
@@ -130,13 +140,8 @@ function App() {
           path="/operator-dashboard"
           element={
             <RoleBasedRoute
-              component={OperatorDashboard}
-              allowedRoles={[
-                "operator_a",
-                "operator_b",
-                "operator_c",
-                "operator_d",
-              ]}
+              role="operator"
+              element={<OperatorDashboard />}
             />
           }
         />
@@ -144,18 +149,19 @@ function App() {
           path="/helper-dashboard"
           element={
             <RoleBasedRoute
-              component={HelperDashboard}
-              allowedRoles={["helper"]}
+              role="helper"
+              element={<HelperDashboard />}
             />
           }
         />
-        <Route path="/auth/google/callback" element={<GoogleCallback />} />
+        <Route
+          path="/form-submissions/:id"
+          element={<FormSubmissionPage />}
+        />
         <Route path="/unauthorized" element={<Unauthorized />} />
+        <Route path="/auth/google/callback" element={<GoogleCallback />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
-      <ChatButton />
-      <Footer />
-      <ToastContainer />
     </Router>
   );
 }

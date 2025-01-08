@@ -1,7 +1,7 @@
 :root {
     --font-family-primary: 'Arial', sans-serif;
     --font-family-secondary: 'Roboto', sans-serif;
-    --color-primary: #4CAF50;
+    --color-primary: #90EE90;
     --color-primary-dark: #45a049;
     --color-secondary: #2196F3;
     --color-secondary-dark: #1976D2;
@@ -707,7 +707,6 @@ input:invalid {
 .user-info {
     display: flex;
     align-items: center;
-    margin-bottom: 25px;
 }
 
 .user-avatar {
@@ -1229,7 +1228,7 @@ body {
     --secondary-blue: #3f51b5;
     --accent-blue: #2196f3;
     --danger-red: #f44336;
-    --success-green: #4caf50;
+    --success-green: #90EE90;
     --warning-orange: #ff9800;
     --white: #ffffff;
     --black: #000000;
@@ -1317,20 +1316,120 @@ input[type="file"] {
 }
 
 /* Header Styles */
-.app-header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: var(--header-height);
-    background-color: #f8f9fa;
-    color: var(--primary-blue);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 10px 20px;
-    z-index: 1000;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+.front-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease;
+  padding: 0 24px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+}
+
+.front-header.scrolled {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  height: 70px;
+}
+
+.front-header .logo {
+  height: 50px;
+  margin-right: 48px;
+  transition: all 0.3s ease;
+}
+
+.front-header.scrolled .logo {
+  height: 45px;
+}
+
+.front-header .ant-menu {
+  background: transparent;
+  border: none;
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.front-header .ant-menu-item {
+  color: var(--color-text-primary);
+  font-size: 16px;
+  padding: 0 24px;
+  margin: 0 4px;
+  height: 80px;
+  line-height: 80px;
+  transition: all 0.3s ease;
+}
+
+.front-header.scrolled .ant-menu-item {
+  height: 70px;
+  line-height: 70px;
+}
+
+.front-header .ant-menu-item:hover {
+  color: #002E6D;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.front-header .ant-menu-item-selected {
+  color: #002E6D !important;
+  font-weight: 500;
+}
+
+.front-header .ant-menu-item::after {
+  display: none;
+}
+
+.front-header .ant-btn {
+  margin-left: 16px;
+  height: 40px;
+  padding: 0 24px;
+  border-radius: 20px;
+  font-weight: 500;
+}
+
+/* Mobile menu styles */
+.front-header .mobile-menu-button {
+  display: none;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+  margin-left: auto;
+}
+
+@media (max-width: 768px) {
+  .front-header {
+    padding: 0 16px;
+  }
+
+  .front-header .ant-menu {
+    display: none;
+  }
+
+  .front-header .mobile-menu-button {
+    display: block;
+  }
+
+  .front-header .logo {
+    height: 40px;
+    margin-right: 0;
+  }
+
+  .front-header.scrolled .logo {
+    height: 35px;
+  }
+}
+
+/* Add support for Safari */
+@supports not (backdrop-filter: blur(10px)) {
+  .front-header {
+    background-color: rgba(255, 255, 255, 0.95) !important;
+  }
 }
 
 .user-info {
@@ -1400,6 +1499,28 @@ input[type="file"] {
     background-color: #f0f0f0;
 }
 
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item p {
+    margin: 0 0 8px 0;
+    color: var(--color-text-primary);
+}
+
+.notification-item small {
+    color: var(--color-text-secondary);
+}
+
+.notification-sender-pic {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 15px;
+    object-fit: cover;
+    box-shadow: var(--box-shadow-light);
+}
+
 .notification-content {
     flex: 1;
     display: flex;
@@ -1407,7 +1528,8 @@ input[type="file"] {
 }
 
 .notification-content strong {
-    margin-bottom: 9px;
+    margin-bottom: 8px;
+    color: var(--color-text-primary);
 }
 
 .timestamp {
@@ -1853,7 +1975,7 @@ input[type="file"] {
 .client-info-form button {
     padding: 10px 20px;
     margin-right: 10px;
-    background-color: #4CAF50;
+    background-color: #90EE90;
     color: white;
     border: none;
     border-radius: 4px;
@@ -2638,7 +2760,9 @@ input:invalid {
         height: 100%;
         background: linear-gradient(45deg,
                 rgba(66, 133, 244, 0.04),
-                rgba(66, 133, 244, 0));
+                rgba(66, 133, 244, 0.04) 10px,
+                rgba(66, 133, 244, 0.2) 10px,
+                rgba(66, 133, 244, 0.2) 20px);
         opacity: 0;
         transition: opacity 0.3s ease;
     }
@@ -2891,4 +3015,274 @@ input:invalid {
 .ant-carousel .slick-slide img {
   max-width: 100%;
   height: auto;
+}
+
+/* Get Started Section Styles */
+.get-started-section {
+  padding: 60px 20px;
+  text-align: center;
+  background-color: #f8f9fa;
+}
+
+.get-started-section h2 {
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  color: var(--color-text-primary);
+}
+
+.get-started-description {
+  max-width: 800px;
+  margin: 0 auto 3rem;
+  color: var(--color-text-secondary);
+  line-height: 1.6;
+}
+
+.steps-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.step-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.step-card:hover {
+  transform: translateY(-5px);
+}
+
+.step-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.step-card h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.step-card h4 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.step-card p {
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .get-started-section h2 {
+    font-size: 2rem;
+  }
+  
+  .steps-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Header Menu Specific Styles */
+.header-menu.ant-menu-horizontal {
+  line-height: 64px;
+  background: transparent !important;
+  border: none !important;
+}
+
+.header-menu.ant-menu-horizontal .ant-menu-item {
+  color: #333333;
+  font-size: 16px;
+  padding: 0 20px !important;
+}
+
+.header-menu.ant-menu-horizontal .ant-menu-item:hover,
+.header-menu.ant-menu-horizontal .ant-menu-item-selected {
+  color: #002E6D !important;
+  border-bottom: 2px solid #002E6D !important;
+}
+
+.header-menu.ant-menu-horizontal .ant-menu-item a {
+  color: inherit;
+}
+
+.header-menu.ant-menu-horizontal .ant-menu-item-selected a {
+  color: #002E6D !important;
+}
+
+/* Reset any conflicting styles */
+.header-menu.ant-menu-horizontal .ant-menu-item::after {
+  display: none !important;
+}
+
+.header-menu.ant-menu-light .ant-menu-item-selected {
+  background-color: transparent !important;
+}
+
+/* Header Menu Overrides */
+.ant-menu-light .ant-menu-item-selected,
+.ant-menu-light > .ant-menu .ant-menu-item-selected {
+  background-color: transparent !important;
+}
+
+.ant-menu-light .ant-menu-item-selected,
+.ant-menu-light > .ant-menu .ant-menu-item-selected,
+.ant-menu-light .ant-menu-item:hover,
+.ant-menu-light > .ant-menu .ant-menu-item:hover,
+.ant-menu-light .ant-menu-submenu-selected,
+.ant-menu-light > .ant-menu .ant-menu-submenu-selected {
+  color: #002E6D !important;
+}
+
+.ant-menu-light .ant-menu-item a,
+.ant-menu-light > .ant-menu .ant-menu-item a {
+  color: #333333;
+}
+
+.ant-menu-light .ant-menu-item:hover a,
+.ant-menu-light > .ant-menu .ant-menu-item:hover a,
+.ant-menu-light .ant-menu-item-selected a,
+.ant-menu-light > .ant-menu .ant-menu-item-selected a {
+  color: #002E6D !important;
+}
+
+.ant-menu-light:not(.ant-menu-horizontal) .ant-menu-item:not(.ant-menu-item-selected):hover {
+  background-color: transparent;
+}
+
+.ant-menu-light .ant-menu-item-selected,
+.ant-menu-light > .ant-menu .ant-menu-item-selected {
+  font-weight: 600;
+}
+
+.ant-menu-horizontal {
+  border-bottom: none !important;
+  background: transparent !important;
+}
+
+.ant-menu-horizontal > .ant-menu-item::after,
+.ant-menu-horizontal > .ant-menu-submenu::after {
+  display: none !important;
+}
+
+.ant-menu-horizontal > .ant-menu-item,
+.ant-menu-horizontal > .ant-menu-submenu {
+  padding: 0 20px !important;
+  margin: 0 !important;
+  top: 0 !important;
+}
+
+.ant-menu-horizontal > .ant-menu-item:hover,
+.ant-menu-horizontal > .ant-menu-submenu:hover,
+.ant-menu-horizontal > .ant-menu-item-active,
+.ant-menu-horizontal > .ant-menu-submenu-active,
+.ant-menu-horizontal > .ant-menu-item-open,
+.ant-menu-horizontal > .ant-menu-submenu-open,
+.ant-menu-horizontal > .ant-menu-item-selected,
+.ant-menu-horizontal > .ant-menu-submenu-selected {
+  border-bottom: 2px solid #002E6D !important;
+  color: #002E6D !important;
+}
+
+/* Override any existing color variables */
+.front-header .ant-menu-item:hover,
+.front-header .ant-menu-item-selected {
+  color: #002E6D !important;
+  background: transparent !important;
+}
+
+.front-header .ant-menu-item a:hover,
+.front-header .ant-menu-item-selected a {
+  color: #002E6D !important;
+}
+
+.front-header .ant-menu-horizontal {
+  background: transparent !important;
+}
+
+/* Header Menu Container */
+.front-header .ant-menu-overflow {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+}
+
+.front-header .ant-menu-overflow-item {
+  flex: 0 0 auto;
+}
+
+/* Hide overflow indicator */
+.front-header .ant-menu-overflow-item.ant-menu-overflow-item-rest {
+  display: none !important;
+}
+
+/* Ensure menu items are properly spaced */
+.header-menu.ant-menu-horizontal .ant-menu-item {
+  margin: 0 10px !important;
+  padding: 0 10px !important;
+}
+
+/* Prevent menu items from wrapping */
+.header-menu.ant-menu-horizontal .ant-menu-item a {
+  white-space: nowrap;
+}
+
+/* Hero Section Styles */
+.hero-section {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 46, 109, 0.7);
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: white;
+  padding: 0 20px;
+  max-width: 800px;
+}
+
+.hero-title {
+  font-size: 4rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.hero-subtitle {
+  font-size: 1.5rem;
+  line-height: 1.6;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.2rem;
+  }
 }
