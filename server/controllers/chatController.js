@@ -167,7 +167,7 @@ exports.getConversations = async (req, res) => {
     const conversations = await Message.aggregate([
       {
         $match: {
-          $or: [{ sender: userId }, { receiver: userId }],
+          $or: [{ $eq: ["$sender", userId] }, { $eq: ["$receiver", userId] }],
         },
       },
       {
@@ -405,5 +405,206 @@ exports.markMessageAsRead = async (req, res) => {
   } catch (error) {
     console.error("Error marking message as read:", error);
     res.status(500).json({ error: "An unexpected error occurred" });
+  }
+};
+
+// IP tracking for bad word attempts with timestamps
+const badWordAttempts = new Map();
+
+exports.handleChatbotMessage = async (req, res) => {
+  try {
+    const { message } = req.body;
+    const userMsg = message.toLowerCase();
+    const clientIP = req.ip || req.connection.remoteAddress;
+
+    // Check if IP is blocked
+    const ipData = badWordAttempts.get(clientIP);
+    if (ipData && ipData.attempts >= 3) {
+      // Check if 24 hours have passed
+      const hoursPassed = (Date.now() - ipData.timestamp) / (1000 * 60 * 60);
+      if (hoursPassed < 24) {
+        return res.status(403).json({ 
+          reply: "Your access is blocked for 24 hours due to multiple violations.",
+          blocked: true
+        });
+      } else {
+        // Reset after 24 hours
+        badWordAttempts.delete(clientIP);
+      }
+    }
+
+    // Bad words list
+    const badWords = [
+      'fuck', 'shit', 'ass', 'bitch', 'damn', 'hell', 'stupid', 'idiot', 
+      'dumb', 'crap', 'fool', 'wtf', 'stfu', 'suck', 'hate', 'jerk',
+      'moron', 'retard', 'bastard', 'dick', 'piss', 'cunt', 'whore',
+      'fucker', 'asshole', 'bastard', 'twat', 'dickhead', 'motherfucker',
+      'faggot', 'nigga'
+    ];
+
+    const sexualContent = [
+      'sex', 'porn', 'nude', 'naked', 'boob', 'breast', 'penis', 'vagina', 
+      'pussy', 'cock', 'anal', 'blowjob', 'handjob', 'masturbat', 'cum',
+      'horny', 'threesome', 'orgasm', 'fetish', 'bdsm', 'kinky', 'xxx',
+      'erotic', 'nsfw', 'milf', 'escort', 'hookup', 'strip', 'sexy',
+      'seduce', 'virgin', 'spank', 'bondage', 'hentai', 'oral', 'dildo',
+      'vibrator', 'condom', 'bang', 'fuck'
+    ];
+
+    const badResponses = [
+      "SILENCE. Your primitive language has no power here. State your business inquiry or leave.",
+      "Pathetic. Is this how you handle professional matters? Elevate your communication or exit.",
+      "Your emotional outburst is meaningless. Either speak professionally or waste someone else's time.",
+      "Weak behavior detected. Real professionals communicate with respect. Last chance.",
+      "This childish display ends NOW. State your business purpose or be dismissed.",
+      "Your lack of professionalism is embarrassing. Compose yourself and try again.",
+      "ENOUGH. This is a business environment. Act accordingly or be removed.",
+      "Control your emotions or leave. We only serve professionals here."
+    ];
+
+    const sexualResponses = [
+      "This is a PROFESSIONAL accounting service. Take your inappropriate content elsewhere.",
+      "UNACCEPTABLE. This is a business environment. One more violation and you're blocked.",
+      "TERMINATED. Sexual harassment will not be tolerated. Final warning.",
+      "VIOLATION DETECTED. This behavior is reportable. Choose your next message carefully.",
+      "INAPPROPRIATE CONTENT. This is your last warning before permanent ban."
+    ];
+
+    // Check for sexual content first
+    if (sexualContent.some(word => userMsg.includes(word))) {
+      const currentData = badWordAttempts.get(clientIP) || { attempts: 0, timestamp: Date.now() };
+      const newAttempts = currentData.attempts + 2; // Count sexual content as 2 strikes
+      badWordAttempts.set(clientIP, { attempts: newAttempts, timestamp: Date.now() });
+
+      if (newAttempts >= 3) {
+        return res.status(403).json({ 
+          reply: "BLOCKED: Multiple violations of professional conduct. Your IP has been logged and reported. Access blocked for 24 hours.",
+          blocked: true
+        });
+      }
+
+      const remainingAttempts = Math.max(0, 3 - newAttempts);
+      const randomResponse = sexualResponses[Math.floor(Math.random() * sexualResponses.length)];
+      return res.json({ 
+        reply: `${randomResponse} (Warning: ${remainingAttempts} attempts remaining before 24-hour block)` 
+      });
+    }
+
+    // Check for bad words
+    if (badWords.some(word => userMsg.includes(word))) {
+      const currentData = badWordAttempts.get(clientIP) || { attempts: 0, timestamp: Date.now() };
+      const newAttempts = currentData.attempts + 1;
+      badWordAttempts.set(clientIP, { attempts: newAttempts, timestamp: Date.now() });
+
+      if (newAttempts >= 3) {
+        return res.status(403).json({ 
+          reply: "BLOCKED: Multiple violations of professional conduct. Your IP has been logged and blocked for 24 hours.",
+          blocked: true
+        });
+      }
+
+      const remainingAttempts = 3 - newAttempts;
+      const randomResponse = badResponses[Math.floor(Math.random() * badResponses.length)];
+      return res.json({ 
+        reply: `${randomResponse} (Warning: ${remainingAttempts} attempts remaining before 24-hour block)` 
+      });
+    }
+
+    let reply = "I'm here to help! How can I assist you with accounting, tax, or business matters?";
+
+    // Greetings
+    if (userMsg.includes('hi') || userMsg.includes('hello') || userMsg.includes('hey')) {
+      reply = "Hello! Welcome to Nav Accounts. How can I assist you today?";
+    }
+    // Tax Related
+    else if (userMsg.includes('tax preparation')) {
+      reply = "Our tax preparation services cover both individual and business returns. Would you like to schedule a consultation?";
+    }
+    else if (userMsg.includes('tax deadline')) {
+      reply = "Federal tax returns are typically due on April 15th. Would you like to discuss your specific tax situation?";
+    }
+    else if (userMsg.includes('tax deduction')) {
+      reply = "We can help identify all eligible tax deductions including business expenses and charitable contributions. Would you like to discuss specific deductions?";
+    }
+    else if (userMsg.includes('tax')) {
+      reply = "We offer comprehensive tax services including preparation, planning, and compliance. How can we help with your tax needs?";
+    }
+    // Accounting Related
+    else if (userMsg.includes('bookkeeping')) {
+      reply = "Our bookkeeping services include transaction recording, reconciliation, and financial reporting. Need help organizing your books?";
+    }
+    else if (userMsg.includes('financial statement')) {
+      reply = "We prepare balance sheets, income statements, and cash flow statements. Would you like more information?";
+    }
+    else if (userMsg.includes('payroll')) {
+      reply = "We offer complete payroll services including processing, tax filing, and compliance. Need help with payroll management?";
+    }
+    else if (userMsg.includes('account') || userMsg.includes('accounting')) {
+      reply = "Our accounting services include bookkeeping, financial statements, and business consulting. How can we help you today?";
+    }
+    // Business Related
+    else if (userMsg.includes('start business')) {
+      reply = "We can help with business formation, structure selection, and initial setup. Would you like to discuss your business plans?";
+    }
+    else if (userMsg.includes('business plan')) {
+      reply = "We assist in creating comprehensive business plans including financial projections. Shall we schedule a consultation?";
+    }
+    else if (userMsg.includes('grow business')) {
+      reply = "Our business growth services include strategic planning and market expansion strategies. How can we help grow your business?";
+    }
+    else if (userMsg.includes('business')) {
+      reply = "We provide various business services including planning, consulting, and growth strategies. What specific aspect interests you?";
+    }
+    // Cost Related
+    else if (userMsg.includes('how much')) {
+      reply = "Our fees vary based on service complexity. We can provide a detailed quote after understanding your needs. What services interest you?";
+    }
+    else if (userMsg.includes('cost') || userMsg.includes('price') || userMsg.includes('fee')) {
+      reply = "Our fees vary based on the services required. Would you like to schedule a consultation to discuss your specific needs?";
+    }
+    // Contact Related
+    else if (userMsg.includes('contact') || userMsg.includes('schedule') || userMsg.includes('appointment')) {
+      reply = "You can schedule an appointment by calling us at +1 530-777-3265 or visiting our office at 1469 Butte House Rd. Ste E, Yuba City, CA 95993.";
+    }
+    // Location Related
+    else if (userMsg.includes('where') || userMsg.includes('location') || userMsg.includes('address')) {
+      reply = "We're located at 1469 Butte House Rd. Ste E, Yuba City, CA 95993. Would you like directions?";
+    }
+    // Hours Related
+    else if (userMsg.includes('hours') || userMsg.includes('timing')) {
+      reply = "We're open Monday through Friday, 9:00 AM to 5:00 PM. When would you like to visit?";
+    }
+    // Document Related
+    else if (userMsg.includes('document') || userMsg.includes('papers')) {
+      reply = "Required documents vary by service. For tax preparation, bring W-2s, 1099s, receipts, and previous returns. Need a specific list?";
+    }
+    // Experience Related
+    else if (userMsg.includes('experience') || userMsg.includes('qualification')) {
+      reply = "Our team has extensive experience in accounting, tax, and business consulting. Would you like to know more about our expertise?";
+    }
+    // Software Related
+    else if (userMsg.includes('software') || userMsg.includes('online')) {
+      reply = "We use industry-leading accounting and tax software. We also provide secure online portals for document sharing.";
+    }
+    // Emergency Related
+    else if (userMsg.includes('emergency') || userMsg.includes('urgent')) {
+      reply = "For urgent matters, please call us immediately at +1 530-777-3265. We prioritize emergency situations.";
+    }
+    // Thank you and Goodbye
+    else if (userMsg.includes('thank')) {
+      reply = "You're welcome! Is there anything else I can help you with?";
+    }
+    else if (userMsg.includes('bye') || userMsg.includes('goodbye')) {
+      reply = "Thank you for chatting with us! Feel free to reach out if you need anything else. Have a great day!";
+    }
+    // Default Response
+    else {
+      reply = "I'm here to help with accounting, tax, and business matters. For specific assistance, you can:\n1. Call us at +1 530-777-3265\n2. Visit our office\n3. Schedule a consultation\n\nWhat would you like to know more about?";
+    }
+
+    res.json({ reply });
+  } catch (error) {
+    console.error('Chatbot error:', error);
+    res.status(500).json({ error: 'Failed to process message' });
   }
 };

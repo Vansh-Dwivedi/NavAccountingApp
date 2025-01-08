@@ -19,7 +19,7 @@ const ChatButton = () => {
 
     const userMessage = {
       type: 'user',
-      content: input
+      content: input.trim()
     };
 
     setMessages(prev => [...prev, userMessage]);
@@ -27,14 +27,33 @@ const ChatButton = () => {
     setLoading(true);
 
     try {
-      const response = await api.post('/api/chat', { message: input });
-      const botMessage = {
-        type: 'bot',
-        content: response.data.reply
-      };
-      setMessages(prev => [...prev, botMessage]);
+      const response = await api.post('/api/chat', { message: input.trim() });
+      
+      if (response.data.blocked) {
+        const blockMessage = {
+          type: 'bot',
+          content: response.data.reply,
+          isBlocked: true
+        };
+        setMessages(prev => [...prev, blockMessage]);
+        // Disable further input
+        setIsOpen(false);
+      } else if (response.data && response.data.reply) {
+        const botMessage = {
+          type: 'bot',
+          content: response.data.reply
+        };
+        setMessages(prev => [...prev, botMessage]);
+      } else {
+        throw new Error('Invalid response format');
+      }
     } catch (error) {
-      message.error('Failed to send message. Please try again.');
+      console.error('Chat error:', error);
+      const errorMessage = {
+        type: 'bot',
+        content: `I apologize, but I'm having trouble responding right now. Please try again later or contact us directly at +1 530-777-3265.`
+      };
+      setMessages(prev => [...prev, errorMessage]);
     }
 
     setLoading(false);

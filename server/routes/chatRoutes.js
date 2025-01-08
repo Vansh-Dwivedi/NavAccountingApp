@@ -56,4 +56,7 @@ router.get('/search', auditMiddleware('🔍 Searching chat messages'), async (re
   }
 });
 
+// Simple chatbot endpoint (no auth required)
+router.post('/', auditMiddleware('🤖 Chatbot interaction'), chatController.handleChatbotMessage);
+
 module.exports = router;
