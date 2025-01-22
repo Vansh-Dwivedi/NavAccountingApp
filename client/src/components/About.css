@@ -1,0 +1,26 @@
+.about-content {
+  padding: 64px 32px;
+  min-height: calc(100vh - 64px);
+  background: #f0f2f5;
+}
+
+.about-section {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.about-card {
+  margin-top: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.about-card .ant-card-body {
+  padding: 32px;
+}
+
+.about-card p {
+  font-size: 16px;
+  line-height: 1.8;
+  color: #333;
+  margin-bottom: 16px;
+}

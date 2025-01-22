@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Typography, Row, Col, Timeline, Card, Image } from 'antd';
+import { Layout, Typography, Row, Col, Timeline, Card, Image, Carousel } from 'antd';
 import {
   BankOutlined,
   TeamOutlined,
@@ -225,6 +225,33 @@ const About = () => {
             </div>
           </section>
 
+          <section style={{ display: 'flex', padding: '40px 0' }}>
+            <div style={{ flex: 1, maxWidth: '600px', margin: '0 auto' }}>
+              <Carousel autoplay dots={true} style={{ width: '100%' }}>
+                {['new-clients-about.png', 'open-for-virtual-about.png', 'stress-free-about.png'].map((img, index) => (
+                  <div key={index}>
+                    <img src={`${process.env.REACT_APP_API_URL}/uploads/${img}`} alt={img.split('-')[0]} style={{ width: '100%', height: 'auto', maxHeight: '2000px', objectFit: 'cover' }} />
+                  </div>
+                ))}
+              </Carousel>
+            </div>
+            <div style={{ flex: 1, maxWidth: '600px', margin: '10px auto', padding: '20px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', borderRadius: '8px', backgroundColor: '#fff' }}>
+              <h2>Meet Navrisham Khaira, IRS Enrolled Agent</h2>
+              <Paragraph className={classes.aboutText}>
+                Navrisham Khaira is the proud owner of Nav Accounts as solopreneur, bringing in over 7 years of expertise in tax preparation, accounting, and financial planning. She's an IRS Enrolled Agent, active since 2018, with a Graduation in Commerce and hands-on experience in both traditional and modern accounting practices.
+              </Paragraph>
+              <Paragraph className={classes.aboutText}>
+                She is passionate about helping individuals and businesses navigate the complexities of tax laws to maximize savings and ensure long-term financial success, along with sharing tech associated compliance with small business owners data protection.
+              </Paragraph>
+              <Paragraph className={classes.aboutText}>
+                Specializing in personal and business taxes, payroll reporting, sales taxes, and tax resolution, Nav has successfully saved her clients up to $50,000 in tax letters over the past two years. She works closely with local clients, focusing on uplifting the community, especially empowering the youth.
+              </Paragraph>
+              <Paragraph className={classes.aboutText}>
+                Since 2020 Due to her passion and devotion to her profession, Navrisham Khaira has been handing in everything by herself. We're a relatively young firm, founded in 2022, and have become a member of Yuba City Chamber of Commerce. We're excited to see what the future awaits.
+              </Paragraph>
+            </div>
+          </section>
+
           {/* Achievements Section */}
           <section style={{
             padding: '60px 0',
@@ -232,8 +259,8 @@ const About = () => {
             textAlign: 'center'
           }}>
             <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-              <h2 style={{ 
-                fontSize: '2.5rem', 
+              <h2 style={{
+                fontSize: '2.5rem',
                 color: '#002E6D',
                 marginBottom: '40px',
                 fontWeight: 'bold'
@@ -251,7 +278,7 @@ const About = () => {
                     src={`${process.env.REACT_APP_API_URL}/uploads/${num}aa.png`}
                     alt={`${num}`}
                     style={{
-                      maxWidth: '200px',
+                      width: '250px',
                       height: 'auto',
                       borderRadius: '10px',
                       boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
@@ -278,65 +305,54 @@ const About = () => {
             </div>
           </section>
 
-          <section className={classes.section}>
-            <Card className={classes.aboutCard}>
-              <h1 className={classes.ownerName}>Meet Navrisham Khaira, IRS Enrolled Agent</h1>
-              <Paragraph className={classes.aboutText}>
-                Samantha is the proud owner of Nav Accounts, bringing in over 7 years of expertise in tax preparation, accounting, and financial planning. She's an IRS Enrolled Agent, active since 2018, with a Graduation in Commerce and hands-on experience in both traditional and modern accounting practices.
-              </Paragraph>
-              <Paragraph className={classes.aboutText}>
-                Specializing in personal and business taxes, payroll reporting, sales taxes, and tax resolution, Samantha has successfully saved her clients up to $50,000 in tax letters over the past two years. She works closely with local clients, focusing on uplifting the community, especially empowering the youth.
-              </Paragraph>
-              <Paragraph className={classes.aboutText}>
-                Since 2020 Due to her passion and devotion to her profession, Navrisham Khaira has been handing in everything by herself. We're a relatively young firm, founded in 2022, and have become a member of Yuba City Chamber of Commerce. We're excited to see what the future awaits.
-              </Paragraph>
-            </Card>
+          <div style={{
+            fontSize: '2.5rem',
+            color: '#002E6D',
+            marginBottom: '40px',
+            fontWeight: 'bold'
+          }}>Our Journey</div>
+          <Timeline className={classes.timeline} mode="alternate">
+            <Timeline.Item dot={<RocketOutlined className={classes.timelineIcon} />}>
+              <Card
+                title={<span style={{ color: '#1890ff', fontWeight: 'bold' }}>2020 – The year we initiated</span>}
+                bordered={false}
+                className={classes.timelineCard}
+              >
+                <p>Nav used to prepare taxes from her apartment, she used to meet at Starbucks for Client interactions. The firm's name was her full name Navrisham K Khaira E.A. This journey starts same till 2022.</p>
+              </Card>
+            </Timeline.Item>
 
-            <Title level={2}>Our Journey</Title>
-            <Timeline className={classes.timeline} mode="alternate">
-              <Timeline.Item dot={<RocketOutlined className={classes.timelineIcon} />}>
-                <Card
-                  title={<span style={{ color: '#1890ff', fontWeight: 'bold' }}>2020 – The year we initiated</span>}
-                  bordered={false}
-                  className={classes.timelineCard}
-                >
-                  <p>Nav used to prepare taxes from her apartment, she used to meet at Starbucks for Client interactions. The firm's name was her full name Navrisham K Khaira E.A. This journey starts same till 2022.</p>
-                </Card>
-              </Timeline.Item>
+            <Timeline.Item dot={<BankOutlined className={classes.timelineIcon} />}>
+              <Card
+                title={<span style={{ color: '#1890ff', fontWeight: 'bold' }}>2022 – Official Registered</span>}
+                bordered={false}
+                className={classes.timelineCard}
+              >
+                <p>From this year Our Practice got officially registered with City as Sole Proprietorship as Navrisham Khaira E.A. DBA with Nav Accounts. We become part of Yuba city Chamber of Commerce.</p>
+                <p>Able to offer more services associated with Sales Tax Reporting, Accounting, preparation for Financial Statements. Grateful for yuba city community to showing trust in our work style and opportunities to serve with best of our understanding in the matter of tax and accounting; referring us clients.</p>
+              </Card>
+            </Timeline.Item>
 
-              <Timeline.Item dot={<BankOutlined className={classes.timelineIcon} />}>
-                <Card
-                  title={<span style={{ color: '#1890ff', fontWeight: 'bold' }}>2022 – Official Registered</span>}
-                  bordered={false}
-                  className={classes.timelineCard}
-                >
-                  <p>From this year Our Practice got officially registered with City as Sole Proprietorship as Navrisham Khaira E.A. DBA with Nav Accounts. We become part of Yuba city Chamber of Commerce.</p>
-                  <p>Able to offer more services associated with Sales Tax Reporting, Accounting, preparation for Financial Statements. Grateful for yuba city community to showing trust in our work style and opportunities to serve with best of our understanding in the matter of tax and accounting; referring us clients.</p>
-                </Card>
-              </Timeline.Item>
+            <Timeline.Item dot={<TrophyOutlined className={classes.timelineIcon} />}>
+              <Card
+                title={<span style={{ color: '#1890ff', fontWeight: 'bold' }}>2024 – Advancing with Compliance</span>}
+                bordered={false}
+                className={classes.timelineCard}
+              >
+                <p>We added more services in the form Business Compliance, which is not limited to Business formation, obtaining city licenses, Renewals, updating the licenses, assistance with Worker Comp Audit, Payroll Representation, Wholesale, Retail for Product line & food Focus along with Transportation Industry compliance from Licensing to reporting other than IRP Plates are now available.</p>
+              </Card>
+            </Timeline.Item>
 
-              <Timeline.Item dot={<TrophyOutlined className={classes.timelineIcon} />}>
-                <Card
-                  title={<span style={{ color: '#1890ff', fontWeight: 'bold' }}>2024 – Advancing with Compliance</span>}
-                  bordered={false}
-                  className={classes.timelineCard}
-                >
-                  <p>We added more services in the form Business Compliance, which is not limited to Business formation, obtaining city licenses, Renewals, updating the licenses, assistance with Worker Comp Audit, Payroll Representation, Wholesale, Retail for Product line & food Focus along with Transportation Industry compliance from Licensing to reporting other than IRP Plates are now available.</p>
-                </Card>
-              </Timeline.Item>
-
-              <Timeline.Item dot={<GlobalOutlined className={classes.timelineIcon} />}>
-                <Card
-                  title={<span style={{ color: '#1890ff', fontWeight: 'bold' }}>From 2025 – Location freedom</span>}
-                  bordered={false}
-                  className={classes.timelineCard}
-                >
-                  <p>This year onward, we are open for virtual meetings for clients who want to work with us but are unable to connect with us due to traffic distance, Time zone concerns, we would like to work with your concerns, at your space with our services. Let's Connect and address your financial concerns together.</p>
-                </Card>
-              </Timeline.Item>
-            </Timeline>
-          </section>
-
+            <Timeline.Item dot={<GlobalOutlined className={classes.timelineIcon} />}>
+              <Card
+                title={<span style={{ color: '#1890ff', fontWeight: 'bold' }}>2025 – Location freedom</span>}
+                bordered={false}
+                className={classes.timelineCard}
+              >
+                <p>This year onward, we are open for virtual meetings for clients who want to work with us but are unable to connect with us due to traffic distance, Time zone concerns, we would like to work with your concerns, at your space with our services. Let's Connect and address your financial concerns together.</p>
+              </Card>
+            </Timeline.Item>
+          </Timeline>
           <GetStartedSteps />
         </div>
       </Content>

@@ -61,11 +61,14 @@
     "react-scripts": "^5.0.1",
     "react-select": "^5.8.0",
     "react-signature-canvas": "^1.0.6",
+    "react-slick": "^0.30.3",
     "react-toastify": "^10.0.5",
     "react-tooltip": "^5.28.0",
     "sass": "^1.82.0",
+    "slick-carousel": "^1.8.1",
     "socket.io-client": "^4.8.0",
-    "styled-components": "^6.1.13"
+    "styled-components": "^6.1.13",
+    "swiper": "^11.2.1"
   },
   "browserslist": {
     "production": [

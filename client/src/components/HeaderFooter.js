@@ -336,12 +336,12 @@ const FrontFooter = () => {
 
           <Col xs={24} sm={12} md={8}>
             <img
-              src={`${process.env.REACT_APP_API_URL}/uploads/thank-you.png`}
-              alt="Thank You"
+              src={`${process.env.REACT_APP_API_URL}/uploads/full-white-app-logo.png`}
+              alt="App Logo"
               style={{
-                maxWidth: '400px',
+                maxWidth: '100px',
                 height: 'auto',
-                marginBottom: '20px'
+                marginBottom: '10px'
               }}
             />
           </Col>

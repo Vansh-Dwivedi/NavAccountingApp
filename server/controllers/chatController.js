@@ -408,107 +408,10 @@ exports.markMessageAsRead = async (req, res) => {
   }
 };
 
-// IP tracking for bad word attempts with timestamps
-const badWordAttempts = new Map();
-
 exports.handleChatbotMessage = async (req, res) => {
   try {
     const { message } = req.body;
     const userMsg = message.toLowerCase();
-    const clientIP = req.ip || req.connection.remoteAddress;
-
-    // Check if IP is blocked
-    const ipData = badWordAttempts.get(clientIP);
-    if (ipData && ipData.attempts >= 3) {
-      // Check if 24 hours have passed
-      const hoursPassed = (Date.now() - ipData.timestamp) / (1000 * 60 * 60);
-      if (hoursPassed < 24) {
-        return res.status(403).json({ 
-          reply: "Your access is blocked for 24 hours due to multiple violations.",
-          blocked: true
-        });
-      } else {
-        // Reset after 24 hours
-        badWordAttempts.delete(clientIP);
-      }
-    }
-
-    // Bad words list
-    const badWords = [
-      'fuck', 'shit', 'ass', 'bitch', 'damn', 'hell', 'stupid', 'idiot', 
-      'dumb', 'crap', 'fool', 'wtf', 'stfu', 'suck', 'hate', 'jerk',
-      'moron', 'retard', 'bastard', 'dick', 'piss', 'cunt', 'whore',
-      'fucker', 'asshole', 'bastard', 'twat', 'dickhead', 'motherfucker',
-      'faggot', 'nigga'
-    ];
-
-    const sexualContent = [
-      'sex', 'porn', 'nude', 'naked', 'boob', 'breast', 'penis', 'vagina', 
-      'pussy', 'cock', 'anal', 'blowjob', 'handjob', 'masturbat', 'cum',
-      'horny', 'threesome', 'orgasm', 'fetish', 'bdsm', 'kinky', 'xxx',
-      'erotic', 'nsfw', 'milf', 'escort', 'hookup', 'strip', 'sexy',
-      'seduce', 'virgin', 'spank', 'bondage', 'hentai', 'oral', 'dildo',
-      'vibrator', 'condom', 'bang', 'fuck'
-    ];
-
-    const badResponses = [
-      "SILENCE. Your primitive language has no power here. State your business inquiry or leave.",
-      "Pathetic. Is this how you handle professional matters? Elevate your communication or exit.",
-      "Your emotional outburst is meaningless. Either speak professionally or waste someone else's time.",
-      "Weak behavior detected. Real professionals communicate with respect. Last chance.",
-      "This childish display ends NOW. State your business purpose or be dismissed.",
-      "Your lack of professionalism is embarrassing. Compose yourself and try again.",
-      "ENOUGH. This is a business environment. Act accordingly or be removed.",
-      "Control your emotions or leave. We only serve professionals here."
-    ];
-
-    const sexualResponses = [
-      "This is a PROFESSIONAL accounting service. Take your inappropriate content elsewhere.",
-      "UNACCEPTABLE. This is a business environment. One more violation and you're blocked.",
-      "TERMINATED. Sexual harassment will not be tolerated. Final warning.",
-      "VIOLATION DETECTED. This behavior is reportable. Choose your next message carefully.",
-      "INAPPROPRIATE CONTENT. This is your last warning before permanent ban."
-    ];
-
-    // Check for sexual content first
-    if (sexualContent.some(word => userMsg.includes(word))) {
-      const currentData = badWordAttempts.get(clientIP) || { attempts: 0, timestamp: Date.now() };
-      const newAttempts = currentData.attempts + 2; // Count sexual content as 2 strikes
-      badWordAttempts.set(clientIP, { attempts: newAttempts, timestamp: Date.now() });
-
-      if (newAttempts >= 3) {
-        return res.status(403).json({ 
-          reply: "BLOCKED: Multiple violations of professional conduct. Your IP has been logged and reported. Access blocked for 24 hours.",
-          blocked: true
-        });
-      }
-
-      const remainingAttempts = Math.max(0, 3 - newAttempts);
-      const randomResponse = sexualResponses[Math.floor(Math.random() * sexualResponses.length)];
-      return res.json({ 
-        reply: `${randomResponse} (Warning: ${remainingAttempts} attempts remaining before 24-hour block)` 
-      });
-    }
-
-    // Check for bad words
-    if (badWords.some(word => userMsg.includes(word))) {
-      const currentData = badWordAttempts.get(clientIP) || { attempts: 0, timestamp: Date.now() };
-      const newAttempts = currentData.attempts + 1;
-      badWordAttempts.set(clientIP, { attempts: newAttempts, timestamp: Date.now() });
-
-      if (newAttempts >= 3) {
-        return res.status(403).json({ 
-          reply: "BLOCKED: Multiple violations of professional conduct. Your IP has been logged and blocked for 24 hours.",
-          blocked: true
-        });
-      }
-
-      const remainingAttempts = 3 - newAttempts;
-      const randomResponse = badResponses[Math.floor(Math.random() * badResponses.length)];
-      return res.json({ 
-        reply: `${randomResponse} (Warning: ${remainingAttempts} attempts remaining before 24-hour block)` 
-      });
-    }
 
     let reply = "I'm here to help! How can I assist you with accounting, tax, or business matters?";
 

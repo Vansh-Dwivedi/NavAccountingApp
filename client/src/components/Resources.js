@@ -29,8 +29,8 @@ const Resources = () => {
       links: [
         { text: "Personal Online Account", url: "https://www.irs.gov/payments/your-online-account", icon: <IdcardOutlined /> },
         { text: "Business Online Account", url: "https://www.irs.gov/payments/view-your-tax-account", icon: <SafetyCertificateOutlined /> },
-        { text: "Personal Tax Payment", url: "https://www.irs.gov/payments", icon: <DollarOutlined /> },
-        { text: "Business Tax Payment", url: "https://www.irs.gov/payments/pay-your-business-taxes", icon: <CalculatorOutlined /> },
+        { text: "Make a Payment", url: "https://www.irs.gov/payments", icon: <DollarOutlined /> },
+        { text: "Schedule an Appointment", url: "https://apps.irs.gov/app/office-locator/", icon: <CalculatorOutlined /> },
         { text: "Tax Refund Status", url: "https://www.irs.gov/refunds", icon: <AuditOutlined /> }
       ]
     },

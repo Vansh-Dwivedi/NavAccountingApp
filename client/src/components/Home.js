@@ -33,6 +33,9 @@ import FlipNumbers from "react-flip-numbers";
 import api from "../utils/api";
 import "./Home.css";
 import { FrontHeader, FrontFooter } from './HeaderFooter';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import 'swiper/css';
+import 'swiper/css/pagination';
 
 import VirtualMeetingSection from './VirtualMeetingSection';
 import GetStartedSteps from './GetStartedSteps';
@@ -220,43 +223,13 @@ const Home = () => {
     }
   };
 
-  const AchievementsSection = () => {
-    return (
-      <section className="accomplishments-section">
-        <div className="section-container">
-          <div className="section-title">
-            <TrophyOutlined />
-            <h2>Our Accomplishments</h2>
-          </div>
-          <Row gutter={[48, 48]} justify="center">
-            {accomplishments.map((item, index) => (
-              <Col xs={24} sm={12} md={8} key={index}>
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                >
-                  <div className="accomplishment-card">
-                    <div className="accomplishment-image">
-                      <img src={item.image} />
-                    </div>
-                  </div>
-                </motion.div>
-              </Col>
-            ))}
-          </Row>
-        </div>
-      </section>
-    );
-  };
-
   const isMobile = window.innerWidth <= 768;
 
   return (
     <Layout className="layout">
       <FrontHeader />
       {/* Hero Section */}
-      <section style={{ position: 'relative', width: '100%', height: 'calc(100vh - 130px)', marginTop: '130px', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#002E6D' }}>
+      <section style={{ position: 'relative', width: '100%', height: 'calc(100vh - 130px)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#002E6D' }}>
         <video autoPlay loop muted playsInline style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 1 }}>
           <source src={process.env.REACT_APP_API_URL + "/uploads/nav-home-banner.mp4"} type="video/mp4" />
         </video>
@@ -289,24 +262,105 @@ const Home = () => {
         </Row>
       </section>
 
+      {/* Our Services Section */}
+      <section className="services-section">
+        <Title level={2} className="section-title">Our Services</Title>
+        <Paragraph className="section-description">
+          Nav Accounts offers a wide range of services to our clients. We Look to us to help you with
+          financial reporting, tax planning, business best practices, transaction advisory assistance
+          and understanding of your industry.
+        </Paragraph>
+
+        <Row gutter={[24, 24]}>
+          <Col xs={24}>
+            <Card style={{ borderRadius: '15px', background: 'linear-gradient(135deg, #002E6D15, #002E6D30)', border: '1px solid #002E6D50' }}>
+              <Title level={3}>Accounting & Payroll</Title>
+              <Paragraph className="section-description">
+                We offer a range of accounting and payroll services to help you manage your finances effectively.
+              </Paragraph>
+            </Card>
+          </Col>
+          <Col xs={24} md={12}>
+            <Card style={{ borderRadius: '15px', background: 'linear-gradient(135deg, #002E6D15, #002E6D30)', border: '1px solid #002E6D50' }}>
+              <Title level={3}>Taxation</Title>
+              <Paragraph className="section-description">
+                We provide tax planning services to help you navigate the complex tax landscape.
+              </Paragraph>
+            </Card>
+          </Col>
+          <Col xs={24} md={12}>
+            <Card style={{ borderRadius: '15px', background: 'linear-gradient(135deg, #002E6D15, #002E6D30)', border: '1px solid #002E6D50' }}>
+              <Title level={3}>Compliance</Title>
+              <Paragraph className="section-description">
+                We offer compliance services to help you stay compliant with regulations and legal obligations.
+              </Paragraph>
+            </Card>
+          </Col>
+          <Col xs={24}>
+            <Card style={{ borderRadius: '15px', background: 'linear-gradient(135deg, #002E6D15, #002E6D30)', border: '1px solid #002E6D50' }}>
+              <Title level={3}>Business Insight & Advisory</Title>
+              <Paragraph className="section-description">
+                We provide business insight and advisory services to help you make informed decisions.
+              </Paragraph>
+            </Card>
+          </Col>
+        </Row>
+      </section>
+
       {/* Image Section */}
       <div className="image-section">
         <Image
           src={process.env.REACT_APP_API_URL + "/uploads/tax-returns-50.png"}
           alt="Tax Returns"
-          preview={false}
         />
         <Image
           src={process.env.REACT_APP_API_URL + "/uploads/virtual-clients-web.png"}
           alt="Virtual Clients"
-          preview={false}
         />
       </div>
-
-      <AchievementsSection />
+      <section style={{ padding: '80px 0', backgroundColor: '#f8f9fa' }}>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px', minHeight: '100vh' }}>
+          <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+            <h2 style={{ fontSize: '36px', color: '#002E6D', fontWeight: '600', margin: 0 }}>Our Accomplishments</h2>
+          </div>
+          <Row gutter={[48, 48]}>
+            <Col xs={24} md={12}>
+              <div style={{ height: '300px', backgroundColor: '#002E6D', color: 'white', padding: '40px', borderRadius: '10px' }}>
+                <p style={{ fontSize: '18px', lineHeight: '1.6', margin: 0, color: 'white' }}>
+                  We talk only when we had achieved for real. That make countable for your opportunities to assist you with our business solution with our commitment to serve as best of our understanding. These numbers are based on year 2022 & 2023.
+                </p>
+              </div>
+            </Col>
+            <Col xs={24} md={12}>
+              <div style={{ height: '1000px', display: 'flex' }}>
+                <Swiper
+                  spaceBetween={50}
+                  slidesPerView={1}
+                  pagination={{ clickable: true }}
+                  autoplay={{ delay: 2000, disableOnInteraction: false }}
+                  loop={true}
+                >
+                  <SwiperSlide>
+                    <img src={`${process.env.REACT_APP_API_URL}/uploads/a1.png`} alt="Tax Savings" style={{ width: '100%', height: '100%', display: 'block' }} />
+                  </SwiperSlide>
+                  <SwiperSlide>
+                    <img src={`${process.env.REACT_APP_API_URL}/uploads/a2.png`} alt="E-Filed Returns" style={{ width: '100%', height: '100%', display: 'block' }} />
+                  </SwiperSlide>
+                  <SwiperSlide>
+                    <img src={`${process.env.REACT_APP_API_URL}/uploads/a3.png`} alt="Business Architecture" style={{ width: '100%', height: '100%', display: 'block' }} />
+                  </SwiperSlide>
+                  <SwiperSlide>
+                    <img src={`${process.env.REACT_APP_API_URL}/uploads/a4.png`} alt="Compliance" style={{ width: '100%', height: '100%', display: 'block' }} />
+                  </SwiperSlide>
+                </Swiper>
+              </div>
+            </Col>
+          </Row>
+        </div>
+      </section>
 
       <section className="features-section">
-        <div className="section-header">
+        <div className="section-title">
           <h2>Why Choose Us</h2>
         </div>
         <div className="features-grid">

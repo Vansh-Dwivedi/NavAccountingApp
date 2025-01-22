@@ -80,7 +80,9 @@ app.get('/static/js/*', (req, res) => {
   res.sendFile(filePath, (err) => {
     if (err) {
       console.error('Error sending JS file:', err);
-      res.status(500).send('Error serving JS file');
+      if (!res.headersSent) {
+        res.status(500).send('Error serving JS file');
+      }
     }
   });
 });
@@ -93,7 +95,9 @@ app.get('/static/css/*', (req, res) => {
   res.sendFile(filePath, (err) => {
     if (err) {
       console.error('Error sending CSS file:', err);
-      res.status(500).send('Error serving CSS file');
+      if (!res.headersSent) {
+        res.status(500).send('Error serving CSS file');
+      }
     }
   });
 });

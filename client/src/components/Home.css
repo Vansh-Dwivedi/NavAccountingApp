@@ -21,6 +21,8 @@
   align-items: center;
   justify-content: center;
   background-color: #002E6D;
+  padding: 64px 32px;
+  background: #f0f2f5;
 }
 
 .hero-video {
@@ -51,6 +53,10 @@
   padding: 0 20px;
   max-width: 1200px;
   margin-top: -130px; /* Pull up content to center */
+}
+
+.hero-text {
+  padding: 0 32px;
 }
 
 .hero-title {
@@ -121,7 +127,9 @@ section {
   margin-bottom: 48px;
 }
 
-.section-header h2 {
+.section-title {
+  text-align: center;
+  margin-bottom: 24px !important;
   font-size: 36px;
   color: #333333;
   margin-bottom: 16px;
@@ -208,6 +216,42 @@ section {
   font-size: 16px;
   line-height: 1.6;
   color: #666;
+}
+
+.services-section {
+  padding: 64px 32px;
+  background: #fff;
+}
+
+.services-grid {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.service-card {
+  height: 100%;
+  text-align: center;
+  transition: all 0.3s ease;
+}
+
+.service-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+}
+
+.service-card.full-width {
+  background-color: #1890ff;
+}
+
+.service-card.full-width h3 {
+  color: #fff;
+}
+
+.section-description {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 48px !important;
+  font-size: 16px;
 }
 
 @media (max-width: 1024px) {
