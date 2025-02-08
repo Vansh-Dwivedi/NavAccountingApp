@@ -34,13 +34,19 @@ const app = express();
 
 // CORS configuration
 const corsOptions = {
-  origin: [
-    'https://localhost:8443'
-  ].filter(Boolean),
+  origin: function (origin, callback) {
+    const allowedOrigins = ['https://localhost:8443', 'http://localhost:3000'];
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
-  optionsSuccessStatus: 200,
+  maxAge: 86400 // 24 hours
 };
 
 app.use(cors(corsOptions));
@@ -106,51 +112,62 @@ app.get('/static/css/*', (req, res) => {
 app.use(express.static(path.join(__dirname, '../client/build')));
 
 // Serve uploads directory
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', (req, res, next) => {
+  // Allow both origins
+  const origin = req.headers.origin;
+  if (origin === 'http://localhost:3000' || origin === 'https://localhost:8443') {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+  }
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  next();
+}, express.static(path.join(__dirname, 'uploads')));
 
 // MongoDB connection with retry logic
-// const connectWithRetry = async (retries = 5, delay = 5000) => {
-//   for (let i = 0; i < retries; i++) {
-//     try {
-//       console.log(`MongoDB connection attempt ${i + 1} of ${retries}`);
-//       await mongoose.connect(process.env.MONGODB_URI, {
-//         useNewUrlParser: true,
-//         useUnifiedTopology: true,
-//         serverSelectionTimeoutMS: 10000, // Increase timeout to 10 seconds
-//         heartbeatFrequencyMS: 2000,      // More frequent heartbeats
-//       });
-//       console.log('MongoDB connected successfully');
-//       return;
-//     } catch (err) {
-//       console.error(`MongoDB connection attempt ${i + 1} failed:`, err.message);
-//       if (i < retries - 1) {
-//         console.log(`Retrying in ${delay/1000} seconds...`);
-//         await new Promise(resolve => setTimeout(resolve, delay));
-//       }
-//     }
-//   }
-//   throw new Error('Failed to connect to MongoDB after multiple attempts');
-// };
+const connectWithRetry = async (retries = 5, delay = 5000) => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      console.log(`MongoDB connection attempt ${i + 1} of ${retries}`);
+      await mongoose.connect(process.env.MONGODB_URI, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        serverSelectionTimeoutMS: 10000, // Increase timeout to 10 seconds
+        heartbeatFrequencyMS: 2000,      // More frequent heartbeats
+      });
+      console.log('MongoDB connected successfully');
+      return;
+    } catch (err) {
+      console.error(`MongoDB connection attempt ${i + 1} failed:`, err.message);
+      if (i < retries - 1) {
+        console.log(`Retrying in ${delay/1000} seconds...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
+  }
+  throw new Error('Failed to connect to MongoDB after multiple attempts');
+};
 
-// // Initialize MongoDB connection
-// connectWithRetry()
-//   .catch(err => {
-//     console.error('Fatal MongoDB connection error:', err);
-//     process.exit(1);
-//   });
+// Initialize MongoDB connection
+connectWithRetry()
+  .catch(err => {
+    console.error('Fatal MongoDB connection error:', err);
+    process.exit(1);
+  });
 
-// // MongoDB connection event handlers
-// mongoose.connection.on('connected', () => {
-//   console.log('MongoDB connection established');
-// });
+// MongoDB connection event handlers
+mongoose.connection.on('connected', () => {
+  console.log('MongoDB connection established');
+});
 
-// mongoose.connection.on('error', err => {
-//   console.error('MongoDB connection error:', err);
-// });
+mongoose.connection.on('error', err => {
+  console.error('MongoDB connection error:', err);
+});
 
-// mongoose.connection.on('disconnected', () => {
-//   console.log('MongoDB connection disconnected');
-// });
+mongoose.connection.on('disconnected', () => {
+  console.log('MongoDB connection disconnected');
+});
 
 process.on('SIGINT', async () => {
   await mongoose.connection.close();

@@ -253,9 +253,9 @@ const About = () => {
           }}
         />
         <div className={classes.container}>
-          <section style={{ display: 'flex', gap: '2rem', padding: '2rem', flexDirection: 'row' }}>
+          <section style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
             {/* Slider Section */}
-            <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
+            <div style={{ width: '100%', maxWidth: '600px', margin: '0 auto' }}>
               <Slider
                 dots={true}
                 infinite={true}
@@ -270,7 +270,7 @@ const About = () => {
               >
                 {['new-clients-about.png', 'open-for-virtual-about.png', 'stress-free-about.png'].map((img, index) => (
                   <div key={index} style={{ height: '600px' }}>
-                    <img 
+                    <Image
                       src={`${process.env.REACT_APP_API_URL}/uploads/${img}`} 
                       alt={img.split('-')[0]}
                       style={{
@@ -279,6 +279,7 @@ const About = () => {
                         objectFit: 'contain',
                         backgroundColor: '#f5f5f5'
                       }}
+                      preview={false}
                     />
                   </div>
                 ))}

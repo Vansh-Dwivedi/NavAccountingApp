@@ -70,7 +70,7 @@ const Employment = () => {
               >
                 <Card
                   style={{ 
-                    height: '100%',
+                    height: '267.56px',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
                     borderRadius: '12px'
                   }}

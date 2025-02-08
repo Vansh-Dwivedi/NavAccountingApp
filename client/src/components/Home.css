@@ -454,8 +454,47 @@ section {
 
 /* Accomplishments Section */
 .accomplishments-section {
-  padding: 80px 0;
-  background-color: #f8f9fa;
+  padding: 100px 24px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.accomplishments-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0, 46, 109, 0.2), transparent);
+}
+
+.accomplishments-section::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0, 46, 109, 0.2), transparent);
+}
+
+.accomplishments-section .section-title {
+  margin-bottom: 48px;
+  color: #002E6D;
+  text-align: center;
+  font-size: clamp(2rem, 4vw, 2.5rem);
+}
+
+@media (max-width: 768px) {
+  .accomplishments-section {
+    padding: 60px 16px;
+  }
+  
+  .accomplishments-section .section-title {
+    margin-bottom: 32px;
+  }
 }
 
 .accomplishments-section .section-container {
@@ -524,6 +563,46 @@ section {
     font-size: 18px;
   }
 }
+
+.accomplishments-list {
+  list-style: none;
+  padding: 0;
+  margin: 30px 0;
+}
+
+.accomplishments-list li {
+  position: relative;
+  padding-left: 30px;
+  margin-bottom: 20px;
+  line-height: 1.6;
+  transition: transform 0.3s ease;
+}
+
+.accomplishments-list li:hover {
+  transform: translateX(10px);
+}
+
+.accomplishments-list li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: #4FC3F7;
+  font-size: 1.2em;
+  line-height: 1.4;
+}
+
+@media (max-width: 768px) {
+  .accomplishments-section {
+    padding: 60px 16px;
+  }
+  
+  .accomplishments-list li {
+    padding-left: 25px;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+  }
+}
+
 /* Image Section Styles */
 /* Responsive Styles */
 @media (max-width: 768px) {
@@ -815,7 +894,7 @@ section {
 
 .reliability-section {
   padding: 64px 24px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e5e5ea 100%);
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   margin: 64px 0;
   border-radius: 8px;
 }
@@ -1167,121 +1246,6 @@ section {
 }
 
 /* Video Banner Section */
-.starting-video-section {
-  position: relative;
-  width: 100%;
-  height: 85vh;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-top: 180px !important;
-}
-
-.starting-video {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  min-width: 100%;
-  min-height: 100%;
-  width: auto;
-  height: auto;
-  object-fit: cover;
-  z-index: 1;
-}
-
-.video-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    45deg,
-    rgba(0, 46, 109, 0.7),
-    rgba(0, 0, 0, 0.4)
-  );
-  z-index: 2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.video-content {
-  position: relative;
-  z-index: 3;
-  text-align: center;
-  color: white;
-  padding: 2rem;
-  max-width: 1200px;
-}
-
-/* Responsive Breakpoints */
-@media (max-width: 1200px) {
-  .starting-video-section {
-    height: 80vh;
-  }
-}
-
-@media (max-width: 768px) {
-  .starting-video-section {
-    height: 70vh;
-  }
-  
-  .video-content {
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .starting-video-section {
-    height: 60vh;
-  }
-}
-
-/* Portrait Mode Optimization */
-@media (orientation: portrait) {
-  .starting-video {
-    width: 100%;
-    height: 100%;
-  }
-}
-
-/* Landscape Mode Optimization */
-@media (orientation: landscape) and (max-height: 600px) {
-  .starting-video-section {
-    height: 100vh;
-  }
-}
-
-/* Virtual Meeting Section */
-.virtual-meeting-section {
-  padding: 64px 24px;
-  text-align: center;
-  background: transparent;
-}
-
-.virtual-meeting-content {
-  max-width: 800px;
-  margin: 0 auto;
-}
-
-.virtual-meeting-buttons {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-  margin-top: 24px;
-}
-
-@media (max-width: 768px) {
-  .virtual-meeting-buttons {
-    flex-direction: column;
-    align-items: center;
-  }
-}
-
-/* Starting Video Section */
 .starting-video-section {
   position: relative;
   width: 100%;
