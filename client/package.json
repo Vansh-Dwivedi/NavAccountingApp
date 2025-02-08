@@ -1,7 +1,7 @@
 {
   "name": "nav-accounts",
   "version": "1.0.0",
-  "homepage": "https://localhost:8443",
+  "homepage": "https://ec2-13-52-123-244.us-west-1.compute.amazonaws.com:8443",
   "scripts": {
     "start": "react-scripts start",
     "build": "cross-env NODE_OPTIONS=--openssl-legacy-provider react-scripts build",

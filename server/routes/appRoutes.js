@@ -8,7 +8,7 @@ const auditMiddleware = require("../middleware/auditMiddleware");
 router.get(
   "/utils/app-logo.png",
   cors({
-    origin: ["https://localhost:8443", "https://localhost:8443"],
+    origin: ["https://ec2-13-52-123-244.us-west-1.compute.amazonaws.com:8443", "https://ec2-13-52-123-244.us-west-1.compute.amazonaws.com:8443"],
     methods: ["GET"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
