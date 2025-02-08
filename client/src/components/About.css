@@ -24,3 +24,36 @@
   color: #333;
   margin-bottom: 16px;
 }
+
+/* Override Ant Design styles */
+.ant-carousel .slick-slide {
+  height: 600px !important;
+}
+
+.ant-carousel .slick-slide img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+}
+
+.profile-section {
+  width: 100% !important;
+  max-width: 1200px !important;
+  margin: 2rem auto !important;
+  padding: 2rem !important;
+}
+
+.profile-image {
+  width: 300px !important;
+  height: 300px !important;
+  object-fit: cover !important;
+  border-radius: 12px !important;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15) !important;
+}
+
+.profile-heading {
+  font-size: 2rem !important;
+  color: #002E6D !important;
+  margin: 0 !important;
+  text-align: center !important;
+}

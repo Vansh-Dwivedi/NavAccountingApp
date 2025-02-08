@@ -37,6 +37,7 @@ import {
 } from "@ant-design/icons";
 import { jwtDecode } from "jwt-decode";
 import { useMediaQuery } from 'react-responsive';
+import PaymentHeader from './PaymentHeader';
 
 const { Header, Footer } = Layout;
 const { Title, Text } = Typography;
@@ -47,6 +48,7 @@ const navigationItems = {
     { key: '/services', icon: <CustomerServiceOutlined />, label: 'Services' },
     { key: '/about', icon: <InfoCircleOutlined />, label: 'About' },
     { key: '/resources', icon: <FileTextOutlined />, label: 'Resources' },
+    { key: '/employment', icon: <ReadOutlined />, label: 'Employment' },
   ],
   auth: [
     { key: '/login', icon: <LoginOutlined />, label: 'Login' },
@@ -129,6 +131,11 @@ const FrontHeader = ({ activeKey }) => {
         key: '/resources',
         label: <Link to="/resources">Resources</Link>,
         icon: <FileOutlined />
+      },
+      {
+        key: '/employment',
+        label: <Link to="/employment">Employment</Link>,
+        icon: <ReadOutlined />
       }
     ];
 
@@ -168,11 +175,13 @@ const FrontHeader = ({ activeKey }) => {
       <Header className={`front-header ${isScrolled ? 'scrolled' : ''}`} style={{
         position: 'fixed',
         width: '100%',
-        zIndex: 1000,
-        padding: 0,
-        height: '130px',
-        background: '#fff',
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+        zIndex: 999,
+        top: 50,
+        padding: '15px 50px',
+        background: isScrolled ? 'transparent' : 'transparent',
+        boxShadow: isScrolled ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
+        transition: 'all 0.3s ease',
+        height: '130px'
       }}>
         <div style={{
           maxWidth: 1200,
@@ -280,8 +289,23 @@ const FrontFooter = () => {
         maxWidth: 1200,
         margin: '0 auto'
       }}>
-        <Row gutter={[, 32]} justify="space-between">
-          <Col xs={24} sm={12} md={8}>
+        <Row gutter={[24, 24]} justify="space-between">
+          <Col xs={24} sm={8}>
+            <Title level={4} style={{ color: '#fff' }}>Quick Links</Title>
+            <Space direction="vertical">
+              <Link to="/" style={{ color: '#fff', textDecoration: 'none' }}>Home</Link>
+              <Link to="/services" style={{ color: '#fff', textDecoration: 'none' }}>Services</Link>
+              <Link to="/about" style={{ color: '#fff', textDecoration: 'none' }}>About Us</Link>
+              <Link to="/contact" style={{ color: '#fff', textDecoration: 'none' }}>Contact</Link>
+              <Link to="/resources" style={{ color: '#fff', textDecoration: 'none' }}>Resources</Link>
+              <Link to="/employment" style={{ color: '#fff', textDecoration: 'none' }}>Employment</Link>
+              <Link to="/privacy" style={{ color: '#fff', textDecoration: 'none' }}>Privacy Policy</Link>
+              <Link to="/login" style={{ color: '#fff', textDecoration: 'none' }}>About Us</Link>
+              <Link to="/register" style={{ color: '#fff', textDecoration: 'none' }}>About Us</Link>
+            </Space>
+          </Col>
+
+          <Col xs={24} sm={8}>
             <div style={{ marginBottom: 40 }}>
               <h3 style={{
                 color: '#fff',
@@ -305,7 +329,7 @@ const FrontFooter = () => {
             </div>
           </Col>
 
-          <Col xs={24} sm={12} md={8}>
+          <Col xs={24} sm={8}>
             <div style={{ marginBottom: 40 }}>
               <h3 style={{
                 color: '#fff',
@@ -333,22 +357,10 @@ const FrontFooter = () => {
               </Space>
             </div>
           </Col>
-
-          <Col xs={24} sm={12} md={8}>
-            <img
-              src={`${process.env.REACT_APP_API_URL}/uploads/full-white-app-logo.png`}
-              alt="App Logo"
-              style={{
-                maxWidth: '100px',
-                height: 'auto',
-                marginBottom: '10px'
-              }}
-            />
-          </Col>
         </Row>
         <hr style={{ border: 'none', borderTop: '1px solid #ccc', margin: '40px 0' }} />
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <p style={{ color: '#fff' }}>© 2024 Nav Accounts. All rights reserved.</p>
+          <p style={{ color: '#fff' }}> 2024 Nav Accounts. All rights reserved.</p>
           <p style={{ textAlign: 'right', color: '#fff' }}>Developed by <a href="https://kalakaar.co.in" target="_blank" rel="noopener noreferrer" style={{ color: '#fff', textDecoration: 'none' }}>Kalakaar Studios</a></p>
         </div>
       </div>

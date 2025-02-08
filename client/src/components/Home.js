@@ -36,9 +36,12 @@ import { FrontHeader, FrontFooter } from './HeaderFooter';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import 'swiper/css';
 import 'swiper/css/pagination';
+import Hero from './Hero';
 
 import VirtualMeetingSection from './VirtualMeetingSection';
 import GetStartedSteps from './GetStartedSteps';
+import FAQSection from './FAQSection';
+import PaymentHeader from './PaymentHeader';
 
 const { Header, Footer, Content } = Layout;
 const { Title, Paragraph, Text } = Typography;
@@ -227,6 +230,7 @@ const Home = () => {
 
   return (
     <Layout className="layout">
+      <PaymentHeader />
       <FrontHeader />
       {/* Hero Section */}
       <section style={{ position: 'relative', width: '100%', height: 'calc(100vh - 130px)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#002E6D' }}>
@@ -234,7 +238,6 @@ const Home = () => {
           <source src={process.env.REACT_APP_API_URL + "/uploads/nav-home-banner.mp4"} type="video/mp4" />
         </video>
       </section>
-
       {/* What Makes Us Reliable Section */}
       <section className="reliability-section">
         <div className="section-header">
@@ -424,6 +427,9 @@ const Home = () => {
       </section>
 
       <VirtualMeetingSection />
+
+      {/* FAQ Section */}
+      <FAQSection />
       <GetStartedSteps />
 
       {/* CEO Quote Section */}

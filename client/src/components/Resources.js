@@ -15,7 +15,9 @@ import {
   AuditOutlined
 } from '@ant-design/icons';
 import './Resources.css';
-import { FrontFooter, FrontHeader } from './HeaderFooter';
+import { FrontHeader, FrontFooter } from './HeaderFooter';
+import PaymentHeader from './PaymentHeader';
+import Hero from './Hero';
 
 const { Content } = Layout;
 const { Title, Text, Paragraph } = Typography;
@@ -94,16 +96,14 @@ const Resources = () => {
 
   return (
     <Layout className="layout">
+      <PaymentHeader />
       <FrontHeader activeKey="/resources" />
       <Content>
-        <section className="hero-section" style={{ backgroundImage: `url(${process.env.REACT_APP_API_URL}/uploads/common-hero.jpg)` }}>
-          <div className="hero-overlay"></div>
-          <div className="hero-content">
-            <h1 className="hero-title">Resources & Tools</h1>
-            <p className="hero-subtitle">Access official government resources, tax tools, and business services all in one place.</p>
-          </div>
-        </section>
-
+        <Hero
+          title="Resources & Tools"
+          description="Access official government resources, tax tools, and business services all in one place."
+          backgroundImage={`${process.env.REACT_APP_API_URL}/uploads/common-hero.jpg`}
+        />
         <section className="resources-grid">
           <Row gutter={[32, 32]}>
             {Object.entries(resourcesData).map(([key, section]) => (

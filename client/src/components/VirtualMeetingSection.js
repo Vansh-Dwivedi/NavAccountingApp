@@ -16,7 +16,7 @@ const VirtualMeetingSection = () => {
             type="primary" 
             size="large" 
             icon={<VideoCameraOutlined />}
-            onClick={() => window.open('https://navrishamkhaira.simplybook.me/v2/', '_blank')}
+            onClick={() => window.open('https://calendly.com/khairanavbuz/30min', '_blank')}
           >
             Schedule Virtual Meeting
           </Button>

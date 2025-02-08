@@ -3,6 +3,7 @@ import { Form, Input, Button, message } from 'antd';
 import { MailOutlined, PhoneOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { FrontHeader, FrontFooter } from './HeaderFooter';
+import PaymentHeader from './PaymentHeader';
 
 const { TextArea } = Input;
 
@@ -77,6 +78,7 @@ const Contact = () => {
 
   return (
     <>
+      <PaymentHeader />
       <FrontHeader />
       <div style={{
         minHeight: 'calc(100vh - 80px)',

@@ -3,7 +3,9 @@ import { Layout, Typography, Card, Collapse, Row, Col } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
 import { createUseStyles } from 'react-jss';
 import { FrontHeader, FrontFooter } from './HeaderFooter';
+import PaymentHeader from './PaymentHeader';
 import GetStartedSteps from './GetStartedSteps';
+import Hero from './Hero';
 import './Services.css';
 
 const { Content } = Layout;
@@ -179,16 +181,17 @@ const Services = () => {
 
   return (
     <Layout>
-      <FrontHeader />
+      <PaymentHeader />
+      <FrontHeader activeKey="/services" />
       <Content className={classes.container}>
-        {/* Hero Section */}
-        <section className="hero-section" style={{ backgroundImage: `url(${process.env.REACT_APP_API_URL}/uploads/common-hero.jpg)` }}>
-          <div className="hero-overlay"></div>
-          <div className="hero-content">
-            <h1 className="hero-title">Our Services</h1>
-            <p className="hero-subtitle">Comprehensive financial solutions for your business</p>
-          </div>
-        </section>
+        <Hero
+          title="Our Services"
+          description="Comprehensive financial solutions for your business"
+          backgroundImage={`${process.env.REACT_APP_API_URL}/uploads/common-hero.jpg`}
+          style={{
+            marginTop: '130px'
+          }}
+        />
         <div className={classes.section}>
           <Row gutter={[24, 24]} style={{ marginTop: '2rem' }}>
             {Object.entries(servicesData).map(([category, services]) => (

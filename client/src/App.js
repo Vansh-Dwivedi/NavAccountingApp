@@ -33,6 +33,9 @@ import Resources from "./components/Resources";
 import Employment from './components/Employment';
 import ChatButton from "./components/ChatButton";
 import { FrontHeader, FrontFooter } from "./components/HeaderFooter";
+import PaymentHeader from "./components/PaymentHeader";
+import Payment from "./components/Payment";
+import PrivacyPolicy from "./components/PrivacyPolicy";
 import "./App.css";
 
 const { Content } = Layout;
@@ -41,7 +44,7 @@ const { Content } = Layout;
 const withHeaderFooter = (Component) => {
   return (props) => (
     <Layout style={{ minHeight: "100vh" }}>
-      <Content style={{ marginTop: 150 }}>
+      <Content style={{ marginTop: 180 }}>
         <Component {...props} />
       </Content>
       <ChatButton />
@@ -57,6 +60,7 @@ const ServicesWithLayout = withHeaderFooter(Services);
 const ResourcesWithLayout = withHeaderFooter(Resources);
 const ContactWithLayout = withHeaderFooter(Contact);
 const EmploymentWithLayout = withHeaderFooter(Employment);
+const PrivacyPolicyWithLayout = withHeaderFooter(PrivacyPolicy);
 
 function App() {
   return (
@@ -69,10 +73,12 @@ function App() {
         <Route path="/contact" element={<ContactWithLayout />} />
         <Route path="/resources" element={<ResourcesWithLayout />} />
         <Route path="/employment" element={<EmploymentWithLayout />} />
+        <Route path="/privacy" element={<PrivacyPolicyWithLayout />} />
         
         {/* Routes without header/footer */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<TabbedRegister />} />
+        <Route path="/payment" element={<Payment />} />
         <Route
           path="/admin-dashboard"
           element={

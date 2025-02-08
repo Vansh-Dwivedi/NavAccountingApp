@@ -413,101 +413,127 @@ exports.handleChatbotMessage = async (req, res) => {
     const { message } = req.body;
     const userMsg = message.toLowerCase();
 
-    let reply = "I'm here to help! How can I assist you with accounting, tax, or business matters?";
+    let reply = "Welcome to Nav Accounts. How may I assist you with our accounting, tax, or business services today?";
 
-    // Greetings
-    if (userMsg.includes('hi') || userMsg.includes('hello') || userMsg.includes('hey')) {
-      reply = "Hello! Welcome to Nav Accounts. How can I assist you today?";
+    const responses = {
+      // Default responses
+      'hi': "Hello! How can I assist you today?",
+      'hello': "Hello there! How can I assist you today?",
+      'hey': "Hey there! How can I assist you today?",
+      'who are you': "I'm Sunny, your trusted partner for accounting, tax, and business services. How may I assist you today?",
+
+      // Greetings
+      'greetings': "Greetings. Welcome to Nav Accounts. How may I be of assistance to you today?",
+      
+      // Tax Services
+      'tax preparation': "Our tax preparation services encompass both individual and business returns. Would you like to schedule a consultation to discuss your specific tax preparation needs?",
+      'tax deadline': "The standard federal tax return deadline is April 15th. However, specific deadlines may vary. May I inquire about your particular tax situation to provide more accurate information?",
+      'tax deduction': "We offer expertise in identifying all eligible tax deductions, including business expenses and charitable contributions. Would you like to discuss specific deductions that may apply to your situation?",
+      'tax planning': "Our tax planning services aim to optimize your financial position and minimize tax liabilities. Shall we arrange a meeting to develop a comprehensive tax strategy for you?",
+      'tax compliance': "We ensure adherence to all relevant tax laws and regulations. How may we assist you in maintaining tax compliance?",
+      'tax audit': "Our tax audit support services provide representation and guidance throughout the audit process. Are you currently facing an audit or seeking preventative measures?",
+      'tax credit': "We can help identify and apply for various tax credits you may be eligible for. Would you like to explore potential tax credit opportunities?",
+      'tax law changes': "We stay abreast of all tax law changes and can advise on how they might affect your financial situation. Is there a specific recent change you're concerned about?",
+      'international tax': "Our international tax services cater to businesses and individuals with global financial interests. Do you have specific international tax concerns?",
+      'estate tax': "We provide estate tax planning to help minimize tax liabilities on your estate. Would you like to discuss strategies for estate tax optimization?",
+      'gift tax': "Our services include advice on gift tax implications and reporting requirements. Do you have questions about gift tax regulations?",
+      'capital gains tax': "We can assist with strategies to manage and potentially reduce your capital gains tax. Would you like to discuss your investment portfolio from a tax perspective?",
+      'tax extension': "We can help you file for a tax extension if needed. Are you concerned about meeting the upcoming tax deadline?",
+      'tax withholding': "We can review your tax withholding to ensure it's optimized for your financial situation. Would you like assistance in adjusting your withholdings?",
+      'tax resolution': "Our tax resolution services can help if you're facing tax debt or disputes with tax authorities. Are you currently dealing with any tax controversies?",
+      'tax': "We offer a comprehensive suite of tax services including preparation, planning, and compliance. How may we assist you with your specific tax needs?",
+
+      // Accounting Services
+      'bookkeeping': "Our professional bookkeeping services include meticulous transaction recording, account reconciliation, and detailed financial reporting. How may we assist in organizing your financial records?",
+      'financial statement': "We specialize in preparing accurate and insightful balance sheets, income statements, and cash flow statements. Would you like more information about our financial statement services?",
+      'payroll': "Our comprehensive payroll services cover processing, tax filing, and ensuring compliance with all relevant regulations. How can we assist with your payroll management needs?",
+      'accounts receivable': "We can help streamline your accounts receivable process to improve cash flow. Would you like to discuss strategies for managing your receivables more effectively?",
+      'accounts payable': "Our accounts payable services ensure timely and accurate payment processing. How can we assist in optimizing your payables management?",
+      'financial analysis': "We provide in-depth financial analysis to help you understand your business's financial health and make informed decisions. Would you like to schedule a financial review?",
+      'budgeting': "Our budgeting services can help you create realistic financial plans and forecasts. Shall we discuss your budgeting needs?",
+      'cash flow management': "We offer strategies to optimize your cash flow and ensure financial stability. Would you like to explore ways to improve your cash flow?",
+      'financial forecasting': "Our financial forecasting services can help you anticipate future financial scenarios. Are you interested in developing financial projections for your business?",
+      'cost accounting': "We provide cost accounting services to help you understand and manage your business expenses. Would you like to discuss strategies for cost optimization?",
+      'inventory accounting': "Our inventory accounting services ensure accurate tracking and valuation of your inventory. Do you need assistance with inventory management?",
+      'financial software implementation': "We can assist in implementing and optimizing financial software solutions. Are you considering upgrading your accounting systems?",
+      'internal controls': "We can help establish robust internal controls to safeguard your assets and ensure financial integrity. Would you like to review your current control systems?",
+      'financial reporting': "Our financial reporting services ensure you have accurate and timely financial information. How can we help improve your financial reporting processes?",
+      'account reconciliation': "We offer thorough account reconciliation services to ensure the accuracy of your financial records. Would you like assistance with reconciling your accounts?",
+      'accounting': "Our comprehensive accounting services encompass bookkeeping, financial statement preparation, and strategic business consulting. How may we address your specific accounting needs today?",
+
+      // Business Services
+      'start business': "We offer expert guidance on business formation, structure selection, and initial setup procedures. Would you like to discuss your business plans and explore the most suitable options?",
+      'business plan': "Our team can assist in developing comprehensive business plans, including detailed financial projections. Shall we arrange a consultation to discuss your business planning needs?",
+      'grow business': "Our business growth services encompass strategic planning, market analysis, and expansion strategies. How may we contribute to your business growth objectives?",
+      'business valuation': "We provide professional business valuation services for various purposes including sale, merger, or investment. Do you require a valuation of your business?",
+      'business restructuring': "Our restructuring services can help optimize your business operations and financial structure. Would you like to explore potential restructuring strategies?",
+      'business consulting': "We offer strategic business consulting to help you navigate challenges and capitalize on opportunities. What specific business issues would you like to address?",
+      'merger and acquisition': "Our M&A advisory services cover all aspects of the merger and acquisition process. Are you considering a merger or acquisition?",
+      'business succession planning': "We can help develop a comprehensive succession plan for your business. Would you like to discuss strategies for ensuring a smooth transition?",
+      'business risk assessment': "Our risk assessment services can help identify and mitigate potential business risks. Shall we conduct a risk analysis for your business?",
+      'business performance analysis': "We offer in-depth business performance analysis to help you understand and improve your operations. Would you like to schedule a performance review?",
+      'business financing': "We can assist in identifying and securing appropriate financing options for your business. Are you seeking funding for your business ventures?",
+      'business tax planning': "Our business tax planning services aim to optimize your tax position and ensure compliance. Shall we discuss tax strategies for your business?",
+      'business': "We provide a wide array of business services including strategic planning, financial consulting, and growth strategies. Which specific aspect of business services are you most interested in exploring?",
+
+      // Cost and Pricing
+      'how much': "Our service fees are determined based on the complexity and scope of each client's unique needs. To provide an accurate quote, we would need to understand your specific requirements in more detail. Which particular services are you interested in?",
+      'cost': "Our pricing structure is tailored to each client's individual needs and the complexity of services required. Would you like to schedule a consultation to discuss your specific requirements and receive a detailed quote?",
+      'price': "We offer customized pricing based on the scope and complexity of services needed. May I inquire about the specific services you're interested in so we can provide a more accurate price estimate?",
+      'fee': "Our fees are structured to reflect the value and expertise we bring to each client's unique situation. Shall we arrange a meeting to discuss your needs in detail and provide a comprehensive fee proposal?",
+
+      // Contact and Scheduling
+      'contact': "To schedule an appointment or discuss our services further, please contact our office at +1 530-777-3265. Alternatively, you're welcome to visit us at 1469 Butte House Rd. Ste E, Yuba City, CA 95993. How would you prefer to proceed?",
+      'schedule': "We'd be pleased to schedule an appointment at your convenience. You can reach our scheduling team at +1 530-777-3265. What would be the best time for you to come in?",
+      'appointment': "To book an appointment, please call our office at +1 530-777-3265. Our team will be happy to find a suitable time for you. When would you prefer to schedule your visit?",
+
+      // Location and Address
+      'where': "Our office is conveniently located at 1469 Butte House Rd. Ste E, Yuba City, CA 95993. Would you like directions or have any questions about our location?",
+      'location': "Nav Accounts is situated at 1469 Butte House Rd. Ste E, Yuba City, CA 95993. Is there any specific information you need about our location or how to reach us?",
+      'address': "You can find us at 1469 Butte House Rd. Ste E, Yuba City, CA 95993. Do you require any additional details about our address or directions to our office?",
+
+      // Business Hours
+      'hours': "Our office operates Monday through Friday, from 9:00 AM to 5:00 PM. When would be a convenient time for you to visit or schedule an appointment?",
+      'timing': "We are open for business Monday to Friday, 9:00 AM to 5:00 PM. Is there a particular day or time that works best for your schedule?",
+
+      // Document Requirements
+      'document': "The specific documents required can vary depending on the service you need. For tax preparation, typically you'll need W-2s, 1099s, receipts, and previous tax returns. Would you like a detailed list for a particular service?",
+      'papers': "Document requirements differ based on the service. For instance, tax preparation usually requires W-2s, 1099s, expense receipts, and prior year tax returns. May I provide you with a specific list tailored to your needs?",
+
+      // Experience and Qualifications
+      'experience': "Our team comprises highly experienced professionals with extensive backgrounds in accounting, taxation, and business consulting. Would you like more information about our team's qualifications in a specific area?",
+      'qualification': "Nav Accounts is proud to have a team of qualified experts with diverse experience in accounting, tax, and business advisory services. Is there a particular area of expertise you'd like to know more about?",
+
+      // Software and Technology
+      'software': "We utilize state-of-the-art accounting and tax software to ensure accuracy and efficiency in our services. Additionally, we provide secure online portals for convenient document sharing and communication. Would you like more details about our technological capabilities?",
+      'online': "Our firm employs cutting-edge online solutions, including secure client portals for document sharing and communication. How can our online services benefit your specific needs?",
+
+      // Urgent Matters
+      'emergency': "For urgent matters, please contact our office immediately at +1 530-777-3265. We prioritize emergency situations and will address your concerns promptly. What is the nature of your urgent request?",
+      'urgent': "If you have an urgent matter, please call us right away at +1 530-777-3265. We understand the importance of timely assistance in critical situations. How may we help you with your urgent need?",
+
+      // Gratitude and Farewells
+      'thank': "You're most welcome. We appreciate your interest in Nav Accounts. Is there any other information I can provide or questions I can answer for you?",
+      'bye': "Thank you for your time and interest in Nav Accounts. We're here to assist you whenever you need our services. Have a wonderful day, and please don't hesitate to reach out if you need anything further.",
+      'goodbye': "We appreciate your engagement with Nav Accounts. Thank you for considering our services. Please feel free to contact us if you have any questions in the future. We wish you a pleasant day ahead."
+    };
+
+    let foundResponse = false;
+    for (const [key, value] of Object.entries(responses)) {
+      if (userMsg.includes(key)) {
+        reply = value;
+        foundResponse = true;
+        break;
+      }
     }
-    // Tax Related
-    else if (userMsg.includes('tax preparation')) {
-      reply = "Our tax preparation services cover both individual and business returns. Would you like to schedule a consultation?";
-    }
-    else if (userMsg.includes('tax deadline')) {
-      reply = "Federal tax returns are typically due on April 15th. Would you like to discuss your specific tax situation?";
-    }
-    else if (userMsg.includes('tax deduction')) {
-      reply = "We can help identify all eligible tax deductions including business expenses and charitable contributions. Would you like to discuss specific deductions?";
-    }
-    else if (userMsg.includes('tax')) {
-      reply = "We offer comprehensive tax services including preparation, planning, and compliance. How can we help with your tax needs?";
-    }
-    // Accounting Related
-    else if (userMsg.includes('bookkeeping')) {
-      reply = "Our bookkeeping services include transaction recording, reconciliation, and financial reporting. Need help organizing your books?";
-    }
-    else if (userMsg.includes('financial statement')) {
-      reply = "We prepare balance sheets, income statements, and cash flow statements. Would you like more information?";
-    }
-    else if (userMsg.includes('payroll')) {
-      reply = "We offer complete payroll services including processing, tax filing, and compliance. Need help with payroll management?";
-    }
-    else if (userMsg.includes('account') || userMsg.includes('accounting')) {
-      reply = "Our accounting services include bookkeeping, financial statements, and business consulting. How can we help you today?";
-    }
-    // Business Related
-    else if (userMsg.includes('start business')) {
-      reply = "We can help with business formation, structure selection, and initial setup. Would you like to discuss your business plans?";
-    }
-    else if (userMsg.includes('business plan')) {
-      reply = "We assist in creating comprehensive business plans including financial projections. Shall we schedule a consultation?";
-    }
-    else if (userMsg.includes('grow business')) {
-      reply = "Our business growth services include strategic planning and market expansion strategies. How can we help grow your business?";
-    }
-    else if (userMsg.includes('business')) {
-      reply = "We provide various business services including planning, consulting, and growth strategies. What specific aspect interests you?";
-    }
-    // Cost Related
-    else if (userMsg.includes('how much')) {
-      reply = "Our fees vary based on service complexity. We can provide a detailed quote after understanding your needs. What services interest you?";
-    }
-    else if (userMsg.includes('cost') || userMsg.includes('price') || userMsg.includes('fee')) {
-      reply = "Our fees vary based on the services required. Would you like to schedule a consultation to discuss your specific needs?";
-    }
-    // Contact Related
-    else if (userMsg.includes('contact') || userMsg.includes('schedule') || userMsg.includes('appointment')) {
-      reply = "You can schedule an appointment by calling us at +1 530-777-3265 or visiting our office at 1469 Butte House Rd. Ste E, Yuba City, CA 95993.";
-    }
-    // Location Related
-    else if (userMsg.includes('where') || userMsg.includes('location') || userMsg.includes('address')) {
-      reply = "We're located at 1469 Butte House Rd. Ste E, Yuba City, CA 95993. Would you like directions?";
-    }
-    // Hours Related
-    else if (userMsg.includes('hours') || userMsg.includes('timing')) {
-      reply = "We're open Monday through Friday, 9:00 AM to 5:00 PM. When would you like to visit?";
-    }
-    // Document Related
-    else if (userMsg.includes('document') || userMsg.includes('papers')) {
-      reply = "Required documents vary by service. For tax preparation, bring W-2s, 1099s, receipts, and previous returns. Need a specific list?";
-    }
-    // Experience Related
-    else if (userMsg.includes('experience') || userMsg.includes('qualification')) {
-      reply = "Our team has extensive experience in accounting, tax, and business consulting. Would you like to know more about our expertise?";
-    }
-    // Software Related
-    else if (userMsg.includes('software') || userMsg.includes('online')) {
-      reply = "We use industry-leading accounting and tax software. We also provide secure online portals for document sharing.";
-    }
-    // Emergency Related
-    else if (userMsg.includes('emergency') || userMsg.includes('urgent')) {
-      reply = "For urgent matters, please call us immediately at +1 530-777-3265. We prioritize emergency situations.";
-    }
-    // Thank you and Goodbye
-    else if (userMsg.includes('thank')) {
-      reply = "You're welcome! Is there anything else I can help you with?";
-    }
-    else if (userMsg.includes('bye') || userMsg.includes('goodbye')) {
-      reply = "Thank you for chatting with us! Feel free to reach out if you need anything else. Have a great day!";
-    }
-    // Default Response
-    else {
-      reply = "I'm here to help with accounting, tax, and business matters. For specific assistance, you can:\n1. Call us at +1 530-777-3265\n2. Visit our office\n3. Schedule a consultation\n\nWhat would you like to know more about?";
+
+    if (!foundResponse) {
+      reply = "Thank you for your inquiry. Nav Accounts specializes in accounting, tax, and business advisory services. For personalized assistance, we recommend:\n1. Calling our office at +1 530-777-3265\n2. Visiting our location at 1469 Butte House Rd. Ste E, Yuba City, CA 95993\n3. Scheduling a consultation with one of our experts\n\nWhich aspect of our services would you like more information about?";
     }
 
     res.json({ reply });
   } catch (error) {
-    console.error('Chatbot error:', error);
-    res.status(500).json({ error: 'Failed to process message' });
+    console.error('An error occurred while processing the chatbot message:', error);
+    res.status(500).json({ error: 'We apologize, but we encountered an issue while processing your message. Please try again or contact our office directly.' });
   }
 };

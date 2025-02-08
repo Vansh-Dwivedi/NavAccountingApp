@@ -1,20 +1,24 @@
 import React from 'react';
-import { Layout, Typography, Row, Col, Timeline, Card, Image, Carousel } from 'antd';
-import {
-  BankOutlined,
-  TeamOutlined,
-  RocketOutlined,
-  TrophyOutlined,
-  FlagOutlined,
-  StarOutlined,
-  CheckCircleOutlined,
-  BulbOutlined,
-  GlobalOutlined
+import { Layout, Typography, Row, Col, Timeline, Card, Image } from 'antd';
+import { 
+  BankOutlined, 
+  TeamOutlined, 
+  RocketOutlined, 
+  TrophyOutlined, 
+  FlagOutlined, 
+  StarOutlined, 
+  CheckCircleOutlined, 
+  BulbOutlined, 
+  GlobalOutlined 
 } from '@ant-design/icons';
 import { FrontHeader, FrontFooter } from './HeaderFooter';
+import PaymentHeader from './PaymentHeader';
 import { createUseStyles } from 'react-jss';
 import GetStartedSteps from './GetStartedSteps';
-import './components.css';
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import Hero from './Hero';
 
 const { Content } = Layout;
 const { Title, Paragraph } = Typography;
@@ -90,7 +94,8 @@ const useStyles = createUseStyles({
     backgroundColor: '#e6f7ff',
     padding: 16,
     borderRadius: '50%',
-    marginRight: 16
+    marginRight: 16,
+    zIndex: 1000000000
   },
   timelineYear: {
     fontSize: 20,
@@ -129,60 +134,85 @@ const useStyles = createUseStyles({
     marginBottom: '1.5rem'
   },
   timeline: {
-    '& .ant-timeline-item-tail': {
-      borderLeft: '2px solid #1890ff'
+    position: 'relative',
+    maxWidth: '1200px',
+    margin: '0 auto',
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      width: '6px',
+      background: 'linear-gradient(to bottom, #1890ff, #00c6ff)',
+      top: '0',
+      bottom: '0',
+      left: '50%',
+      marginLeft: '-3px',
+      borderRadius: '3px',
+      boxShadow: '0 0 10px rgba(0, 0, 0, 0.2)'
+    }
+  },
+  timelineItem: {
+    padding: '10px 40px',
+    position: 'relative',
+    backgroundColor: 'inherit',
+    width: '50%',
+    '&:nth-child(odd)': {
+      left: '0',
+      '&::before': {
+        content: '""',
+        height: '0',
+        position: 'absolute',
+        top: '22px',
+        width: '0',
+        zIndex: '1',
+        right: '30px',
+        border: 'medium solid #fff',
+        borderWidth: '10px 0 10px 10px',
+        borderColor: 'transparent transparent transparent #fff'
+      }
     },
-    '& .ant-timeline-item-head': {
-      backgroundColor: '#fff',
-      border: '2px solid #1890ff'
+    '&:nth-child(even)': {
+      left: '50%',
+      '&::before': {
+        content: '""',
+        height: '0',
+        position: 'absolute',
+        top: '22px',
+        width: '0',
+        zIndex: '1',
+        left: '30px',
+        border: 'medium solid #fff',
+        borderWidth: '10px 10px 10px 0',
+        borderColor: 'transparent #fff transparent transparent'
+      }
+    }
+  },
+  timelineContent: {
+    padding: '20px 30px',
+    backgroundColor: '#fff',
+    position: 'relative',
+    borderRadius: '6px',
+    boxShadow: '0 4px 16px rgba(0, 0, 0, 0.1)',
+    transition: 'all 0.3s ease',
+    '&:hover': {
+      transform: 'translateY(-5px)',
+      boxShadow: '0 6px 20px rgba(0, 0, 0, 0.15)'
     }
   },
   timelineIcon: {
-    fontSize: '24px',
-    color: '#1890ff'
-  },
-  heroSection: {
-    height: '700px',
-    backgroundSize: 'cover',
-    backgroundPosition: 'center',
+    position: 'absolute',
+    backgroundColor: '#1890ff',
+    border: '4px solid #fff',
+    borderRadius: '50%',
+    height: '40px',
+    width: '40px',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    textAlign: 'center',
-    padding: '48px 24px',
-    marginBottom: '64px',
-    '&::before': {
-      content: '',
-      position: 'absolute',
-      top: 0,
-      left: 0,
-      width: '100%',
-      height: '100%',
-      backgroundColor: 'rgba(0, 0, 0, 0.8)'
-    }
-  },
-  heroOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.8)'
-  },
-  heroContent: {
-    position: 'relative',
-    zIndex: 1,
-    padding: '48px 24px'
-  },
-  heroTitle: {
-    fontSize: '3rem',
     color: '#fff',
-    marginBottom: '1rem'
-  },
-  heroSubtitle: {
-    fontSize: '1.5rem',
-    color: '#fff',
-    marginBottom: '2rem'
+    right: '-20px',
+    top: '15px',
+    zIndex: '100',
+    boxShadow: '0 0 0 4px rgba(24, 144, 255, 0.2)'
   }
 });
 
@@ -214,29 +244,87 @@ const About = () => {
 
   return (
     <Layout>
+      <PaymentHeader />
       <FrontHeader activeKey="/about" />
       <Content>
+        <Hero
+          title="About Us"
+          description="Learn more about our mission, values, and the team behind Nav Accounts."
+          backgroundImage={`${process.env.REACT_APP_API_URL}/uploads/common-hero.jpg`}
+          style={{
+            marginTop: '130px'
+          }}
+        />
         <div className={classes.container}>
-          <section className="hero-section" style={{ backgroundImage: `url(${process.env.REACT_APP_API_URL}/uploads/common-hero.jpg)` }}>
-            <div className="hero-overlay"></div>
-            <div className="hero-content">
-              <h1 className="hero-title">About Us</h1>
-              <p className="hero-subtitle">Your Trusted Partner in Financial Success and Growth</p>
-            </div>
-          </section>
-
-          <section style={{ display: 'flex', padding: '40px 0' }}>
-            <div style={{ flex: 1, maxWidth: '600px', margin: '0 auto' }}>
-              <Carousel autoplay dots={true} style={{ width: '100%' }}>
+          <section style={{ display: 'flex', gap: '2rem', padding: '2rem', flexDirection: 'column' }}>
+            {/* Slider Section */}
+            <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
+              <Slider
+                dots={true}
+                infinite={true}
+                speed={800}
+                slidesToShow={1}
+                slidesToScroll={1}
+                autoplay={true}
+                autoplaySpeed={4000}
+                pauseOnHover={true}
+                fade={true}
+                cssEase="linear"
+              >
                 {['new-clients-about.png', 'open-for-virtual-about.png', 'stress-free-about.png'].map((img, index) => (
-                  <div key={index}>
-                    <img src={`${process.env.REACT_APP_API_URL}/uploads/${img}`} alt={img.split('-')[0]} style={{ width: '100%', height: 'auto', maxHeight: '2000px', objectFit: 'cover' }} />
+                  <div key={index} style={{ height: '600px' }}>
+                    <img 
+                      src={`${process.env.REACT_APP_API_URL}/uploads/${img}`} 
+                      alt={img.split('-')[0]}
+                      style={{
+                        width: '100%',
+                        height: '100%',
+                        objectFit: 'contain',
+                        backgroundColor: '#f5f5f5'
+                      }}
+                    />
                   </div>
                 ))}
-              </Carousel>
+              </Slider>
             </div>
-            <div style={{ flex: 1, maxWidth: '600px', margin: '10px auto', padding: '20px', boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)', borderRadius: '8px', backgroundColor: '#fff' }}>
-              <h2>Meet Navrisham Khaira, IRS Enrolled Agent</h2>
+
+            {/* Profile Section */}
+            <div style={{ 
+              width: '100%',
+              maxWidth: '1200px',
+              margin: '2rem auto',
+              padding: '2rem',
+              backgroundColor: '#fff',
+              borderRadius: '12px',
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)'
+            }}>
+              <div style={{ 
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '2rem',
+                marginBottom: '2rem'
+              }}>
+                <img 
+                  src={`${process.env.REACT_APP_API_URL}/uploads/navrisham.png`}
+                  alt="Navrisham Khaira"
+                  style={{
+                    width: '300px',
+                    height: '300px',
+                    objectFit: 'cover',
+                    borderRadius: '12px',
+                    boxShadow: '0 6px 16px rgba(0, 0, 0, 0.15)'
+                  }}
+                />
+                <h2 style={{ 
+                  fontSize: '2rem',
+                  color: '#002E6D',
+                  margin: 0,
+                  textAlign: 'center'
+                }}>
+                  Meet Navrisham Khaira, IRS Enrolled Agent
+                </h2>
+              </div>
               <Paragraph className={classes.aboutText}>
                 Navrisham Khaira is the proud owner of Nav Accounts as solopreneur, bringing in over 7 years of expertise in tax preparation, accounting, and financial planning. She's an IRS Enrolled Agent, active since 2018, with a Graduation in Commerce and hands-on experience in both traditional and modern accounting practices.
               </Paragraph>
@@ -309,7 +397,8 @@ const About = () => {
             fontSize: '2.5rem',
             color: '#002E6D',
             marginBottom: '40px',
-            fontWeight: 'bold'
+            fontWeight: 'bold',
+            textAlign: 'center'
           }}>Our Journey</div>
           <Timeline className={classes.timeline} mode="alternate">
             <Timeline.Item dot={<RocketOutlined className={classes.timelineIcon} />}>
