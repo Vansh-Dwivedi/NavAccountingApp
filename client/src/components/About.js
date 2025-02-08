@@ -11,8 +11,7 @@ import {
   BulbOutlined, 
   GlobalOutlined 
 } from '@ant-design/icons';
-import { FrontHeader, FrontFooter } from './HeaderFooter';
-import PaymentHeader from './PaymentHeader';
+import { FrontFooter } from './HeaderFooter';
 import { createUseStyles } from 'react-jss';
 import GetStartedSteps from './GetStartedSteps';
 import Slider from "react-slick";
@@ -211,7 +210,7 @@ const useStyles = createUseStyles({
     color: '#fff',
     right: '-20px',
     top: '15px',
-    zIndex: '100',
+    zIndex: '999999999999999',
     boxShadow: '0 0 0 4px rgba(24, 144, 255, 0.2)'
   }
 });
@@ -244,9 +243,7 @@ const About = () => {
 
   return (
     <Layout>
-      <PaymentHeader />
-      <FrontHeader activeKey="/about" />
-      <Content>
+      <Content className={classes.container}>
         <Hero
           title="About Us"
           description="Learn more about our mission, values, and the team behind Nav Accounts."
@@ -256,7 +253,7 @@ const About = () => {
           }}
         />
         <div className={classes.container}>
-          <section style={{ display: 'flex', gap: '2rem', padding: '2rem', flexDirection: 'column' }}>
+          <section style={{ display: 'flex', gap: '2rem', padding: '2rem', flexDirection: 'row' }}>
             {/* Slider Section */}
             <div style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
               <Slider
@@ -277,7 +274,7 @@ const About = () => {
                       src={`${process.env.REACT_APP_API_URL}/uploads/${img}`} 
                       alt={img.split('-')[0]}
                       style={{
-                        width: '100%',
+                        width: '600px',
                         height: '100%',
                         objectFit: 'contain',
                         backgroundColor: '#f5f5f5'
@@ -401,7 +398,7 @@ const About = () => {
             textAlign: 'center'
           }}>Our Journey</div>
           <Timeline className={classes.timeline} mode="alternate">
-            <Timeline.Item dot={<RocketOutlined className={classes.timelineIcon} />}>
+            <Timeline.Item dot={<RocketOutlined className={classes.timelineIcon} style={{ zIndex: 999999999999999 }}/>}>
               <Card
                 title={<span style={{ color: '#1890ff', fontWeight: 'bold' }}>2020 – The year we initiated</span>}
                 bordered={false}
@@ -411,7 +408,7 @@ const About = () => {
               </Card>
             </Timeline.Item>
 
-            <Timeline.Item dot={<BankOutlined className={classes.timelineIcon} />}>
+            <Timeline.Item dot={<BankOutlined className={classes.timelineIcon} style={{ zIndex: 999999999999999 }}/>}>
               <Card
                 title={<span style={{ color: '#1890ff', fontWeight: 'bold' }}>2022 – Official Registered</span>}
                 bordered={false}
@@ -422,7 +419,7 @@ const About = () => {
               </Card>
             </Timeline.Item>
 
-            <Timeline.Item dot={<TrophyOutlined className={classes.timelineIcon} />}>
+            <Timeline.Item dot={<TrophyOutlined className={classes.timelineIcon} style={{ zIndex: 999999999999999 }}/>}>
               <Card
                 title={<span style={{ color: '#1890ff', fontWeight: 'bold' }}>2024 – Advancing with Compliance</span>}
                 bordered={false}
@@ -432,7 +429,7 @@ const About = () => {
               </Card>
             </Timeline.Item>
 
-            <Timeline.Item dot={<GlobalOutlined className={classes.timelineIcon} />}>
+            <Timeline.Item dot={<GlobalOutlined className={classes.timelineIcon} style={{ zIndex: 999999999999999 }}/>}>
               <Card
                 title={<span style={{ color: '#1890ff', fontWeight: 'bold' }}>2025 – Location freedom</span>}
                 bordered={false}

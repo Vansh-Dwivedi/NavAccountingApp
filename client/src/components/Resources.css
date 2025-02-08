@@ -199,6 +199,17 @@
   transform: translateX(0);
 }
 
+/* Hero Section Override for Resources */
+.resources-hero {
+  margin-top: 0 !important;
+  position: relative;
+  z-index: 1;
+}
+
+.resources-hero .showcase-container {
+  height: 300px;
+}
+
 /* Help Section */
 .help-section {
   margin: 60px 0;

@@ -69,7 +69,7 @@ Nav Accounts is a comprehensive financial management platform built with the MER
      ```
    - 💻 Client (.env):
      ```
-     REACT_APP_API_URL=https://ec2-13-52-123-244.us-west-1.compute.amazonaws.com:8443
+     REACT_APP_API_URL=https://localhost:8443
      ```
 
 4. 🎯 Start Development Servers:
@@ -81,7 +81,7 @@ Nav Accounts is a comprehensive financial management platform built with the MER
    npm run client:start
    ```
 
-5. 🌐 Access the application at `https://ec2-13-52-123-244.us-west-1.compute.amazonaws.com:8443`
+5. 🌐 Access the application at `https://localhost:8443`
 
 ## 🛠️ Technology Stack
 

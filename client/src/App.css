@@ -136,6 +136,32 @@ body {
   }
 }
 
+/* Hero Layout Fix */
+.hero-layout-fix {
+  margin-top: -180px !important;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-layout-fix .showcase-container {
+  padding-top: 180px;
+  min-height: 500px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero-layout-fix {
+    margin-top: -90px !important;
+  }
+  
+  .hero-layout-fix .showcase-container {
+    padding-top: 90px;
+    min-height: 400px;
+  }
+}
+
 /* Reliability Section */
 .reliability-section {
   padding: 64px 24px;

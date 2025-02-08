@@ -1,7 +1,6 @@
 import React from 'react';
 import { Layout, Typography, Card, Row, Col, Space } from 'antd';
-import { FrontHeader, FrontFooter } from './HeaderFooter';
-import PaymentHeader from './PaymentHeader';
+import { FrontFooter } from './HeaderFooter';
 import { UserOutlined, FileSearchOutlined, TeamOutlined, MailOutlined } from '@ant-design/icons';
 import { motion } from 'framer-motion';
 import Hero from './Hero';
@@ -30,16 +29,11 @@ const Employment = () => {
 
   return (
     <Layout>
-      <PaymentHeader />
-      <FrontHeader activeKey="/employment" />
       <Content>
       <Hero
         title="Employment Opportunities"
         description="Join Our Team of Financial Professionals"
         backgroundImage={`${process.env.REACT_APP_API_URL}/uploads/common-hero.jpg`}
-        style={{
-          marginTop: '130px'
-        }}
       />
       {/* Main Content */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '60px 20px' }}>

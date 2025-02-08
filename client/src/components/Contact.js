@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
-import { Form, Input, Button, message } from 'antd';
+import { Form, Input, Button, message, Layout } from 'antd';
 import { MailOutlined, PhoneOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import { FrontHeader, FrontFooter } from './HeaderFooter';
 import PaymentHeader from './PaymentHeader';
+import Hero from './Hero'; // Import the Hero component
 
 const { TextArea } = Input;
+const { Content } = Layout;
 
 const Contact = () => {
   const [formData, setFormData] = useState({
@@ -82,17 +84,18 @@ const Contact = () => {
       <FrontHeader />
       <div style={{
         minHeight: 'calc(100vh - 80px)',
-        paddingTop: '80px',
         background: '#f5f5f5'
       }}>
-        {/* Hero Section */}
-        <section className="hero-section" style={{ backgroundImage: `url(${process.env.REACT_APP_API_URL}/uploads/common-hero.jpg)` }}>
-          <div className="hero-overlay"></div>
-          <div className="hero-content">
-            <h1 className="hero-title">Contact Us</h1>
-            <p className="hero-subtitle">Get in touch with us for any inquiries or to schedule a consultation.</p>
-          </div>
-        </section>
+        <Content style={{
+          paddingTop: '80px',
+          background: '#f5f5f5'
+        }}>
+          <Hero
+            title="Contact Us"
+            description="Get in touch with us for any inquiries or to schedule a consultation."
+            backgroundImage={`${process.env.REACT_APP_API_URL}/uploads/common-hero.jpg`}
+          />
+        </Content>
 
         {/* Contact Form Section */}
         <div style={{

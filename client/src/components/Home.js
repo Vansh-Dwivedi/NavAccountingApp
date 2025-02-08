@@ -233,8 +233,8 @@ const Home = () => {
       <PaymentHeader />
       <FrontHeader />
       {/* Hero Section */}
-      <section style={{ position: 'relative', width: '100%', height: 'calc(100vh - 130px)', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#002E6D' }}>
-        <video autoPlay loop muted playsInline style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', zIndex: 1 }}>
+      <section className="starting-video-section">
+        <video autoPlay loop muted playsInline className="starting-video">
           <source src={process.env.REACT_APP_API_URL + "/uploads/nav-home-banner.mp4"} type="video/mp4" />
         </video>
       </section>

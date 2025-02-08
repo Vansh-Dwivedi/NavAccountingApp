@@ -2,8 +2,7 @@ import React from 'react';
 import { Layout, Typography, Card, Collapse, Row, Col } from 'antd';
 import { CaretRightOutlined } from '@ant-design/icons';
 import { createUseStyles } from 'react-jss';
-import { FrontHeader, FrontFooter } from './HeaderFooter';
-import PaymentHeader from './PaymentHeader';
+import { FrontFooter } from './HeaderFooter';
 import GetStartedSteps from './GetStartedSteps';
 import Hero from './Hero';
 import './Services.css';
@@ -181,8 +180,6 @@ const Services = () => {
 
   return (
     <Layout>
-      <PaymentHeader />
-      <FrontHeader activeKey="/services" />
       <Content className={classes.container}>
         <Hero
           title="Our Services"

@@ -300,8 +300,8 @@ const FrontFooter = () => {
               <Link to="/resources" style={{ color: '#fff', textDecoration: 'none' }}>Resources</Link>
               <Link to="/employment" style={{ color: '#fff', textDecoration: 'none' }}>Employment</Link>
               <Link to="/privacy" style={{ color: '#fff', textDecoration: 'none' }}>Privacy Policy</Link>
-              <Link to="/login" style={{ color: '#fff', textDecoration: 'none' }}>About Us</Link>
-              <Link to="/register" style={{ color: '#fff', textDecoration: 'none' }}>About Us</Link>
+              <Link to="/login" style={{ color: '#fff', textDecoration: 'none' }}>Login</Link>
+              <Link to="/register" style={{ color: '#fff', textDecoration: 'none' }}>Register</Link>
             </Space>
           </Col>
 

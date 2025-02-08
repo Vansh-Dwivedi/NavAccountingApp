@@ -35,7 +35,7 @@ const app = express();
 // CORS configuration
 const corsOptions = {
   origin: [
-    'https://ec2-13-52-123-244.us-west-1.compute.amazonaws.com:8443'
+    'https://localhost:8443'
   ].filter(Boolean),
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],

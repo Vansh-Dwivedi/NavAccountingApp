@@ -44,7 +44,11 @@ const { Content } = Layout;
 const withHeaderFooter = (Component) => {
   return (props) => (
     <Layout style={{ minHeight: "100vh" }}>
-      <Content style={{ marginTop: 180 }}>
+      <div style={{ position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000 }}>
+        <PaymentHeader />
+        <FrontHeader />
+      </div>
+      <Content style={{ marginTop: 180, position: 'relative' }}>
         <Component {...props} />
       </Content>
       <ChatButton />

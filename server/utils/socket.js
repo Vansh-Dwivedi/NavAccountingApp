@@ -7,7 +7,7 @@ const initializeSocket = (server) => {
 
   io = socketIO(server, {
     cors: {
-      origin: process.env.CLIENT_URL || "https://ec2-13-52-123-244.us-west-1.compute.amazonaws.com:8443",
+      origin: process.env.CLIENT_URL || "https://localhost:8443",
       methods: ["GET", "POST"],
       credentials: true
     }

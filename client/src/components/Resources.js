@@ -103,6 +103,7 @@ const Resources = () => {
           title="Resources & Tools"
           description="Access official government resources, tax tools, and business services all in one place."
           backgroundImage={`${process.env.REACT_APP_API_URL}/uploads/common-hero.jpg`}
+          needMargin={true}
         />
         <section className="resources-grid">
           <Row gutter={[32, 32]}>

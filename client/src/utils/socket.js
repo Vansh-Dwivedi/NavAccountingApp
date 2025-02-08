@@ -4,7 +4,7 @@ let socket = null;
 
 export const initializeSocket = () => {
   if (!socket) {
-    socket = io(process.env.REACT_APP_API_URL || 'https://ec2-13-52-123-244.us-west-1.compute.amazonaws.com:8443', {
+    socket = io(process.env.REACT_APP_API_URL || 'https://localhost:8443', {
       transports: ['websocket'],
       reconnection: true,
       reconnectionAttempts: 5,
