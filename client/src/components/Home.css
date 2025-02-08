@@ -1255,8 +1255,7 @@ section {
   align-items: center;
   justify-content: center;
   background-color: #002E6D;
-  margin-top: -180px;
-  padding-top: 180px;
+  margin-top: 180px;
 }
 
 .starting-video {
