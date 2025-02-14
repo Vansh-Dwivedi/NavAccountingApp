@@ -4,6 +4,7 @@ import { FaUser, FaEnvelope, FaLock, FaGlobe } from "react-icons/fa";
 import api from "../../utils/api";
 import { Form, Input, Button, message, Divider } from "antd";
 import GoogleOAuthButton from '../GoogleOAuthButton';
+import AnimatedGraphic from '../AnimatedGraphic';
 
 const Register = () => {
   const [form] = Form.useForm();
@@ -40,8 +41,11 @@ const Register = () => {
         background: "#fff",
         padding: "20px",
         boxSizing: "border-box",
+        zIndex: 9,
       }}
+      className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative"
     >
+      <AnimatedGraphic />
       <div
         style={{
           width: "100%",
@@ -51,6 +55,7 @@ const Register = () => {
           padding: "40px",
           boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
         }}
+        className="sm:mx-auto sm:w-full sm:max-w-md"
       >
         <h1
           style={{
@@ -62,12 +67,14 @@ const Register = () => {
           Nav Accounts
         </h1>
         <img
-          src={process.env.REACT_APP_API_URL + "/uploads/nav-n-symbol-logo.png"}
+          src={process.env.REACT_APP_API_URL + "/uploads/full-white-app-logo.svg"}
           alt="Logo"
           style={{
             display: "block",
             margin: "0 auto 20px",
             maxWidth: "200px",
+            imageRendering: "-webkit-optimize-contrast",
+            imageRendering: "crisp-edges",
           }}
         />
         <h2

@@ -175,7 +175,7 @@ const FrontHeader = ({ activeKey }) => {
       <Header className={`front-header ${isScrolled ? 'scrolled' : ''}`} style={{
         position: 'fixed',
         width: '100%',
-        zIndex: 999,
+        zIndex: 9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999n,
         top: 50,
         padding: '15px 50px',
         background: isScrolled ? 'transparent' : 'transparent',
@@ -194,7 +194,7 @@ const FrontHeader = ({ activeKey }) => {
         }}>
           <Link to="/">
             <img
-              src={process.env.REACT_APP_API_URL + "/uploads/nav-n-symbol-logo.png"}
+              src={process.env.REACT_APP_API_URL + "/uploads/full-white-app-logo.svg"}
               alt="Nav Accounts Logo"
               style={{
                 height: '130px',
@@ -207,7 +207,7 @@ const FrontHeader = ({ activeKey }) => {
             <>
               <Button
                 type="text"
-                icon={<MenuOutlined style={{ fontSize: '24px' }} />}
+                icon={<MenuOutlined style={{ fontSize: '30px' }} />}
                 onClick={() => setDrawerVisible(true)}
                 style={{ border: 'none' }}
               />
@@ -222,9 +222,6 @@ const FrontHeader = ({ activeKey }) => {
                   selectedKeys={[location.pathname]}
                   items={getMenuItems()}
                   onClick={({ key }) => handleMenuClick(key)}
-                  style={{
-                    fontSize: '18px'
-                  }}
                 />
                 <Button
                   type="primary"
@@ -233,7 +230,7 @@ const FrontHeader = ({ activeKey }) => {
                     marginTop: '16px',
                     width: '100%',
                     height: '48px',
-                    fontSize: '18px',
+                    fontSize: '20px',
                     backgroundColor: '#002E6D'
                   }}
                   onClick={() => handleMenuClick('/contact')}
@@ -283,7 +280,8 @@ const FrontFooter = () => {
     <Footer style={{
       textAlign: 'center',
       backgroundColor: '#002E6D',
-      padding: '40px 20px'
+      padding: '40px 20px',
+      zIndex: 1
     }}>
       <div style={{
         maxWidth: 1200,

@@ -145,7 +145,7 @@ const FormsTab = () => {
       const submissions = await fetchFormSubmissions(form._id);
 
       // Get the logo as base64
-      const logoUrl = process.env.REACT_APP_API_URL + "/uploads/nav-n-symbol-logo.png";
+      const logoUrl = process.env.REACT_APP_API_URL + "/uploads/full-white-app-logo.svg";
       const logoBase64 = await getBase64Image(logoUrl);
 
       // Use the directly returned submissions data instead of accessing state

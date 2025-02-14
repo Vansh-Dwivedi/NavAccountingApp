@@ -4,6 +4,7 @@ import { FaEnvelope, FaLock, FaGlobe } from "react-icons/fa";
 import api from "../../utils/api";
 import GoogleOAuthButton from '../GoogleOAuthButton';
 import { Divider } from 'antd';
+import AnimatedGraphic from '../AnimatedGraphic';
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -74,18 +75,8 @@ const Login = () => {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "100vh",
-        width: "100%",
-        background: "#fff",
-        padding: "20px",
-        boxSizing: "border-box",
-      }}
-    >
+    <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative" style={{ zIndex: '999999 !important' }}>
+      <AnimatedGraphic />
       <div
         style={{
           width: "100%",
@@ -93,7 +84,7 @@ const Login = () => {
           background: "#fff",
           borderRadius: "8px",
           padding: "40px",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
         }}
       >
         <h1
@@ -106,12 +97,14 @@ const Login = () => {
           Nav Accounts
         </h1>
         <img
-          src={process.env.REACT_APP_API_URL + "/api/app/utils/app-logo.png"}
+          src={process.env.REACT_APP_API_URL + "/uploads/full-white-app-logo.svg"}
           alt="Logo"
           style={{
             display: "block",
             margin: "0 auto 20px",
             maxWidth: "200px",
+            imageRendering: "-webkit-optimize-contrast",
+            imageRendering: "crisp-edges",
           }}
         />
         <h2

@@ -496,6 +496,7 @@
   padding: 60px 24px;
   max-width: 1200px;
   margin: 0 auto;
+  background-color: #ffffff;
 }
 
 .section-title {
@@ -951,4 +952,28 @@
   .tax-returns-section p {
     font-size: 16px;
   }
+}
+
+.features-section {
+  background-color: #ffffff;
+}
+
+.pricing-section {
+  background-color: #ffffff;
+}
+
+.faq-section {
+  background-color: #ffffff;
+}
+
+.content-section {
+  background: #ffffff;
+}
+
+.card {
+  background: #ffffff;
+}
+
+.testimonials-section {
+  background: #ffffff;
 }

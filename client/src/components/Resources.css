@@ -31,6 +31,7 @@
 .resources-section {
   margin-top: 80px;
   padding-top: 40px;
+  background-color: #ffffff;
 }
 
 .resource-card {
@@ -38,6 +39,7 @@
   height: 100%;
   display: flex;
   flex-direction: column;
+  background: #ffffff;
 }
 
 .resource-icon-container {
@@ -263,4 +265,12 @@
   .resource-card {
     padding: 20px;
   }
+}
+
+.resources-container {
+  background-color: #ffffff;
+}
+
+.content-section {
+  background: #ffffff;
 }

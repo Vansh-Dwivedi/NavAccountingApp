@@ -66,7 +66,7 @@ const FAQSection = () => {
   ];
 
   return (
-    <div style={{ padding: '40px 0' }}>
+    <div style={{ padding: '40px 0', zIndex: 2 }}>
       <Title level={2} style={{ textAlign: 'center', marginBottom: 40 }}>
         Frequently Asked Questions
       </Title>

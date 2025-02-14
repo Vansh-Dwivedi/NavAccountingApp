@@ -13,40 +13,42 @@ const { Panel } = Collapse;
 
 const useStyles = createUseStyles({
   container: {
-    paddingTop: 84,
     minHeight: '100vh',
-    background: '#fff'
   },
   section: {
     padding: '40px 24px',
     maxWidth: 1200,
-    margin: '0 auto'
+    margin: '0 auto',
   },
   serviceCard: {
     marginBottom: '2rem',
     boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+    backgroundColor: '#ffffff !important',
     '& .ant-card-head': {
-      background: '#001529',
+      backgroundColor: '#001529 !important',
       '& .ant-card-head-title': {
-        color: '#fff',
-        fontSize: '1.5rem'
+        color: '#fff !important',
+        fontSize: '1.5rem !important',
+        backgroundColor: '#001529 !important'
       }
     }
   },
   collapse: {
-    background: '#fff',
+    backgroundColor: '#ffffff !important',
     '& .ant-collapse-item': {
       marginBottom: '0.5rem',
       border: '1px solid #f0f0f0',
       borderRadius: '4px !important',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      backgroundColor: '#ffffff !important'
     },
     '& .ant-collapse-header': {
-      background: '#f8f8f8',
+      backgroundColor: '#f8f8f8 !important',
       fontWeight: 'bold'
     },
     '& .ant-collapse-content': {
-      borderTop: '1px solid #f0f0f0'
+      borderTop: '1px solid #f0f0f0',
+      backgroundColor: '#ffffff !important'
     }
   },
   subCollapse: {
@@ -55,7 +57,7 @@ const useStyles = createUseStyles({
       border: '1px solid #f5f5f5'
     },
     '& .ant-collapse-header': {
-      background: '#fafafa',
+      backgroundColor: '#fafafa !important',
       padding: '8px 16px !important'
     }
   },
@@ -116,8 +118,8 @@ const Services = () => {
           'Corporation Meeting Minutes': 'Corporate record maintenance'
         },
         'Business Activity Focus': {
-          description: 'From Obtaining license, monthly/quarterly reporting and annual renewals',
-          categories: {
+          Description: 'From Obtaining license, monthly/quarterly reporting and annual renewals',
+          Categories: {
             'Retail & Food': {
               'Sales Tax Reporting': 'Regular tax compliance',
               'ABC License': 'Alcohol beverage licensing',
@@ -180,64 +182,64 @@ const Services = () => {
 
   return (
     <Layout>
-      <Content className={classes.container}>
-        <Hero
-          title="Our Services"
-          description="Comprehensive financial solutions for your business"
-          backgroundImage={`${process.env.REACT_APP_API_URL}/uploads/common-hero.jpg`}
-          style={{
-            marginTop: '130px'
-          }}
-        />
-        <div className={classes.section}>
-          <Row gutter={[24, 24]} style={{ marginTop: '2rem' }}>
-            {Object.entries(servicesData).map(([category, services]) => (
-              <Col xs={24} key={category}>
-                <Card 
-                  title={category}
-                  className={classes.serviceCard}
-                >
-                  <p style={{ marginBottom: '1rem' }}>{services.description}</p>
-                  {services.sections && (
-                    <Collapse
-                      className={classes.collapse}
-                      expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
-                    >
-                      {Object.entries(services.sections).map(([section, items]) => (
-                        <Panel header={section} key={section}>
-                          {renderServiceItems(items)}
-                        </Panel>
-                      ))}
-                    </Collapse>
-                  )}
-                  {services.items && (
-                    <div>
-                      {Object.entries(services.items).map(([item, description]) => (
-                        <div key={item} className={classes.serviceItem}>
-                          <p strong>{item}</p>
-                          {description && <p style={{ marginLeft: '8px', color: "black" }}>- {description}</p>}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                  {services.categories && (
-                    <Collapse
-                      className={classes.collapse}
-                      expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
-                    >
-                      {Object.entries(services.categories).map(([category, items]) => (
-                        <Panel header={category} key={category}>
-                          {renderServiceItems(items)}
-                        </Panel>
-                      ))}
-                    </Collapse>
-                  )}
-                </Card>
-              </Col>
-            ))}
-          </Row>
+      <Content>
+        <div className={classes.container}>
+          <Hero
+            title="Our Services"
+            description="Comprehensive financial solutions for your business"
+            backgroundImage={`${process.env.REACT_APP_API_URL}/uploads/common-hero.jpg`}
+          />
+          <div className={classes.section} style={{ backgroundColor: '#ffffff !important' }}>
+            <Row gutter={[24, 24]} style={{ marginTop: '2rem' }}>
+              {Object.entries(servicesData).map(([category, services]) => (
+                <Col xs={24} key={category}>
+                  <Card 
+                    title={category}
+                    className={classes.serviceCard}
+                    style={{ backgroundColor: '#ffffff !important' }}
+                  >
+                    <p style={{ marginBottom: '1rem', color: '#000000 !important' }}>{services.description}</p>
+                    {services.sections && (
+                      <Collapse
+                        className={classes.collapse}
+                        expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+                      >
+                        {Object.entries(services.sections).map(([section, items]) => (
+                          <Panel header={section} key={section}>
+                            {renderServiceItems(items)}
+                          </Panel>
+                        ))}
+                      </Collapse>
+                    )}
+                    {services.items && (
+                      <div>
+                        {Object.entries(services.items).map(([item, description]) => (
+                          <div key={item} className={classes.serviceItem}>
+                            <p strong style={{ color: '#000000 !important' }}>{item}</p>
+                            {description && <p style={{ marginLeft: '8px', color: "black" }}>- {description}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {services.categories && (
+                      <Collapse
+                        className={classes.collapse}
+                        expandIcon={({ isActive }) => <CaretRightOutlined rotate={isActive ? 90 : 0} />}
+                      >
+                        {Object.entries(services.categories).map(([category, items]) => (
+                          <Panel header={category} key={category}>
+                            {renderServiceItems(items)}
+                          </Panel>
+                        ))}
+                      </Collapse>
+                    )}
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          </div>
+          <GetStartedSteps />
         </div>
-        <GetStartedSteps />
       </Content>
       <FrontFooter />
     </Layout>

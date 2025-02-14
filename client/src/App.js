@@ -48,7 +48,7 @@ const withHeaderFooter = (Component) => {
         <PaymentHeader />
         <FrontHeader />
       </div>
-      <Content style={{ marginTop: 180, position: 'relative' }}>
+      <Content style={{ position: 'relative' }}>
         <Component {...props} />
       </Content>
       <ChatButton />

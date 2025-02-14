@@ -3,7 +3,7 @@
 .contact-container {
   padding-top: 84px;
   min-height: 100vh;
-  background: transparent;
+  background-color: #ffffff;
 }
 
 .contact-hero {
@@ -51,7 +51,7 @@
 
 .contact-section {
   padding: 80px 24px;
-  background: white;
+  background-color: #ffffff;
 }
 
 .contact-content {
@@ -144,7 +144,7 @@
 }
 
 .contact-form {
-  background: white;
+  background-color: #ffffff;
   padding: 32px;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);

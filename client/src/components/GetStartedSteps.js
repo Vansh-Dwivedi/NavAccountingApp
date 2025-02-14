@@ -4,7 +4,7 @@ import './components.css';
 
 const GetStartedSteps = () => {
   return (
-    <div className="get-started-section">
+    <div className="get-started-section" style={{ zIndex: 9 }}>
       <h2>Get Started in 3 Simple Steps</h2>
       <p className="get-started-description">
         We've designed a streamlined 3-step process to ensure that we dedicate our time and expertise to individuals who are qualified and

@@ -84,16 +84,16 @@ const Contact = () => {
       <FrontHeader />
       <div style={{
         minHeight: 'calc(100vh - 80px)',
-        background: '#f5f5f5'
+        background: '#f5f5f5 !important'
       }}>
         <Content style={{
-          paddingTop: '80px',
-          background: '#f5f5f5'
+          background: '#f5f5f5 !important'
         }}>
           <Hero
             title="Contact Us"
             description="Get in touch with us for any inquiries or to schedule a consultation."
             backgroundImage={`${process.env.REACT_APP_API_URL}/uploads/common-hero.jpg`}
+            style={{ backgroundColor: '#ffffff !important' }}
           />
         </Content>
 
@@ -105,7 +105,8 @@ const Contact = () => {
           display: 'flex',
           flexWrap: 'wrap',
           gap: '40px',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
+          backgroundColor: '#ffffff !important'
         }}>
           {/* Contact Information */}
           <div style={{
@@ -114,31 +115,32 @@ const Contact = () => {
             background: 'white',
             padding: '30px',
             borderRadius: '8px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            backgroundColor: '#ffffff !important'
           }}>
-            <h2 style={{ marginBottom: '30px', color: '#002E6D' }}>Contact Information</h2>
+            <h2 style={{ marginBottom: '30px', color: '#000000 !important', backgroundColor: '#ffffff !important' }}>Contact Information</h2>
 
             <div style={{ marginBottom: '20px' }}>
               <PhoneOutlined style={{ fontSize: '24px', color: '#002E6D', marginRight: '15px' }} />
               <div>
-                <h3 style={{ margin: '10px 0', color: '#333' }}>Phone</h3>
-                <p>+1 530-777-3265</p>
+                <h3 style={{ margin: '10px 0', color: '#333', backgroundColor: '#ffffff !important' }}>Phone</h3>
+                <p style={{ color: '#000000 !important', backgroundColor: '#ffffff !important' }}>+1 530-777-3265</p>
               </div>
             </div>
 
             <div style={{ marginBottom: '20px' }}>
               <MailOutlined style={{ fontSize: '24px', color: '#002E6D', marginRight: '15px' }} />
               <div>
-                <h3 style={{ margin: '10px 0', color: '#333' }}>Email</h3>
-                <p>navaccounts@yahoo.com</p>
+                <h3 style={{ margin: '10px 0', color: '#333', backgroundColor: '#ffffff !important' }}>Email</h3>
+                <p style={{ color: '#000000 !important', backgroundColor: '#ffffff !important' }}>navaccounts@yahoo.com</p>
               </div>
             </div>
 
             <div style={{ marginBottom: '20px' }}>
               <EnvironmentOutlined style={{ fontSize: '24px', color: '#002E6D', marginRight: '15px' }} />
               <div>
-                <h3 style={{ margin: '10px 0', color: '#333' }}>Address</h3>
-                <p>1469 Butte House Rd, Ste E, Yuba City, CA 95993</p>
+                <h3 style={{ margin: '10px 0', color: '#333', backgroundColor: '#ffffff !important' }}>Address</h3>
+                <p style={{ color: '#000000 !important', backgroundColor: '#ffffff !important' }}>1469 Butte House Rd, Ste E, Yuba City, CA 95993</p>
               </div>
             </div>
           </div>
@@ -150,17 +152,19 @@ const Contact = () => {
             background: 'white',
             padding: '30px',
             borderRadius: '8px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            backgroundColor: '#ffffff !important'
           }}>
-            <h2 style={{ marginBottom: '30px', color: '#002E6D' }}>Send us a Message</h2>
+            <h2 style={{ marginBottom: '30px', color: '#000000 !important', backgroundColor: '#ffffff !important' }}>Send us a Message</h2>
 
             <Form
               layout="vertical"
+              style={{ backgroundColor: '#ffffff !important' }}
             >
               <div style={{ display: 'flex', gap: '20px' }}>
                 <Form.Item
                   name="firstName"
-                  label="First Name"
+                  label={<span style={{ color: '#000000 !important' }}>First Name</span>}
                   required
                   validateStatus={!formData.firstName && formData.firstName !== '' ? 'error' : ''}
                 >
@@ -169,12 +173,13 @@ const Contact = () => {
                     value={formData.firstName}
                     onChange={handleInputChange}
                     placeholder="Enter your first name"
+                    style={{ backgroundColor: '#ffffff !important', color: '#000000 !important' }}
                   />
                 </Form.Item>
 
                 <Form.Item
                   name="lastName"
-                  label="Last Name"
+                  label={<span style={{ color: '#000000 !important' }}>Last Name</span>}
                   required
                   validateStatus={!formData.lastName && formData.lastName !== '' ? 'error' : ''}
                 >
@@ -183,13 +188,14 @@ const Contact = () => {
                     value={formData.lastName}
                     onChange={handleInputChange}
                     placeholder="Enter your last name"
+                    style={{ backgroundColor: '#ffffff !important', color: '#000000 !important' }}
                   />
                 </Form.Item>
               </div>
 
               <Form.Item
                 name="email"
-                label="Email"
+                label={<span style={{ color: '#000000 !important' }}>Email</span>}
                 required
                 validateStatus={!formData.email && formData.email !== '' ? 'error' : ''}
               >
@@ -198,24 +204,26 @@ const Contact = () => {
                   value={formData.email}
                   onChange={handleInputChange}
                   placeholder="Enter your email"
+                  style={{ backgroundColor: '#ffffff !important', color: '#000000 !important' }}
                 />
               </Form.Item>
 
               <Form.Item
                 name="phone"
-                label="Phone"
+                label={<span style={{ color: '#000000 !important' }}>Phone</span>}
               >
                 <Input
                   name="phone"
                   value={formData.phone}
                   onChange={handleInputChange}
                   placeholder="Enter your phone number"
+                  style={{ backgroundColor: '#ffffff !important', color: '#000000 !important' }}
                 />
               </Form.Item>
 
               <Form.Item
                 name="message"
-                label="Message"
+                label={<span style={{ color: '#000000 !important' }}>Message</span>}
                 required
                 validateStatus={!formData.message && formData.message !== '' ? 'error' : ''}
               >
@@ -225,6 +233,7 @@ const Contact = () => {
                   onChange={handleInputChange}
                   placeholder="Enter your message"
                   rows={4}
+                  style={{ backgroundColor: '#ffffff !important', color: '#000000 !important' }}
                 />
               </Form.Item>
 
@@ -237,7 +246,7 @@ const Contact = () => {
                     height: '45px',
                     width: '100%',
                     fontSize: '16px',
-                    backgroundColor: '#002E6D'
+                    backgroundColor: '#1890ff !important'
                   }}
                 >
                   Send Message

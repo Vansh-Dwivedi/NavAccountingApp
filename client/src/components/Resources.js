@@ -70,12 +70,19 @@ const Resources = () => {
   };
 
   const ResourceSection = ({ title, icon, description, links }) => (
-    <Card className="resource-card">
+    <Card 
+      className="resource-card"
+      style={{ backgroundColor: '#ffffff !important' }}
+    >
       <div className="resource-header">
         {icon}
-        <Title level={3}>{title}</Title>
+        <Title level={3} style={{ color: '#000000 !important', backgroundColor: '#ffffff !important' }}>
+          {title}
+        </Title>
       </div>
-      <Paragraph className="resource-description">{description}</Paragraph>
+      <Paragraph className="resource-description" style={{ color: '#000000 !important', backgroundColor: '#ffffff !important' }}>
+        {description}
+      </Paragraph>
       <List
         className="resource-list"
         dataSource={links}
@@ -84,7 +91,7 @@ const Resources = () => {
             <a href={item.url} target="_blank" rel="noopener noreferrer" className="resource-link">
               <Space>
                 {item.icon}
-                <span>{item.text}</span>
+                <span style={{ color: '#000000 !important', backgroundColor: '#ffffff !important' }}>{item.text}</span>
                 <ArrowRightOutlined className="arrow-icon" />
               </Space>
             </a>
@@ -95,17 +102,17 @@ const Resources = () => {
   );
 
   return (
-    <Layout className="layout">
+    <Layout className="layout" style={{ backgroundColor: '#ffffff !important' }}>
       <PaymentHeader />
       <FrontHeader activeKey="/resources" />
-      <Content>
+      <Content style={{ backgroundColor: '#ffffff !important' }}>
         <Hero
           title="Resources & Tools"
           description="Access official government resources, tax tools, and business services all in one place."
           backgroundImage={`${process.env.REACT_APP_API_URL}/uploads/common-hero.jpg`}
           needMargin={true}
         />
-        <section className="resources-grid">
+        <section className="resources-grid" style={{ backgroundColor: '#ffffff !important' }}>
           <Row gutter={[32, 32]}>
             {Object.entries(resourcesData).map(([key, section]) => (
               <Col xs={24} md={12} key={key}>

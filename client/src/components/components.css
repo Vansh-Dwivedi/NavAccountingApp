@@ -3021,7 +3021,7 @@ input:invalid {
 .get-started-section {
   padding: 60px 20px;
   text-align: center;
-  background-color: #f8f9fa;
+  background: transparent;
 }
 
 .get-started-section h2 {
@@ -3051,6 +3051,7 @@ input:invalid {
   border-radius: 10px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
+  z-index: 1;
 }
 
 .step-card:hover {
@@ -3095,7 +3096,7 @@ input:invalid {
 
 .header-menu.ant-menu-horizontal .ant-menu-item {
   color: #333333;
-  font-size: 16px;
+  font-size: 20px;
   padding: 0 20px !important;
 }
 

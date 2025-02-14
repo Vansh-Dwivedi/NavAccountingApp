@@ -1,5 +1,13 @@
 /* Home Page Specific Styles */
 
+body {
+  background-color: #ffffff !important;
+  background-image: radial-gradient(circle at 90% 10%, rgba(255, 122, 0, 0.05) 0%, rgba(255, 122, 0, 0.02) 50%, transparent 100%);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
 /* Main Grid Layout */
 .home-container {
   display: grid;
@@ -8,6 +16,7 @@
   padding: 130px 24px 24px;
   max-width: 1400px;
   margin: 0 auto;
+  background-color: #ffffff;
 }
 
 /* Hero Section */
@@ -108,6 +117,45 @@
   display: flex;
 }
 
+.services-section {
+  padding: 64px 32px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+  min-width: 100% !important;
+}
+
+.service-card-xyz {
+  text-align: center;
+  transition: all 0.3s ease;
+  border-radius: '15px';
+  text-align: 'center';
+  max-width: 800px !important;
+  margin: 0 auto;
+  background-color: #002E6D !important;
+}
+
+.service-card-xyz:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-4px);
+}
+
+.service-card.full-width {
+  background-color: #1890ff;
+}
+
+.service-card.full-width h3 {
+  color: #fff;
+}
+
+.section-description {
+  text-align: center;
+  max-width: 800px;
+  margin: 0 auto 48px !important;
+  font-size: 16px;
+}
+
 .image-section img {
   width: 100%;
   height: 100%;
@@ -115,30 +163,6 @@
   border-radius: 8px;
   max-width: 600px;
   max-height: auto;
-}
-
-/* Section Styles */
-section {
-  padding: 64px 24px;
-}
-
-.section-header {
-  text-align: center;
-  margin-bottom: 48px;
-}
-
-.section-title {
-  text-align: center;
-  margin-bottom: 24px !important;
-  font-size: 36px;
-  color: #333333;
-  margin-bottom: 16px;
-}
-
-.section-icon {
-  font-size: 32px;
-  color: #1890ff;
-  margin-bottom: 16px;
 }
 
 .content-row {
@@ -175,7 +199,7 @@ section {
 /* Features Section */
 .features-section {
   padding: 80px 24px;
-  background: #f5f5f5;
+  background: #f5f5f5 !important;
 }
 
 .features-grid {
@@ -216,42 +240,6 @@ section {
   font-size: 16px;
   line-height: 1.6;
   color: #666;
-}
-
-.services-section {
-  padding: 64px 32px;
-  background: #fff;
-}
-
-.services-grid {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.service-card {
-  height: 100%;
-  text-align: center;
-  transition: all 0.3s ease;
-}
-
-.service-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  transform: translateY(-4px);
-}
-
-.service-card.full-width {
-  background-color: #1890ff;
-}
-
-.service-card.full-width h3 {
-  color: #fff;
-}
-
-.section-description {
-  text-align: center;
-  max-width: 800px;
-  margin: 0 auto 48px !important;
-  font-size: 16px;
 }
 
 @media (max-width: 1024px) {
@@ -744,36 +732,6 @@ section {
   line-height: 1.6;
 }
 
-/* Services Section */
-.services-section {
-  margin-top: 64px;
-}
-
-.service-card {
-  text-align: center;
-  height: 100%;
-  padding: 24px;
-}
-
-.service-icon-container {
-  margin-bottom: 16px;
-}
-
-.service-icon {
-  font-size: 32px;
-  color: #1890ff;
-  transition: transform 0.3s ease;
-}
-
-.service-card:hover .service-icon {
-  transform: scale(1.1);
-}
-
-.service-features {
-  margin-top: 16px;
-  text-align: left;
-}
-
 .feature-item {
   display: flex;
   align-items: center;
@@ -892,11 +850,9 @@ section {
   }
 }
 
-.reliability-section {
-  padding: 64px 24px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-  margin: 64px 0;
-  border-radius: 8px;
+.reliability-section .info-card {
+  position: relative;
+  z-index: 2;
 }
 
 .reliability-section .ant-typography {
@@ -905,14 +861,22 @@ section {
   color: #333333;
 }
 
-.reliability-section .ant-card {
+.reliability-section {
+  height: 100%;
+  border-radius: 8px;
+  border: none;
+  background: #f5f5f5;
+}
+
+.ant-card {
   height: 100%;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   border-radius: 8px;
   border: none;
-  background: #f5f5f5;
+  background: #ffffff;
   transition: transform 0.3s ease;
 }
+
 
 .reliability-section .ant-card:hover {
   transform: translateY(-5px);
@@ -1199,12 +1163,12 @@ section {
 /* Reliability Section */
 .reliability-section {
   margin-bottom: 64px;
+  background-color: #F5F5F5 !important;
 }
 
 .reliability-section .info-card {
   height: 100%;
   padding: 32px;
-  background: white;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease;
@@ -1284,4 +1248,18 @@ section {
   .starting-video-section {
     height: 50vh;
   }
+}
+
+/* Rotating SVG Animation */
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.rotating-svg {
+  animation: rotate 20s linear infinite;
 }
