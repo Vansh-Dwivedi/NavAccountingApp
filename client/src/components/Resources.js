@@ -58,13 +58,12 @@ const Resources = () => {
       ]
     },
     business: {
-      title: "Business Resources",
-      icon: <ShopOutlined className="resource-icon" />,
+      title: "Forms Link",
+      icon: <FileOutlined className="resource-icon" />,
       description: "Essential business compliance resources",
       links: [
-        { text: "Secretary of State Business Portal", url: "https://bizfile.sos.ca.gov/", icon: <SafetyCertificateOutlined /> },
-        { text: "CDTFA Tax Service", url: "https://www.cdtfa.ca.gov/", icon: <DollarOutlined /> },
-        { text: "DMV Commercial Services", url: "https://www.dmv.ca.gov/portal/vehicle-industry-services/", icon: <CarOutlined /> }
+        { text: "Interview Form - Individual Taxes", url: "https://drive.google.com/file/d/1dIVJSDMdQnbr6EdhJ8RKwD7JpxSSl_rT/view", icon: <FileOutlined /> },
+        { text: "Interview Form - Buisness Entity Taxes", url: "https://drive.google.com/file/d/1EkYTaKSoJhY0BW98Nbm0Tt8mMy3kQiox/view", icon: <FileOutlined /> },
       ]
     }
   };
@@ -109,7 +108,7 @@ const Resources = () => {
         <Hero
           title="Resources & Tools"
           description="Access official government resources, tax tools, and business services all in one place."
-          backgroundImage={`${process.env.REACT_APP_API_URL}/uploads/common-hero.jpg`}
+          backgroundImage={`${process.env.REACT_APP_API_URL}/uploads/common-hero.png`}
           needMargin={true}
         />
         <section className="resources-grid" style={{ backgroundColor: '#ffffff !important' }}>

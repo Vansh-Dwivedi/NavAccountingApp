@@ -181,7 +181,7 @@ const FrontHeader = ({ activeKey }) => {
         background: isScrolled ? 'transparent' : 'transparent',
         boxShadow: isScrolled ? '0 2px 8px rgba(0,0,0,0.1)' : 'none',
         transition: 'all 0.3s ease',
-        height: '130px'
+        height: '145px'
       }}>
         <div style={{
           maxWidth: 1200,
@@ -193,14 +193,18 @@ const FrontHeader = ({ activeKey }) => {
           height: '100%'
         }}>
           <Link to="/">
-            <img
-              src={process.env.REACT_APP_API_URL + "/uploads/full-white-app-logo.svg"}
-              alt="Nav Accounts Logo"
-              style={{
-                height: '130px',
-                width: 'auto'
-              }}
-            />
+            <div className="logo-shine">
+              <img
+                src={process.env.REACT_APP_API_URL + "/uploads/full-white-app-logo.svg"}
+                alt="Nav Accounts Logo"
+                style={{
+                  height: '130px',
+                  width: 'auto',
+                  objectFit: 'contain',
+                  marginRight: '16px'
+                }}
+              />
+            </div>
           </Link>
 
           {isMobile ? (

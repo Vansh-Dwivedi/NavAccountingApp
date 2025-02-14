@@ -1,0 +1,11 @@
+<svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <pattern id="skyPattern" patternUnits="userSpaceOnUse" width="100" height="100">
+            <rect width="100" height="100" fill="skyblue"/>
+            <circle cx="25" cy="25" r="20" fill="white" opacity="0.5"/>
+            <circle cx="75" cy="75" r="20" fill="white" opacity="0.5"/>
+            <polygon points="50,0 100,100 0,100" fill="rgba(255, 255, 255, 0.3)"/>
+        </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#skyPattern)"/>
+</svg>

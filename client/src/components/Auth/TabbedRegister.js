@@ -2,9 +2,12 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaUser, FaEnvelope, FaLock, FaGlobe } from "react-icons/fa";
 import api from "../../utils/api";
-import { Form, Input, Button, message, Divider } from "antd";
+import { Form, Input, Button, message, Divider, Card, Typography } from "antd";
 import GoogleOAuthButton from '../GoogleOAuthButton';
 import AnimatedGraphic from '../AnimatedGraphic';
+import AuthBackground from '../AuthBackground';
+
+const { Title, Text } = Typography;
 
 const Register = () => {
   const [form] = Form.useForm();
@@ -31,72 +34,33 @@ const Register = () => {
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "100vh",
-        width: "100%",
-        background: "#fff",
-        padding: "20px",
-        boxSizing: "border-box",
-        zIndex: 9,
-      }}
-      className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative"
-    >
-      <AnimatedGraphic />
-      <div
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: '20px'
+    }}>
+      <AuthBackground />
+      <Card
         style={{
-          width: "100%",
-          maxWidth: "400px",
-          background: "#fff",
-          borderRadius: "8px",
-          padding: "40px",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+          width: '100%',
+          maxWidth: '500px',
+          boxShadow: '0 8px 24px rgba(0, 46, 109, 0.1)',
+          borderRadius: '12px',
+          background: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(10px)'
         }}
-        className="sm:mx-auto sm:w-full sm:max-w-md"
       >
-        <h1
-          style={{
-            textAlign: "center",
-            marginBottom: "20px",
-            color: "#333",
-          }}
-        >
-          Nav Accounts
-        </h1>
-        <img
-          src={process.env.REACT_APP_API_URL + "/uploads/full-white-app-logo.svg"}
-          alt="Logo"
-          style={{
-            display: "block",
-            margin: "0 auto 20px",
-            maxWidth: "200px",
-            imageRendering: "-webkit-optimize-contrast",
-            imageRendering: "crisp-edges",
-          }}
-        />
-        <h2
-          style={{
-            textAlign: "center",
-            marginBottom: "20px",
-            color: "#333",
-          }}
-        >
-          SIGN UP
-        </h2>
-        <p
-          style={{
-            textAlign: "center",
-            marginBottom: "20px",
-            color: "#666",
-            fontSize: "14px",
-          }}
-        >
-          Create your account by filling in the information below
-        </p>
-
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <img
+            src={process.env.REACT_APP_API_URL + "/uploads/logo.png"}
+            alt="Logo"
+            style={{ height: '60px', marginBottom: '16px' }}
+          />
+          <Title level={3} style={{ margin: 0, color: '#002E6D' }}>Create Account</Title>
+          <Text type="secondary">Join Nav Accounting today</Text>
+        </div>
         <Form form={form} name="register" onFinish={onFinish} scrollToFirstError>
           <table style={{ width: "100%", marginBottom: "15px" }}>
             <tbody>
@@ -393,7 +357,7 @@ const Register = () => {
             Login here
           </a>
         </p>
-      </div>
+      </Card>
     </div>
   );
 };

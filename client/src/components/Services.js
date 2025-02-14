@@ -187,7 +187,7 @@ const Services = () => {
           <Hero
             title="Our Services"
             description="Comprehensive financial solutions for your business"
-            backgroundImage={`${process.env.REACT_APP_API_URL}/uploads/common-hero.jpg`}
+            backgroundImage={`${process.env.REACT_APP_API_URL}/uploads/common-hero.png`}
           />
           <div className={classes.section} style={{ backgroundColor: '#ffffff !important' }}>
             <Row gutter={[24, 24]} style={{ marginTop: '2rem' }}>

@@ -92,7 +92,7 @@ const Contact = () => {
           <Hero
             title="Contact Us"
             description="Get in touch with us for any inquiries or to schedule a consultation."
-            backgroundImage={`${process.env.REACT_APP_API_URL}/uploads/common-hero.jpg`}
+            backgroundImage={`${process.env.REACT_APP_API_URL}/uploads/common-hero.png`}
             style={{ backgroundColor: '#ffffff !important' }}
           />
         </Content>

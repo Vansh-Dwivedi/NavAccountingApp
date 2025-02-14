@@ -3,8 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { FaEnvelope, FaLock, FaGlobe } from "react-icons/fa";
 import api from "../../utils/api";
 import GoogleOAuthButton from '../GoogleOAuthButton';
-import { Divider } from 'antd';
+import { Divider, Card, Typography } from 'antd';
 import AnimatedGraphic from '../AnimatedGraphic';
+import AuthBackground from '../AuthBackground';
+
+const { Title, Text } = Typography;
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -75,57 +78,33 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative" style={{ zIndex: '999999 !important' }}>
-      <AnimatedGraphic />
-      <div
+    <div style={{
+      minHeight: '100vh',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      padding: '20px'
+    }}>
+      <AuthBackground />
+      <Card
         style={{
-          width: "100%",
-          maxWidth: "400px",
-          background: "#fff",
-          borderRadius: "8px",
-          padding: "40px",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
+          width: '100%',
+          maxWidth: '400px',
+          boxShadow: '0 8px 24px rgba(0, 46, 109, 0.1)',
+          borderRadius: '12px',
+          background: 'rgba(255, 255, 255, 0.95)',
+          backdropFilter: 'blur(10px)'
         }}
       >
-        <h1
-          style={{
-            textAlign: "center",
-            marginBottom: "20px",
-            color: "#333",
-          }}
-        >
-          Nav Accounts
-        </h1>
-        <img
-          src={process.env.REACT_APP_API_URL + "/uploads/full-white-app-logo.svg"}
-          alt="Logo"
-          style={{
-            display: "block",
-            margin: "0 auto 20px",
-            maxWidth: "200px",
-            imageRendering: "-webkit-optimize-contrast",
-            imageRendering: "crisp-edges",
-          }}
-        />
-        <h2
-          style={{
-            textAlign: "center",
-            marginBottom: "20px",
-            color: "#333",
-          }}
-        >
-          LOGIN
-        </h2>
-        <p
-          style={{
-            textAlign: "center",
-            marginBottom: "20px",
-            color: "#666",
-            fontSize: "14px",
-          }}
-        >
-          Enter your credentials below to log in to your account
-        </p>
+        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+          <img
+            src={process.env.REACT_APP_API_URL + "/uploads/logo.png"}
+            alt="Logo"
+            style={{ height: '60px', marginBottom: '16px' }}
+          />
+          <Title level={3} style={{ margin: 0, color: '#002E6D' }}>Welcome Back</Title>
+          <Text type="secondary">Sign in to your account</Text>
+        </div>
         <form onSubmit={handleSubmit}>
           {error && (
             <div
@@ -309,7 +288,7 @@ const Login = () => {
             Sign up
           </a>
         </p>
-      </div>
+      </Card>
     </div>
   );
 };

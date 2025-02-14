@@ -88,13 +88,17 @@ const useStyles = createUseStyles({
     }
   },
   timelineIcon: {
-    fontSize: 24,
+    fontSize: '32px',
     color: '#1890ff',
     backgroundColor: '#e6f7ff',
-    padding: 16,
+    padding: 20,
     borderRadius: '50%',
+    marginLeft: 16,
     marginRight: 16,
-    zIndex: 1000000000
+    zIndex: 999999999999999,
+    position: 'relative',
+    border: '4px solid #fff',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
   },
   timelineYear: {
     fontSize: 20,
@@ -248,7 +252,7 @@ const About = () => {
           <Hero
             title="About Us"
             description="Learn more about our mission, values, and the team behind Nav Accounts."
-            backgroundImage={`${process.env.REACT_APP_API_URL}/uploads/common-hero.jpg`}
+            backgroundImage={`${process.env.REACT_APP_API_URL}/uploads/common-hero.png`}
             style={{
               marginTop: '130px',
               backgroundColor: '#f5f5f5 !important'
@@ -412,49 +416,149 @@ const About = () => {
               textAlign: 'center',
               backgroundColor: '#f5f5f5 !important'
             }}>Our Journey</div>
+            
             <Timeline className={classes.timeline} mode="alternate" style={{ backgroundColor: '#f5f5f5 !important' }}>
-              <Timeline.Item dot={<RocketOutlined className={classes.timelineIcon} style={{ zIndex: 999999999999999, backgroundColor: '#f5f5f5 !important' }}/>}>
+              <Timeline.Item 
+                dot={
+                  <div style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '50%',
+                    background: '#e6f7ff',
+                    border: '4px solid #1890ff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '28px',
+                    position: 'relative',
+                    zIndex: '9999999999999999999999999999999999999999999999999999999999999 !important',
+                    boxShadow: '0 0 0 8px #fff'
+                  }}
+                >
+                  <RocketOutlined style={{ color: '#1890ff' }} />
+                </div>
+                }
+              >
                 <Card
-                  title={<span style={{ color: '#1890ff', fontWeight: 'bold', backgroundColor: '#f5f5f5 !important' }}>2020 – The year we initiated</span>}
+                  title={<span style={{ color: '#1890ff', fontWeight: 'bold' }}>2020 – The year we initiated</span>}
                   bordered={false}
                   className={classes.timelineCard}
                   style={{ backgroundColor: '#f5f5f5 !important' }}
                 >
-                  <p style={{ backgroundColor: '#f5f5f5 !important' }}>Nav used to prepare taxes from her apartment, she used to meet at Starbucks for Client interactions. The firm's name was her full name Navrisham K Khaira E.A. This journey starts same till 2022.</p>
+                  <p style={{ backgroundColor: '#f5f5f5 !important' }}>
+                    Nav used to prepare taxes from her apartment, she used to meet at Starbucks for Client interactions. 
+                    The firm's name was her full name Navrisham K Khaira E.A. This journey starts same till 2022.
+                  </p>
                 </Card>
               </Timeline.Item>
 
-              <Timeline.Item dot={<BankOutlined className={classes.timelineIcon} style={{ zIndex: 999999999999999, backgroundColor: '#f5f5f5 !important' }}/>}>
+              <Timeline.Item 
+                dot={
+                  <div style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '50%',
+                    background: '#e6f7ff',
+                    border: '4px solid #1890ff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '28px',
+                    position: 'relative',
+                    zIndex: '9999999999999999999999999999999999999999999999999999999999999 !important',
+                    boxShadow: '0 0 0 8px #fff'
+                  }}
+                >
+                  <BankOutlined style={{ color: '#1890ff' }} />
+                </div>
+                }
+              >
                 <Card
-                  title={<span style={{ color: '#1890ff', fontWeight: 'bold', backgroundColor: '#f5f5f5 !important' }}>2022 – Official Registered</span>}
+                  title={<span style={{ color: '#1890ff', fontWeight: 'bold' }}>2022 – Official Registered</span>}
                   bordered={false}
                   className={classes.timelineCard}
                   style={{ backgroundColor: '#f5f5f5 !important' }}
                 >
-                  <p style={{ backgroundColor: '#f5f5f5 !important' }}>From this year Our Practice got officially registered with City as Sole Proprietorship as Navrisham Khaira E.A. DBA with Nav Accounts. We become part of Yuba city Chamber of Commerce.</p>
-                  <p style={{ backgroundColor: '#f5f5f5 !important' }}>Able to offer more services associated with Sales Tax Reporting, Accounting, preparation for Financial Statements. Grateful for yuba city community to showing trust in our work style and opportunities to serve with best of our understanding in the matter of tax and accounting; referring us clients.</p>
+                  <p style={{ backgroundColor: '#f5f5f5 !important' }}>
+                    From this year Our Practice got officially registered with City as Sole Proprietorship as Navrisham Khaira E.A. DBA with Nav Accounts. 
+                    We become part of Yuba city Chamber of Commerce.
+                  </p>
+                  <p style={{ backgroundColor: '#f5f5f5 !important' }}>
+                    Able to offer more services associated with Sales Tax Reporting, Accounting, preparation for Financial Statements. 
+                    Grateful for yuba city community to showing trust in our work style and opportunities to serve with best of our understanding 
+                    in the matter of tax and accounting; referring us clients.
+                  </p>
                 </Card>
               </Timeline.Item>
 
-              <Timeline.Item dot={<TrophyOutlined className={classes.timelineIcon} style={{ zIndex: 999999999999999, backgroundColor: '#f5f5f5 !important' }}/>}>
+              <Timeline.Item 
+                dot={
+                  <div style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '50%',
+                    background: '#e6f7ff',
+                    border: '4px solid #1890ff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '28px',
+                    position: 'relative',
+                    zIndex: '9999999999999999999999999999999999999999999999999999999999999 !important',
+                    boxShadow: '0 0 0 8px #fff'
+                  }}
+                >
+                  <TrophyOutlined style={{ color: '#1890ff' }} />
+                </div>
+                }
+              >
                 <Card
-                  title={<span style={{ color: '#1890ff', fontWeight: 'bold', backgroundColor: '#f5f5f5 !important' }}>2024 – Advancing with Compliance</span>}
+                  title={<span style={{ color: '#1890ff', fontWeight: 'bold' }}>2024 – Advancing with Compliance</span>}
                   bordered={false}
                   className={classes.timelineCard}
                   style={{ backgroundColor: '#f5f5f5 !important' }}
                 >
-                  <p style={{ backgroundColor: '#f5f5f5 !important' }}>We added more services in the form Business Compliance, which is not limited to Business formation, obtaining city licenses, Renewals, updating the licenses, assistance with Worker Comp Audit, Payroll Representation, Wholesale, Retail for Product line & food Focus along with Transportation Industry compliance from Licensing to reporting other than IRP Plates are now available.</p>
+                  <p style={{ backgroundColor: '#f5f5f5 !important' }}>
+                    We added more services in the form Business Compliance, which is not limited to Business formation, 
+                    obtaining city licenses, Renewals, updating the licenses, assistance with Worker Comp Audit, 
+                    Payroll Representation, Wholesale, Retail for Product line & food Focus along with Transportation 
+                    Industry compliance from Licensing to reporting other than IRP Plates are now available.
+                  </p>
                 </Card>
               </Timeline.Item>
 
-              <Timeline.Item dot={<GlobalOutlined className={classes.timelineIcon} style={{ zIndex: 999999999999999, backgroundColor: '#f5f5f5 !important' }}/>}>
+              <Timeline.Item 
+                dot={
+                  <div style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '50%',
+                    background: '#e6f7ff',
+                    border: '4px solid #1890ff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '28px',
+                    position: 'relative',
+                    zIndex: '9999999999999999999999999999999999999999999999999999999999999 !important',
+                    boxShadow: '0 0 0 8px #fff'
+                  }}
+                >
+                  <GlobalOutlined style={{ color: '#1890ff' }} />
+                </div>
+                }
+              >
                 <Card
-                  title={<span style={{ color: '#1890ff', fontWeight: 'bold', backgroundColor: '#f5f5f5 !important' }}>2025 – Location freedom</span>}
+                  title={<span style={{ color: '#1890ff', fontWeight: 'bold' }}>2025 – Location freedom</span>}
                   bordered={false}
                   className={classes.timelineCard}
                   style={{ backgroundColor: '#f5f5f5 !important' }}
                 >
-                  <p style={{ backgroundColor: '#f5f5f5 !important' }}>This year onward, we are open for virtual meetings for clients who want to work with us but are unable to connect with us due to traffic distance, Time zone concerns, we would like to work with your concerns, at your space with our services. Let's Connect and address your financial concerns together.</p>
+                  <p style={{ backgroundColor: '#f5f5f5 !important' }}>
+                    This year onward, we are open for virtual meetings for clients who want to work with us but are unable 
+                    to connect with us due to traffic distance, Time zone concerns, we would like to work with your concerns, 
+                    at your space with our services. Let's Connect and address your financial concerns together.
+                  </p>
                 </Card>
               </Timeline.Item>
             </Timeline>

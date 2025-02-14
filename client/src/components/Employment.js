@@ -33,7 +33,7 @@ const Employment = () => {
       <Hero
         title="Employment Opportunities"
         description="Join Our Team of Financial Professionals"
-        backgroundImage={`${process.env.REACT_APP_API_URL}/uploads/common-hero.jpg`}
+        backgroundImage={`${process.env.REACT_APP_API_URL}/uploads/common-hero.png`}
       />
       {/* Main Content */}
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '60px 20px' }}>
