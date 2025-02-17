@@ -30,21 +30,13 @@ const Login = () => {
         );
         return;
       }
-      const token = localStorage.getItem("token");
-      if (token) {
-        localStorage.removeItem("token");
-        localStorage.setItem("token", response.data.token);
-        api.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${response.data.token}`;
-        navigateToDashboard(response.data.user.role);
-      } else {
-        localStorage.setItem("token", response.data.token);
-        api.defaults.headers.common[
-          "Authorization"
-        ] = `Bearer ${response.data.token}`;
-        navigateToDashboard(response.data.user.role);
-      }
+      
+      // Store token first
+      localStorage.setItem("token", response.data.token);
+      api.defaults.headers.common["Authorization"] = `Bearer ${response.data.token}`;
+      
+      // Then navigate
+      navigateToDashboard(response.data.user.role);
     } catch (error) {
       console.error(
         "Login error:",
@@ -74,7 +66,8 @@ const Login = () => {
         path = "/user-dashboard";
     }
     navigate(path, { replace: true });
-    window.location.reload();
+    // Remove the immediate reload to allow token storage to complete
+    setTimeout(() => window.location.reload(), 100);
   };
 
   return (
@@ -98,9 +91,9 @@ const Login = () => {
       >
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <img
-            src={process.env.REACT_APP_API_URL + "/uploads/logo.png"}
+            src={process.env.REACT_APP_API_URL + "/uploads/full-white-app-logo.png"}
             alt="Logo"
-            style={{ height: '60px', marginBottom: '16px' }}
+            style={{ height: '200px', marginBottom: '16px', imageRendering: 'crisp-edges' }}
           />
           <Title level={3} style={{ margin: 0, color: '#002E6D' }}>Welcome Back</Title>
           <Text type="secondary">Sign in to your account</Text>

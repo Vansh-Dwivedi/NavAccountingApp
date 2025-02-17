@@ -10,7 +10,7 @@ const StyledContent = styled(Content)`
   padding: 40px 20px;
   max-width: 1200px;
   margin: 0 auto;
-  margin-top: 64px;
+  margin-top: 180px;
 `;
 
 const StyledCard = styled(Card)`

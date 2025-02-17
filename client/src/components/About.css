@@ -62,5 +62,168 @@ body {
 }
 
 .about-container {
-  background-color: #f5f5f5;
+  background-color: #B3E3FF !important;
+  min-height: calc(100vh - 64px) !important;
+}
+
+.journey-title {
+  font-size: 50px;
+  font-weight: bold;
+  text-align: center;
+  color: #1890ff;
+  margin: 40px 0;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* Custom Timeline */
+.timeline-container {
+  position: relative;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 32px 0;
+}
+
+.timeline-container::after {
+  content: '';
+  position: absolute;
+  width: 2.4px;
+  background: #1890ff;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  margin-left: -1.2px;
+  z-index: 1;
+}
+
+.timeline-item {
+  padding: 8px 48px;
+  position: relative;
+  width: 50%;
+  left: 0;
+  margin: 48px 0;
+}
+
+.timeline-item.right {
+  left: 50%;
+}
+
+.timeline-icon {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  right: -32px;
+  top: 0;
+  z-index: 2;
+  background: #fff;
+  border-radius: 50%;
+}
+
+.timeline-item.right .timeline-icon {
+  left: -32px;
+}
+
+.icon-circle {
+  width: 100%;
+  height: 100%;
+  background: #e6f7ff;
+  border: 4px solid #1890ff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 8px #fff;
+}
+
+.timeline-content {
+  padding: 24px;
+  position: relative;
+  z-index: 3;
+}
+
+.timeline-content h3 {
+  font-size: 20px !important;
+  margin-bottom: 16px !important;
+}
+
+.content-card {
+  background: white;
+  padding: 24px;
+  border-radius: 10px;
+  box-shadow: 0 5px 13px rgba(0, 0, 0, 0.1);
+}
+
+.content-card p {
+  font-size: 19px;
+  line-height: 1.6;
+  margin-bottom: 13px;
+  color: #333;
+}
+
+.content-card p:last-child {
+  margin-bottom: 0;
+}
+
+.timeline-item::before {
+  content: '';
+  position: absolute;
+  width: 40px;
+  height: 2.4px;
+  background: #1890ff;
+  top: 32px;
+  right: 0;
+  z-index: 1;
+}
+
+.timeline-item.right::before {
+  left: 0;
+}
+
+@media screen and (max-width: 768px) {
+  .timeline-container::after {
+    left: 32px;
+    width: 2.4px;
+  }
+
+  .timeline-item {
+    width: 100%;
+    padding-left: 72px;
+    padding-right: 24px;
+    left: 0;
+  }
+
+  .timeline-item.right {
+    left: 0;
+  }
+
+  .timeline-icon {
+    left: 0;
+    right: auto;
+  }
+
+  .timeline-item.right .timeline-icon {
+    left: 0;
+  }
+
+  .timeline-item::before {
+    left: 60px;
+    right: auto;
+    width: 40px;
+  }
+
+  .timeline-item.right::before {
+    left: 60px;
+  }
+
+  .timeline-content h3 {
+    font-size: 18px !important;
+  }
+
+  .content-card {
+    padding: 20px;
+  }
+
+  .content-card p {
+    font-size: 17px;
+  }
 }

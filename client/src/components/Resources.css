@@ -6,7 +6,7 @@
 
 .resources-text {
   color: var(--text-secondary);
-  font-size: 1.1rem;
+  font-size: 2rem; /* Increased font size */
   line-height: 1.6;
   margin-bottom: 24px;
 }
@@ -47,7 +47,7 @@
 }
 
 .resource-icon {
-  font-size: 48px;
+  font-size: 56px; /* Increased font size */
   color: var(--primary-color);
   transition: transform var(--transition-speed) ease;
 }
@@ -80,7 +80,7 @@
   }
 
   .resources-text {
-    font-size: 1rem;
+    font-size: 1.5rem; /* Increased font size */
   }
 
   .resources-section {
@@ -93,7 +93,7 @@
   }
 
   .resource-icon {
-    font-size: 40px;
+    font-size: 48px; /* Increased font size */
   }
 
   .resource-card {
@@ -156,7 +156,7 @@
 }
 
 .resource-icon {
-  font-size: 2rem;
+  font-size: 2.5rem; /* Increased font size */
   color: #1a237e;
   margin-right: 1rem;
 }
@@ -169,6 +169,7 @@
 .resource-description {
   color: #666;
   margin-bottom: 1.5rem;
+  font-size: 1.5rem; /* Increased font size */
 }
 
 .resource-list .ant-list-item {
@@ -184,6 +185,7 @@
   color: #2c3e50;
   transition: color 0.3s ease;
   width: 100%;
+  font-size: 1.2rem; /* Increased font size */
 }
 
 .resource-link:hover {
@@ -226,16 +228,19 @@
 .help-card h2.ant-typography {
   color: #2c3e50;
   margin-bottom: 1rem;
+  font-size: 2rem; /* Increased font size */
 }
 
 .help-card .ant-typography {
   color: #666;
   margin-bottom: 2rem;
+  font-size: 1.5rem; /* Increased font size */
 }
 
 .help-card .ant-btn {
   background: #1a237e;
   border: none;
+  font-size: 1.5rem; /* Increased font size */
 }
 
 .help-card .ant-btn:hover {
@@ -268,9 +273,98 @@
 }
 
 .resources-container {
-  background-color: #ffffff;
+  background-color: #B3E3FF !important;
+  min-height: calc(100vh - 64px) !important;
+  padding-top: 2rem;
 }
 
 .content-section {
   background: #ffffff;
+}
+
+/* FAQ Section Styles */
+.faq-section {
+  padding: 60px 0;
+  background-color: #f5f5f5;
+}
+
+.faq-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.accordion-item {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.accordion-button {
+  width: 100%;
+  padding: 24px;
+  font-size: 1.5rem;
+  font-weight: 500;
+  text-align: left;
+  background: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #2c3e50;
+  transition: all 0.3s ease;
+}
+
+.accordion-button:hover {
+  background-color: #f8f9fa;
+}
+
+.accordion-button.active {
+  background-color: #1890ff;
+  color: #fff;
+}
+
+.accordion-icon {
+  font-size: 1.5rem;
+  font-weight: bold;
+  transition: transform 0.3s ease;
+}
+
+.accordion-content {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  background-color: #fff;
+}
+
+.accordion-content.active {
+  max-height: 500px;
+}
+
+.accordion-content p {
+  padding: 24px;
+  margin: 0;
+  font-size: 1.3rem;
+  line-height: 1.6;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .accordion-button {
+    padding: 20px;
+    font-size: 1.3rem;
+  }
+
+  .accordion-content p {
+    padding: 20px;
+    font-size: 1.1rem;
+  }
 }

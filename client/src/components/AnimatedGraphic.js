@@ -42,7 +42,7 @@ const AnimatedGraphic = () => (
       zIndex: 0,
       pointerEvents: 'none',
       marginTop: '0px',
-      marginLeft: '-100px'
+      marginRight: '-100px'
     }}>
       <img 
         src={process.env.REACT_APP_API_URL + "/uploads/ani.svg"} 

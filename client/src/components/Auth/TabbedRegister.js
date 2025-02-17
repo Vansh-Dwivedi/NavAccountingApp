@@ -54,9 +54,9 @@ const Register = () => {
       >
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
           <img
-            src={process.env.REACT_APP_API_URL + "/uploads/logo.png"}
+            src={process.env.REACT_APP_API_URL + "/uploads/full-white-app-logo.png"}
             alt="Logo"
-            style={{ height: '60px', marginBottom: '16px' }}
+            style={{ height: '200px', marginBottom: '16px', imageRendering: 'crisp-edges' }}
           />
           <Title level={3} style={{ margin: 0, color: '#002E6D' }}>Create Account</Title>
           <Text type="secondary">Join Nav Accounting today</Text>

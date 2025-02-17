@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Layout, Card, List, Typography, Row, Col, Space } from 'antd';
 import {
   FileOutlined,
@@ -64,6 +64,7 @@ const Resources = () => {
       links: [
         { text: "Interview Form - Individual Taxes", url: "https://drive.google.com/file/d/1dIVJSDMdQnbr6EdhJ8RKwD7JpxSSl_rT/view", icon: <FileOutlined /> },
         { text: "Interview Form - Buisness Entity Taxes", url: "https://drive.google.com/file/d/1EkYTaKSoJhY0BW98Nbm0Tt8mMy3kQiox/view", icon: <FileOutlined /> },
+        { text: "Services Proposal", url: "https://drive.google.com/file/d/1r85x0Pu_2bIBC8LWiUj-_gMGYvFaZnUk/view", icon: <FileOutlined /> },
       ]
     }
   };
@@ -100,6 +101,12 @@ const Resources = () => {
     </Card>
   );
 
+  const [expandedIndex, setExpandedIndex] = useState(null);
+
+  const handleAccordionClick = (index) => {
+    setExpandedIndex(expandedIndex === index ? null : index);
+  };
+
   return (
     <Layout className="layout" style={{ backgroundColor: '#ffffff !important' }}>
       <PaymentHeader />
@@ -124,6 +131,48 @@ const Resources = () => {
               </Col>
             ))}
           </Row>
+        </section>
+        <section className="faq-section" style={{ backgroundColor: '#f5f5f5', padding: '60px 0' }}>
+          <div className="container">
+            <h2 className="section-title" style={{ textAlign: 'center', marginBottom: '40px', fontSize: '2.5rem', color: '#1890ff' }}>
+              Frequently Asked Questions
+            </h2>
+            <div className="faq-container">
+              <div className="accordion">
+                {[
+                  {
+                    question: 'I need assistance with setup my online IRS Account?',
+                    answer: 'Requested Weblink reference is available under business resource tab. Thank you!'
+                  },
+                  {
+                    question: 'I need assistance with setup my online Franchise Tax Board Account?',
+                    answer: 'Requested Weblink reference is available under business resource tab. Thank you!'
+                  },
+                  {
+                    question: 'I need assistance with setup my online California Unemployment Claim Insurance Account?',
+                    answer: 'Requested Weblink reference is available under business resource tab. Thank you!'
+                  },
+                  {
+                    question: 'I need assistance with get access to Medical Tax Form with Covered California?',
+                    answer: 'Requested Weblink reference is available under business resource tab. Thank you!'
+                  }
+                ].map((faq, index) => (
+                  <div className="accordion-item" key={index}>
+                    <button
+                      className={`accordion-button ${expandedIndex === index ? 'active' : ''}`}
+                      onClick={() => handleAccordionClick(index)}
+                    >
+                      {faq.question}
+                      <span className="accordion-icon">{expandedIndex === index ? '−' : '+'}</span>
+                    </button>
+                    <div className={`accordion-content ${expandedIndex === index ? 'active' : ''}`}>
+                      <p>{faq.answer}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </section>
       </Content>
       <FrontFooter />

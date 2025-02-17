@@ -28,7 +28,7 @@ const Container = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e7eb 100%);
+  background: #B3E3FF;
   overflow: hidden;
   z-index: -1;
 `;

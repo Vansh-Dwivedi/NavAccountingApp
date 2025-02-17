@@ -38,7 +38,6 @@ import {
 import { jwtDecode } from "jwt-decode";
 import FlipNumbers from "react-flip-numbers";
 import api from "../utils/api";
-import axios from 'axios';
 import "./Home.css";
 import { FrontHeader, FrontFooter } from './HeaderFooter';
 import { Swiper, SwiperSlide } from 'swiper/react';
@@ -65,6 +64,12 @@ const Home = () => {
   const [managersCount, setManagersCount] = useState(0);
   const [clientsCount, setClientsCount] = useState(0);
   const [reviews, setReviews] = useState([]);
+  const [currentReview, setCurrentReview] = useState(0);
+  const [slideDirection, setSlideDirection] = useState('');
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [autoSlide, setAutoSlide] = useState(true);
+  const [reviewsLoading, setReviewsLoading] = useState(true);
+  const [reviewsError, setReviewsError] = useState(null);
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
@@ -96,7 +101,35 @@ const Home = () => {
     fetchManagersCount();
     fetchClientsCount();
     fetchAdminsCount();
-    fetchReviews();
+  }, []);
+
+  useEffect(() => {
+    const staticReviews = [
+      {
+        content: "Exceptional service! Their expertise in accounting has helped our business grow tremendously.",
+        name: "Sarah Johnson",
+        rating: 5,
+        profileUrl: "https://xsgames.co/randomusers/avatar.php?g=female",
+        relativeTime: "2 weeks ago"
+      },
+      {
+        content: "Great experience working with this team. They've streamlined our financial processes.",
+        name: "Michael Chen",
+        rating: 5,
+        profileUrl: "https://xsgames.co/randomusers/avatar.php?g=male",
+        relativeTime: "1 month ago"
+      },
+      {
+        content: "Professional and knowledgeable staff. Always responsive to our needs.",
+        name: "Emily Rodriguez",
+        rating: 5,
+        profileUrl: "https://xsgames.co/randomusers/avatar.php?g=female",
+        relativeTime: "3 weeks ago"
+      }
+    ];
+
+    setReviews(staticReviews);
+    setReviewsLoading(false);
   }, []);
 
   const handleDashboardClick = () => {
@@ -126,41 +159,6 @@ const Home = () => {
   const fetchAdminsCount = async () => {
     const response = await api.get("/api/users/admins/count");
     setAdminsCount(response.data.count);
-  };
-
-  const fetchReviews = async () => {
-    try {
-      const response = await axios.get('/api/google-reviews');
-      setReviews(response.data);
-    } catch (error) {
-      console.error('Error fetching reviews:', error);
-      // Fallback to static reviews if API fails
-      setReviews([
-        {
-          name: "Sarah Johnson",
-          initial: "SJ",
-          date: "2 weeks ago",
-          rating: 5,
-          content: "Nav Accounting has been instrumental in helping our business grow. Their expertise in tax planning saved us thousands of dollars. Highly recommend their services!",
-        },
-        {
-          name: "Michael Chen",
-          initial: "MC",
-          date: "1 month ago",
-          rating: 5,
-          content: "Professional, knowledgeable, and always available when we need them. They've made our tax season stress-free for the past 2 years.",
-        },
-        {
-          name: "Emily Rodriguez",
-          initial: "ER",
-          date: "3 weeks ago",
-          rating: 5,
-          content: "The team at Nav Accounting goes above and beyond. Their attention to detail and proactive approach to financial planning has been invaluable for our business.",
-        }
-      ]);
-    } finally {
-      setLoading(false);
-    }
   };
 
   const toggleMenu = () => {
@@ -269,6 +267,24 @@ const Home = () => {
     }
   ];
 
+  const reliablePoints = [
+    {
+      icon: <TeamOutlined />,
+      title: "Passionate Professionals",
+      description: "We love what we do which leads us to provide you with a service in terms of legit compliance with regulations, decision focus reporting, with interactions platform, and best practice in maintaining the data security and confidentiality."
+    },
+    {
+      icon: <CheckCircleOutlined />,
+      title: "Honest & Dependable",
+      description: "We offer transparent in the pricing quotes and services indeed. Our Focus with each individual client will be improving their business practices in efficient manner with value added solutions & upgrading systems with technology reforming."
+    },
+    {
+      icon: <SafetyOutlined />,
+      title: "Keep Refining",
+      description: "Our client showed trust in our services because they got the solutions for their concerns with long-term bonding. We are grateful for it, along with that we keep improving our understanding and practices with regulations updated annually in the context of tax, law, tech and security. We take our duties seriously."
+    }
+  ];
+
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
     if (element) {
@@ -361,6 +377,43 @@ const Home = () => {
     ]
   };
 
+  useEffect(() => {
+    let interval;
+    if (autoSlide && reviews.length > 1) {
+      interval = setInterval(() => {
+        if (!isTransitioning) {
+          nextReview();
+        }
+      }, 5000);
+    }
+    return () => clearInterval(interval);
+  }, [autoSlide, isTransitioning]);
+
+  const changeSlide = (direction) => {
+    if (isTransitioning) return;
+
+    setAutoSlide(false); // Pause auto-slide on manual navigation
+    setIsTransitioning(true);
+    setSlideDirection(direction);
+
+    setTimeout(() => {
+      if (direction === 'left') {
+        setCurrentReview((prev) => (prev + 1) % reviews.length);
+      } else {
+        setCurrentReview((prev) => (prev - 1 + reviews.length) % reviews.length);
+      }
+
+      setTimeout(() => {
+        setSlideDirection('');
+        setIsTransitioning(false);
+        setAutoSlide(true); // Resume auto-slide after transition
+      }, 50);
+    }, 500);
+  };
+
+  const prevReview = () => changeSlide('right');
+  const nextReview = () => changeSlide('left');
+
   return (
     <>
       <AnimatedGraphic />
@@ -369,16 +422,23 @@ const Home = () => {
         <FrontHeader />
         {/* Hero Section */}
         <section className="starting-video-section">
-          <img
-            src={`${process.env.REACT_APP_API_URL}/uploads/home-banner.svg`}
-            alt="Hero Banner"
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
             style={{
               width: '70%',
               height: 'auto',
-              objectFit: 'cover',
-              marginTop: '85px'
+              objectFit: 'contain',
+              display: 'block',
+              margin: '0 auto',
+              imageRendering: 'crisp-edges'
             }}
-          />
+          >
+            <source src={`${process.env.REACT_APP_API_URL}/uploads/home-banner.mp4`} type="video/mp4" />
+            Your browser does not support the video tag.
+          </video>
           <div className="banner-button-container">
             <button className="animated-button" onClick={() => navigate('/contact')}>
               <svg className="arr-2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -392,158 +452,9 @@ const Home = () => {
             </button>
           </div>
         </section>
-        <section style={{ padding: '80px 0' }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-            <h2 className="section-title">
-              Our Accomplishments
-            </h2>
-            <Row gutter={[48, 48]}>
-              <Col xs={24} md={12}>
-                <div style={{
-                  height: '786.41px',
-                  backgroundColor: '#002E6D',
-                  color: 'white',
-                  padding: '40px',
-                  borderRadius: '10px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center'
-                }}>
-                  <Typography.Paragraph style={{
-                    fontSize: '1.25rem',
-                    lineHeight: '1.8',
-                    margin: '0 0 20px 0',
-                    color: 'white'
-                  }}>
-                    We talk only when we had achieved for real. That makes our success countable and meaningful. Our commitment to excellence has led to significant achievements in serving our clients:
-                  </Typography.Paragraph>
-                  <ul style={{
-                    listStyle: 'none',
-                    padding: 0,
-                    margin: '20px 0',
-                    color: 'white',
-                    fontSize: '1.25rem',
-                  }}>
-                    <li style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-                      <ArrowRightOutlined style={{ marginRight: '10px', color: '#4096ff' }} />
-                      Over $50,000 in total tax savings for our clients
-                    </li>
-                    <li style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-                      <ArrowRightOutlined style={{ marginRight: '10px', color: '#4096ff' }} />
-                      Successfully processed 200+ tax returns with 100% accuracy
-                    </li>
-                    <li style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-                      <ArrowRightOutlined style={{ marginRight: '10px', color: '#4096ff' }} />
-                      Helped 50+ businesses optimize their accounting processes
-                    </li>
-                    <li style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-                      <ArrowRightOutlined style={{ marginRight: '10px', color: '#4096ff' }} />
-                      Achieved 98% client satisfaction rate
-                    </li>
-                    <li style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
-                      <ArrowRightOutlined style={{ marginRight: '10px', color: '#4096ff' }} />
-                      Provided 1000+ hours of professional consultation
-                    </li>
-                  </ul>
-                  <Typography.Paragraph style={{
-                    fontSize: '1.25rem',
-                    lineHeight: '1.8',
-                    margin: '20px 0 0 0',
-                    color: 'white'
-                  }}>
-                    These numbers are based on our performance in 2022 & 2023, and we continue to grow and excel in serving our clients with dedication and expertise.
-                  </Typography.Paragraph>
-                </div>
-              </Col>
-              <Col xs={24} md={12}>
-                <div style={{ position: 'relative' }}>
-                  <img src="https://localhost:8443/uploads/acc.png" style={{ width: '100%', height: 'auto', objectFit: 'cover', borderRadius: '10px' }} />
-                  <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-                    <div style={{ position: 'absolute', top: '32%', right: '5%', display: 'flex', alignItems: 'center', fontSize: '85.3px' }}>
-                      <span style={{ fontSize: '85.3px', color: '#1A1B1E', fontFamily: 'Montserrat' }}>$</span>
-                      <Counter start={10} end={200} duration={2000} suffix="k" />
-                    </div>
-                    <div style={{ position: 'absolute', top: '50%', right: '-3.0%', display: 'flex', alignItems: 'center', fontSize: '80.3px' }}>
-                      <Counter start={10} end={200} duration={2000} suffix="+" />
-                    </div>
-                    <div style={{ position: 'absolute', top: '68%', right: '-2%', display: 'flex', alignItems: 'center', fontSize: '85.3px' }}>
-                      <Counter start={1} end={3} duration={2000} suffix=" yrs" />
-                    </div>
-                  </div>
-                </div>
-              </Col>
-            </Row>
-          </div>
-        </section>
-        {/* What Makes Us Reliable Section */}
-        <section style={{ background: 'transparent', padding: '64px 24px', zIndex: 9 }}>
-          <Title level={2} className="section-title">What Makes us Reliable for You</Title>
-          <Row gutter={[24, 24]} className="content-row">
-            <Col xs={24} md={8}>
-              <Card className="info-card">
-                <h3>Passionate Professionals</h3>
-                <p>We love what we do which leads us to provide you with a service in terms of legit compliance with regulations, decision focus reporting, with interactions platform, and best practice in maintaining the data security and confidentiality.</p>
-              </Card>
-            </Col>
-            <Col xs={24} md={8}>
-              <Card className="info-card">
-                <h3>Honest & Dependable</h3>
-                <p>We offer transparent in the pricing quotes and services indeed. Our Focus with each individual client will be improving their business practices in efficient manner with value added solutions & upgrading systems with technology reforming.</p>
-              </Card>
-            </Col>
-            <Col xs={24} md={8}>
-              <Card className="info-card">
-                <h3>Keep Refining</h3>
-                <p>Our client showed trust in our services because they got the solutions for their concerns with long-term bonding. We are grateful for it, along with that we keep improving our understanding and practices with regulations updated annually in the context of tax, law, tech and security. We take our duties seriously.</p>
-              </Card>
-            </Col>
-          </Row>
-        </section>
 
-        {/* Our Services Section */}
-        <section className="services-section" style={{ background: 'transparent' }}>
-          <Title level={2} className="section-title">Our Services</Title>
-          <Paragraph className="section-description">
-            Nav Accounts offers a wide range of services to our clients. We Look to us to help you with
-            financial reporting, tax planning, business best practices, transaction advisory assistance
-            and understanding of your industry.
-          </Paragraph>
-
-          <Row gutter={[24, 24]}>
-            <Col xs={24}>
-              <Card className="service-card-xyz">
-                <a href="/services">
-                  <Title level={1} style={{ color: '#ffffff' }}>Accounting & Payroll</Title>
-                </a>
-              </Card>
-            </Col>
-            <Col xs={24}>
-              <Card className="service-card-xyz">
-                <a href="/services">
-                  <Title level={1} style={{ color: '#ffffff' }}>Taxation</Title>
-                </a>
-              </Card>
-            </Col>
-            <Col xs={24}>
-              <Card className="service-card-xyz">
-                <a href="/services">
-                  <Title level={1} style={{ color: '#ffffff' }}>Compliance</Title>
-                </a>
-              </Card>
-            </Col>
-            <Col xs={24}>
-              <Card className="service-card-xyz">
-                <a href="/services">
-                  <Title level={1} style={{ color: '#ffffff' }}>Business Insight & Advisory</Title>
-                </a>
-              </Card>
-            </Col>
-          </Row>
-        </section>
-
-        {/* Features Section */}
         <section className="values-section">
-          <Title level={2} className="section-title">Why Choose Us</Title>
+          <Title level={2} className="section-title" style={{ textAlign: 'center' }}>Why To Choose Us</Title>
           <Row gutter={[32, 32]} justify="center">
             {features.map((feature, index) => (
               <Col xs={24} sm={12} md={6} key={index}>
@@ -561,9 +472,123 @@ const Home = () => {
           </Row>
         </section>
 
+        <section style={{ padding: '80px 0' }}>
+          <div style={{ maxWidth: '1200px', margin: '0', padding: '0 20px' }}>
+            <Row gutter={[48, 48]}>
+              <Col xs={24} md={12} style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                <div style={{
+                  height: '786.41px',
+                  backgroundColor: '#002E6D',
+                  color: 'white',
+                  padding: '40px',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}>
+                  <Typography.Paragraph style={{
+                    fontSize: '1.50rem',
+                    lineHeight: '1.8',
+                    margin: '0 0 20px 0',
+                    color: 'white'
+                  }}>
+                    Nav Accounts is owned by Navrisham Khaira as a solopreneur. She is passionate about helping individuals and businesses navigate the complexities of tax laws to maximize savings and ensure long-term financial success, along with sharing tech-associated compliance with small business owners for data protection.
+                  </Typography.Paragraph>
+                  <Typography.Paragraph style={{
+                    fontSize: '1.50rem',
+                    lineHeight: '1.8',
+                    margin: '20px 0 0 0',
+                    color: 'white'
+                  }}>
+                    We talk only when we had achieved for real. That makes countable for your opportunities to assist you with our business solution with our commitment to serve as best of our understanding. These numbers are based on year 2022 to 2024.
+                  </Typography.Paragraph>
+                </div>
+              </Col>
+              <Col xs={24} md={12}>
+                <div style={{ position: 'relative' }}>
+                  <img src="https://localhost:8443/uploads/acc.png" style={{ width: '100%', height: 'auto', objectFit: 'cover', borderRadius: '10px' }} />
+                  <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
+                    <div style={{ position: 'absolute', top: '32%', right: '-1%', display: 'flex', alignItems: 'center' }}>
+                      <span style={{ fontSize: '46.5px', color: '#1A1B1E', fontFamily: 'Magnolia Script' }}>$</span>
+                      <Counter start={10000} end={200000} duration={2000} suffix="+" style={{ fontSize: '46.5px', fontFamily: 'Magnolia Script' }} />
+                    </div>
+                    <div style={{ position: 'absolute', top: '48.5%', right: '1.5%', display: 'flex', alignItems: 'center' }}>
+                      <Counter start={10} end={200} duration={2000} suffix="+" style={{ fontSize: '46.5px', fontFamily: 'Magnolia Script' }} />
+                    </div>
+                    <div style={{ position: 'absolute', top: '65.2%', right: '-2%', display: 'flex', alignItems: 'center' }}>
+                      <Counter start={1} end={3} duration={2000} suffix=" yrs" style={{ fontSize: '46.5px', fontFamily: 'Magnolia Script' }} />
+                    </div>
+                    <div style={{ position: 'absolute', top: '83%', right: '-2.8%', display: 'flex', alignItems: 'center' }}>
+                      <Counter start={1} end={7} duration={2000} suffix=" yrs" style={{ fontSize: '46.5px', fontFamily: 'Magnolia Script' }} />
+                    </div>
+                  </div>
+                </div>
+              </Col>
+            </Row>
+          </div>
+        </section>
+        <section className="reliable-section">
+          <div className="container">
+            <h2 className="section-title" style={{ textAlign: 'center', marginBottom: '40px', width: '60%' }}>What Makes Us Reliable</h2>
+            <div className="reliable-container">
+              {reliablePoints.map((point, index) => (
+                <div className="reliable-item" key={index}>
+                  <div className="reliable-icon">
+                    {point.icon}
+                  </div>
+                  <div className="reliable-content">
+                    <h3>{point.title}</h3>
+                    <p>{point.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Our Services Section */}
+        <section id="services" style={{ padding: '80px 0', zIndex: 1 }}>
+          <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
+            <h2 className="services-title" style={{ textAlign: 'center' }}>Our Services</h2>
+            <div className="services-tabs-container">
+              <div className="services-tabs">
+                <div className="service-tab-row">
+                  <button
+                    className="service-tab wide"
+                    onClick={() => navigate('/services#accounting-&-payroll')}
+                  >
+                    Accounting & Payroll
+                  </button>
+                </div>
+                <div className="service-tab-row">
+                  <button
+                    className="service-tab"
+                    onClick={() => navigate('/services#taxation')}
+                  >
+                    Taxation
+                  </button>
+                  <button
+                    className="service-tab"
+                    onClick={() => navigate('/services#compliance')}
+                  >
+                    Compliance
+                  </button>
+                </div>
+                <div className="service-tab-row">
+                  <button
+                    className="service-tab wide"
+                    onClick={() => navigate('/services#business-insight-&-advisory')}
+                  >
+                    Business Insight & Advisory
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Professional Values Section */}
         <section className="values-section" style={{ backgroundColor: '#ffffff !important' }}>
-          <Title level={2} className="section-title">Our Professional Values</Title>
+          <Title level={2} className="section-title" style={{ textAlign: 'center' }}>Our Professional Values</Title>
           <Row gutter={[32, 32]} justify="center">
             <Col xs={24} sm={12} md={6}>
               <Card className="value-card" bordered={false} style={{ backgroundColor: '#ffffff !important' }}>
@@ -605,50 +630,56 @@ const Home = () => {
         </section>
 
         {/* Google Reviews Section */}
-        <section className="reviews-section">
-          <Title level={2} className="section-title">What People Say About Us</Title>
-          <div className="review-slider">
-            {loading ? (
-              <div style={{ textAlign: 'center', padding: '40px' }}>
-                <Spin size="large" />
+        <section className="review-section">
+          <Title level={2} className="section-title" style={{ textAlign: 'center' }}>What people say about us</Title>
+          {reviewsLoading ? (
+            <div className="review-loading">
+              <Spin size="large" />
+            </div>
+          ) : reviews.length > 0 ? (
+            <div className="review-container">
+              <button
+                className="review-nav-button review-nav-prev"
+                onClick={prevReview}
+                style={{ display: reviews.length > 1 ? 'flex' : 'none' }}
+              >
+                ←
+              </button>
+              <div className={`review-content ${isTransitioning ? 'fade' : ''}`}>
+                <div className="review-rating">
+                  {[...Array(reviews[currentReview].rating)].map((_, i) => (
+                    <StarFilled key={i} style={{ color: '#FFD700' }} />
+                  ))}
+                </div>
+                <p className={`review-text ${slideDirection ? `slide-${slideDirection}` : ''}`}>
+                  {reviews[currentReview].content}
+                </p>
+                <div className={`reviewer-info ${slideDirection ? `slide-${slideDirection}` : ''}`}>
+                  <img
+                    src={reviews[currentReview].profileUrl}
+                    alt={reviews[currentReview].name}
+                    className="reviewer-image"
+                    onError={(e) => {
+                      e.target.src = `${process.env.REACT_APP_API_URL}/uploads/default-avatar.jpg`;
+                    }}
+                  />
+                  <h3 className="reviewer-name">{reviews[currentReview].name}</h3>
+                  <p className="reviewer-title">{reviews[currentReview].relativeTime}</p>
+                </div>
               </div>
-            ) : (
-              <Slider {...sliderSettings}>
-                {reviews.map((review, index) => (
-                  <div key={index}>
-                    <div className="review-card">
-                      <div className="review-header">
-                        <div className="reviewer-avatar">
-                          {review.initial}
-                        </div>
-                        <div className="reviewer-info">
-                          <div className="reviewer-name">{review.name}</div>
-                          <div className="review-date">{review.date}</div>
-                        </div>
-                      </div>
-                      <div className="star-rating">
-                        {[...Array(review.rating)].map((_, i) => (
-                          <StarFilled key={i} style={{ fontSize: '16px' }} />
-                        ))}
-                      </div>
-                      <div className="review-content">
-                        "{review.content}"
-                      </div>
-                      <div className="google-badge">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48" style={{ marginRight: '12px' }}>
-                          <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-                          <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-                          <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-                          <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-                        </svg>
-                        <span className="verified-text">Verified Google Review</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </Slider>
-            )}
-          </div>
+              <button
+                className="review-nav-button review-nav-next"
+                onClick={nextReview}
+                style={{ display: reviews.length > 1 ? 'flex' : 'none' }}
+              >
+                →
+              </button>
+            </div>
+          ) : (
+            <div className="no-reviews">
+              <p>{reviewsError || 'No reviews available at the moment.'}</p>
+            </div>
+          )}
         </section>
 
         <GetStartedSteps />
@@ -661,9 +692,9 @@ const Home = () => {
               padding: '2rem',
               boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
               borderRadius: '8px',
-              maxWidth: '800px',
+              maxWidth: '80%',
               margin: '0 auto', // Center the card
-              background: 'url("https://localhost:8443/uploads/quote-bg.png")',
+              background: '#36a6e6',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
             }}>
