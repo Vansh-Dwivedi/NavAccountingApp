@@ -60,6 +60,7 @@ import LogoutConfirmModal from "../LogoutConfirmModal";
 import SleepMode from "../SleepMode/SleepMode";
 import EmployeeChatCenter from "../Chat/EmployeeChatCenter";
 import WaitlistMessage from "../WaitlistMessage"; // New Import
+import FancyLoader from '../common/FancyLoader';
 
 const { Content, Sider } = Layout;
 const { Title, Text } = Typography;
@@ -133,6 +134,8 @@ const EmployeeDashboard = () => {
     );
   };
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     fetchEmployeeData();
     fetchPassbook();
@@ -151,6 +154,11 @@ const EmployeeDashboard = () => {
       }
     };
     fetchChatUsers();
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const fetchEmployeeData = async () => {
@@ -381,6 +389,10 @@ const EmployeeDashboard = () => {
       content: <WallpaperSelector onWallpaperChange={handleWallpaperChange} />,
     },
   ];
+
+  if (loading) {
+    return <FancyLoader />;
+  }
 
   return (
     <RoleChecker userRole={user?.role} userEmail={user?.email}>

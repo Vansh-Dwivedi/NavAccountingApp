@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../utils/api";
+import FancyLoader from '../common/FancyLoader';
 
 import {
   Layout,
@@ -74,6 +75,7 @@ const { TabPane } = Tabs;
 const { Option } = Select;
 
 const ManagerDashboard = () => {
+  const [loading, setLoading] = useState(true);
   const [managerData, setManagerData] = useState(null);
   const [assignedClients, setAssignedClients] = useState([]);
   const [selectedClient, setSelectedClient] = useState(null);
@@ -99,11 +101,18 @@ const ManagerDashboard = () => {
   const [formSubmissions, setFormSubmissions] = useState([]);
   const [personnelForm] = Form.useForm();
   const { canShowComponent } = useEnabledComponents(managerData?._id);
-  const loading = false;
   const [isLoading, setIsLoading] = useState(true);
   const [adminUser, setAdminUser] = useState(null);
   const [statusFilter, setStatusFilter] = useState("all");
   const [isSleepMode, setIsSleepMode] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const fetchFormSubmissionsWithStructure = async (userId) => {
     try {
@@ -583,6 +592,10 @@ const ManagerDashboard = () => {
       console.error("Error activating sleep mode:", error);
     }
   };
+
+  if (loading) {
+    return <FancyLoader />;
+  }
 
   if (error) return <div className="error">{error}</div>;
   if (!managerData) return <div className="loading">Loading...</div>;

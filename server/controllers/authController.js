@@ -44,21 +44,50 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log('Login attempt:', { email });
+    
     const user = await User.findOne({ email });
-
-    if (!user || !(await user.comparePassword(password))) {
-      return res.status(401).json({ error: "Invalid email or password" });
+    console.log('User found:', user ? 'Yes' : 'No');
+    
+    if (!user) {
+      return res.status(401).json({ 
+        error: "Invalid email or password",
+        attemptsRemaining: req.loginAttempts?.remaining || 0
+      });
     }
+
+    const isPasswordValid = await user.comparePassword(password);
+    console.log('Password valid:', isPasswordValid ? 'Yes' : 'No');
+
+    if (!isPasswordValid) {
+      const attemptsRemaining = req.loginAttempts?.remaining || 0;
+      return res.status(401).json({ 
+        error: "Invalid email or password",
+        attemptsRemaining,
+        blockDuration: attemptsRemaining === 0 ? 30 : null
+      });
+    }
+
+    if (user.isBlocked) {
+      return res.status(401).json({
+        error: "Your account has been blocked. Please contact an administrator."
+      });
+    }
+
+    console.log('JWT_SECRET available:', !!process.env.JWT_SECRET);
+    console.log('User data for token:', { id: user._id, role: user.role });
 
     const token = jwt.sign(
       { user: { id: user._id, role: user.role } },
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'your-secret-key',
       { expiresIn: "1d" }
     );
 
+    console.log('Token generated:', !!token);
+
     res.json({
       token,
-      user: { id: user._id, email: user.email, role: user.role },
+      user: { id: user._id, email: user.email, role: user.role }
     });
   } catch (error) {
     console.error("Login error:", error);

@@ -6,14 +6,28 @@ import { Form, Input, Button, message, Divider, Card, Typography } from "antd";
 import GoogleOAuthButton from '../GoogleOAuthButton';
 import AnimatedGraphic from '../AnimatedGraphic';
 import AuthBackground from '../AuthBackground';
+import PasswordStrengthMeter from './PasswordStrengthMeter';
+import { checkPasswordStrength } from '../../utils/passwordStrength';
 
 const { Title, Text } = Typography;
 
 const Register = () => {
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
   const onFinish = async (values) => {
+    const strength = checkPasswordStrength(values.password);
+    if (strength.score < 3) { // Require at least "Fair" strength
+      setError('Please choose a stronger password that meets all criteria');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+    
     try {
       const response = await api.post("/api/auth/register", values);
       localStorage.setItem("token", response.data.token);
@@ -27,10 +41,15 @@ const Register = () => {
         "Registration error:",
         error.response?.data?.error || error.message
       );
-      message.error(
-        error.response?.data?.error || "An error occurred during registration"
-      );
+      setError(error.response?.data?.error || "An error occurred during registration");
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handlePasswordChange = (e) => {
+    setPassword(e.target.value);
+    form.setFieldsValue({ password: e.target.value });
   };
 
   return (
@@ -61,6 +80,11 @@ const Register = () => {
           <Title level={3} style={{ margin: 0, color: '#002E6D' }}>Create Account</Title>
           <Text type="secondary">Join Nav Accounting today</Text>
         </div>
+        {error && (
+          <div style={{ marginBottom: '24px' }}>
+            <Text type="danger">{error}</Text>
+          </div>
+        )}
         <Form form={form} name="register" onFinish={onFinish} scrollToFirstError>
           <table style={{ width: "100%", marginBottom: "15px" }}>
             <tbody>
@@ -199,20 +223,19 @@ const Register = () => {
                     ]}
                     style={{ margin: 0 }}
                   >
-                    <Input.Password
-                      placeholder="Password"
-                      style={{
-                        border: "none",
-                        outline: "none",
-                        fontSize: "14px",
-                        padding: "10px",
-                      }}
-                    />
+                    <Input.Password onChange={handlePasswordChange} placeholder="Password" style={{
+                      border: "none",
+                      outline: "none",
+                      fontSize: "14px",
+                      padding: "10px",
+                    }} />
                   </Form.Item>
                 </td>
               </tr>
             </tbody>
           </table>
+
+          <PasswordStrengthMeter password={password} />
 
           <table style={{ width: "100%", marginBottom: "15px" }}>
             <tbody>
@@ -252,17 +275,12 @@ const Register = () => {
                     ]}
                     style={{ margin: 0 }}
                   >
-                    <Input.Password
-                      placeholder="4-digit PIN for Sleep Mode"
-                      maxLength={4}
-                      type="number"
-                      style={{
-                        border: "none",
-                        outline: "none",
-                        fontSize: "14px",
-                        padding: "10px",
-                      }}
-                    />
+                    <Input.Password placeholder="4-digit PIN for Sleep Mode" maxLength={4} type="number" style={{
+                      border: "none",
+                      outline: "none",
+                      fontSize: "14px",
+                      padding: "10px",
+                    }} />
                   </Form.Item>
                 </td>
               </tr>
@@ -303,15 +321,12 @@ const Register = () => {
                     ]}
                     style={{ margin: 0 }}
                   >
-                    <Input
-                      placeholder="Firm ID"
-                      style={{
-                        border: "none",
-                        outline: "none",
-                        fontSize: "14px",
-                        padding: "10px",
-                      }}
-                    />
+                    <Input placeholder="Firm ID" style={{
+                      border: "none",
+                      outline: "none",
+                      fontSize: "14px",
+                      padding: "10px",
+                    }} />
                   </Form.Item>
                 </td>
               </tr>
@@ -321,6 +336,7 @@ const Register = () => {
           <Button
             type="primary"
             htmlType="submit"
+            loading={loading}
             style={{
               width: "100%",
               padding: "12px",

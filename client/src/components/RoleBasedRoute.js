@@ -6,18 +6,19 @@ const RoleBasedRoute = ({ component: Component, allowedRoles }) => {
   const token = localStorage.getItem('token');
 
   if (!token) {
+    console.log('No token found, redirecting to login');
     return <Navigate to="/login" />;
   }
 
   try {
     const decodedToken = jwtDecode(token);
     const userRole = decodedToken.user.role;
+    console.log('User role:', userRole, 'Allowed roles:', allowedRoles);
 
     if (allowedRoles.includes(userRole)) {
       return <Component />;
     } else {
-      console.log('Unauthorized access attempt. User role:', userRole, 'Allowed roles:', allowedRoles);
-      console.log('Role:', userRole);
+      console.log('Unauthorized access attempt. User role:', userRole);
       return <Navigate to="/unauthorized" />;
     }
   } catch (error) {

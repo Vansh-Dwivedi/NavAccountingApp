@@ -123,14 +123,21 @@ exports.getClientInfo = async (req, res) => {
 
 exports.getProfile = async (req, res) => {
   try {
+    console.log('getProfile - user from request:', req.user);
     const user = await User.findById(req.user.id)
       .select("-password")
       .populate("assignedManager", "username _id role");
+    
+    console.log('getProfile - user found:', user ? 'Yes' : 'No');
+    
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
+    
+    console.log('getProfile - sending user data');
     res.json(user);
   } catch (error) {
+    console.error('getProfile error:', error);
     res.status(500).json({ error: error.message });
   }
 };
@@ -358,7 +365,7 @@ exports.getAssignedClients = async (req, res) => {
 
     const assignedClients = await User.find(
       { _id: { $in: manager.assignedClients } },
-      "username _id role profilePic"
+      "username _id role email profilePic"
     );
     console.log("Assigned clients:", assignedClients);
     res.json(assignedClients);

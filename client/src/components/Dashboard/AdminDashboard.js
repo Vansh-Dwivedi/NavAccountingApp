@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../utils/api";
+import FancyLoader from '../common/FancyLoader';
 
 import {
   Layout,
@@ -85,6 +86,14 @@ const AdminDashboard = () => {
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [selectedUser, setSelectedUser] = useState(null);
   const [personnelForm] = Form.useForm();
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     fetchUsers();
@@ -344,7 +353,7 @@ const AdminDashboard = () => {
     }
   };
 
-  if (loading) return <div className="loading">Loading...</div>;
+  if (loading) return <FancyLoader />;
   if (error) return <div className="error">{error}</div>;
 
   const menuItems = [

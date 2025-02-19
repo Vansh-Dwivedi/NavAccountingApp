@@ -2,27 +2,27 @@ const express = require("express");
 const router = express.Router();
 const authController = require("../controllers/authController");
 const auth = require("../middleware/auth");
-const {
-  validateRegistration,
-  validateLogin,
-  validateForgotPassword,
-  validateResetPassword,
-} = require("../middleware/validate");
-const {
-  loginLimiter,
-  forgotPasswordLimiter,
-} = require("../middleware/rateLimiter");
+const { validateRegistration, validateLogin, validateForgotPassword, validateResetPassword } = require("../middleware/validate");
+const { loginLimiter, trackLoginAttempt } = require("../middleware/loginRateLimiter");
 const { OAuth2Client } = require("google-auth-library");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const auditMiddleware = require("../middleware/auditMiddleware");
 
 router.post("/register", auditMiddleware("👤 New user registration"), authController.register);
-router.post("/login", auditMiddleware("🔑 User login"), authController.login);
+
+// Apply rate limiter and tracking to login route
+router.post("/login", 
+  loginLimiter,
+  trackLoginAttempt,
+  auditMiddleware("🔑 User login"), 
+  authController.login
+);
+
 router.post("/logout", auth, auditMiddleware("👋 User logout"), authController.logout);
 router.post(
   "/forgot-password",
-  forgotPasswordLimiter,
+  // forgotPasswordLimiter,
   validateForgotPassword,
   auditMiddleware("🔄 Password reset requested"),
   authController.forgotPassword

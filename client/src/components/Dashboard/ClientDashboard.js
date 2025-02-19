@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../utils/api";
+import FancyLoader from '../common/FancyLoader';
 
 import {
   Layout,
@@ -71,6 +72,7 @@ const { Option } = Select;
 
 const ClientDashboard = () => {
   const { user } = useContext(AuthContext);
+  const [loading, setLoading] = useState(true);
   const [showChat, setShowChat] = useState(false);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -209,6 +211,14 @@ const ClientDashboard = () => {
       });
     }
   }, [clientData]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handlePersonnelSubmit = async (values) => {
     try {
@@ -465,6 +475,10 @@ const ClientDashboard = () => {
       activeTab === "personnelSettings" && canShowComponent("personnelSettings")
     );
   };
+
+  if (loading) {
+    return <FancyLoader />;
+  }
 
   if (!user) {
     return <div>Loading...</div>;

@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "scripts": {
     "start": "node index.js",
-    "seed": "node scripts/seedUsers.js",
-    "build": "echo 'No build step required for server'",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "seed:admin": "node scripts/seedAdmin.js",
+    "remove:users": "node scripts/removeAllUsers.js"
   },
   "keywords": [],
   "author": "",
@@ -27,6 +27,7 @@
     "google-auth-library": "^9.14.2",
     "helmet": "^7.1.0",
     "https": "^1.0.0",
+    "ioredis": "^5.5.0",
     "json2csv": "^6.0.0-alpha.2",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.7.1",
@@ -36,6 +37,7 @@
     "nodemailer": "^6.9.15",
     "nodemon": "^3.1.7",
     "pdfkit": "^0.15.0",
+    "rate-limit-redis": "^4.2.0",
     "socket.io": "^4.7.5"
   }
 }

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Route,
@@ -36,6 +36,8 @@ import { FrontHeader, FrontFooter } from "./components/HeaderFooter";
 import PaymentHeader from "./components/PaymentHeader";
 import Payment from "./components/Payment";
 import PrivacyPolicy from "./components/PrivacyPolicy";
+import { AuthProvider } from "./context/AuthContext";
+import api from "./utils/api";
 import "./App.css";
 
 const { Content } = Layout;
@@ -67,112 +69,125 @@ const EmploymentWithLayout = withHeaderFooter(Employment);
 const PrivacyPolicyWithLayout = withHeaderFooter(PrivacyPolicy);
 
 function App() {
+  // Initialize token from localStorage
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      console.log('App: Initialized token from localStorage');
+    }
+  }, []);
+
   return (
-    <Router>
-      <Routes>
-        {/* Public routes with header/footer */}
-        <Route path="/" element={<HomeWithLayout />} />
-        <Route path="/about-us" element={<AboutWithLayout />} />
-        <Route path="/services" element={<ServicesWithLayout />} />
-        <Route path="/contact" element={<ContactWithLayout />} />
-        <Route path="/resources" element={<ResourcesWithLayout />} />
-        <Route path="/employment" element={<EmploymentWithLayout />} />
-        <Route path="/privacy" element={<PrivacyPolicyWithLayout />} />
-        
-        {/* Routes without header/footer */}
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<TabbedRegister />} />
-        <Route path="/payment" element={<Payment />} />
-        <Route
-          path="/admin-dashboard"
-          element={
-            <RoleBasedRoute
-              role="admin"
-              element={<AdminDashboard />}
-            />
-          }
-        />
-        <Route
-          path="/manager-dashboard"
-          element={
-            <RoleBasedRoute
-              role="manager"
-              element={<ManagerDashboard />}
-            />
-          }
-        />
-        <Route
-          path="/client-dashboard"
-          element={
-            <RoleBasedRoute
-              role="client"
-              element={<ClientDashboard />}
-            />
-          }
-        />
-        <Route
-          path="/employee-dashboard"
-          element={
-            <RoleBasedRoute
-              role="employee"
-              element={<EmployeeDashboard />}
-            />
-          }
-        />
-        <Route
-          path="/office-head-dashboard"
-          element={
-            <RoleBasedRoute
-              role="office_head"
-              element={<OfficeHeadDashboard />}
-            />
-          }
-        />
-        <Route
-          path="/head-director-dashboard"
-          element={
-            <RoleBasedRoute
-              role="head_director"
-              element={<HeadDirectorDashboard />}
-            />
-          }
-        />
-        <Route
-          path="/master-dept-dashboard"
-          element={
-            <RoleBasedRoute
-              role="master_dept"
-              element={<MasterDeptDashboard />}
-            />
-          }
-        />
-        <Route
-          path="/operator-dashboard"
-          element={
-            <RoleBasedRoute
-              role="operator"
-              element={<OperatorDashboard />}
-            />
-          }
-        />
-        <Route
-          path="/helper-dashboard"
-          element={
-            <RoleBasedRoute
-              role="helper"
-              element={<HelperDashboard />}
-            />
-          }
-        />
-        <Route
-          path="/form-submissions/:id"
-          element={<FormSubmissionPage />}
-        />
-        <Route path="/unauthorized" element={<Unauthorized />} />
-        <Route path="/auth/google/callback" element={<GoogleCallback />} />
-        <Route path="*" element={<Navigate to="/" />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router>
+        <Routes>
+          {/* Public routes with header/footer */}
+          <Route path="/" element={<HomeWithLayout />} />
+          <Route path="/about-us" element={<AboutWithLayout />} />
+          <Route path="/services" element={<ServicesWithLayout />} />
+          <Route path="/contact" element={<ContactWithLayout />} />
+          <Route path="/resources" element={<ResourcesWithLayout />} />
+          <Route path="/employment" element={<EmploymentWithLayout />} />
+          <Route path="/privacy" element={<PrivacyPolicyWithLayout />} />
+          
+          {/* Routes without header/footer */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<TabbedRegister />} />
+          <Route path="/payment" element={<Payment />} />
+          <Route
+            path="/admin-dashboard"
+            element={
+              <RoleBasedRoute
+                component={AdminDashboard}
+                allowedRoles={["admin"]}
+              />
+            }
+          />
+          <Route
+            path="/manager-dashboard"
+            element={
+              <RoleBasedRoute
+                component={ManagerDashboard}
+                allowedRoles={["manager"]}
+              />
+            }
+          />
+          <Route
+            path="/client-dashboard"
+            element={
+              <RoleBasedRoute
+                component={ClientDashboard}
+                allowedRoles={["client"]}
+              />
+            }
+          />
+          <Route
+            path="/employee-dashboard"
+            element={
+              <RoleBasedRoute
+                component={EmployeeDashboard}
+                allowedRoles={["employee"]}
+              />
+            }
+          />
+          <Route
+            path="/office-head-dashboard"
+            element={
+              <RoleBasedRoute
+                component={OfficeHeadDashboard}
+                allowedRoles={["office_head"]}
+              />
+            }
+          />
+          <Route
+            path="/head-director-dashboard"
+            element={
+              <RoleBasedRoute
+                component={HeadDirectorDashboard}
+                allowedRoles={["head_director"]}
+              />
+            }
+          />
+          <Route
+            path="/master-dept-dashboard"
+            element={
+              <RoleBasedRoute
+                component={MasterDeptDashboard}
+                allowedRoles={["master_dept_a", "master_dept_b", "master_dept_c", "master_dept_d", "master_dept_e"]}
+              />
+            }
+          />
+          <Route
+            path="/operator-dashboard"
+            element={
+              <RoleBasedRoute
+                component={OperatorDashboard}
+                allowedRoles={["operator_a", "operator_b", "operator_c", "operator_d"]}
+              />
+            }
+          />
+          <Route
+            path="/helper-dashboard"
+            element={
+              <RoleBasedRoute
+                component={HelperDashboard}
+                allowedRoles={["helper"]}
+              />
+            }
+          />
+          <Route
+            path="/form-submissions/:id"
+            element={<FormSubmissionPage />}
+          />
+          <Route path="/unauthorized" element={<Unauthorized />} />
+          <Route path="/auth/google/callback" element={<GoogleCallback />} />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+        <ChatButton />
+        <ToastContainer />
+      </Router>
+    </AuthProvider>
   );
 }
 
