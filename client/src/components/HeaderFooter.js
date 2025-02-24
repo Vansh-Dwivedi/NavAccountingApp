@@ -195,7 +195,7 @@ const FrontHeader = ({ activeKey }) => {
           <Link to="/">
             <div className="logo-shine">
               <img
-                src={process.env.REACT_APP_API_URL + "/uploads/full-white-app-logo.svg"}
+                src={process.env.REACT_APP_API_URL + "/uploads/full-white-app-logo.png"}
                 alt="Nav Accounts Logo"
                 style={{
                   height: '130px',

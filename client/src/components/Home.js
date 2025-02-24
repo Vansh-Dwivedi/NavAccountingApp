@@ -57,6 +57,63 @@ import 'slick-carousel/slick/slick-theme.css';
 const { Header, Footer, Content } = Layout;
 const { Title, Paragraph, Text } = Typography;
 
+const Counter = ({ start, end, duration, prefix = '', suffix = '' }) => {
+  const [count, setCount] = useState(start);
+  const countRef = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (countRef.current) {
+      observer.observe(countRef.current);
+    }
+
+    return () => {
+      if (countRef.current) {
+        observer.unobserve(countRef.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
+
+    const steps = 60;
+    const stepDuration = duration / steps;
+    const stepValue = (end - start) / steps;
+    let current = start;
+    let step = 0;
+
+    const timer = setInterval(() => {
+      current += stepValue;
+      step += 1;
+
+      if (step === steps) {
+        setCount(end);
+        clearInterval(timer);
+      } else {
+        setCount(Math.floor(current));
+      }
+    }, stepDuration);
+
+    return () => clearInterval(timer);
+  }, [start, end, duration, isVisible]);
+
+  return (
+    <div ref={countRef} className="acc-number">
+      {prefix}{count.toLocaleString()}{suffix}
+    </div>
+  );
+};
+
 const Home = () => {
   const [userRole, setUserRole] = useState(null);
   const [menuVisible, setMenuVisible] = useState(false);
@@ -64,10 +121,6 @@ const Home = () => {
   const [managersCount, setManagersCount] = useState(0);
   const [clientsCount, setClientsCount] = useState(0);
   const [reviews, setReviews] = useState([]);
-  const [currentReview, setCurrentReview] = useState(0);
-  const [slideDirection, setSlideDirection] = useState('');
-  const [isTransitioning, setIsTransitioning] = useState(false);
-  const [autoSlide, setAutoSlide] = useState(true);
   const [reviewsLoading, setReviewsLoading] = useState(true);
   const [reviewsError, setReviewsError] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -104,33 +157,26 @@ const Home = () => {
   }, []);
 
   useEffect(() => {
-    const staticReviews = [
-      {
-        content: "Exceptional service! Their expertise in accounting has helped our business grow tremendously.",
-        name: "Sarah Johnson",
-        rating: 5,
-        profileUrl: "https://xsgames.co/randomusers/avatar.php?g=female",
-        relativeTime: "2 weeks ago"
-      },
-      {
-        content: "Great experience working with this team. They've streamlined our financial processes.",
-        name: "Michael Chen",
-        rating: 5,
-        profileUrl: "https://xsgames.co/randomusers/avatar.php?g=male",
-        relativeTime: "1 month ago"
-      },
-      {
-        content: "Professional and knowledgeable staff. Always responsive to our needs.",
-        name: "Emily Rodriguez",
-        rating: 5,
-        profileUrl: "https://xsgames.co/randomusers/avatar.php?g=female",
-        relativeTime: "3 weeks ago"
+    const fetchReviews = async () => {
+      try {
+        setReviewsLoading(true);
+        const response = await api.get('/api/google-reviews');
+        if (response.data.success) {
+          setReviews(response.data.reviews);
+        } else {
+          setReviewsError('Failed to load reviews');
+        }
+      } catch (error) {
+        console.error('Error fetching reviews:', error);
+        setReviewsError(error.response?.data?.message || 'Failed to load reviews');
+      } finally {
+        setReviewsLoading(false);
       }
-    ];
+    };
 
-    setReviews(staticReviews);
-    setReviewsLoading(false);
+    fetchReviews();
   }, []);
+
 
   const handleDashboardClick = () => {
     if (userRole === "admin") {
@@ -294,63 +340,6 @@ const Home = () => {
 
   const isMobile = window.innerWidth <= 768;
 
-  const Counter = ({ start, end, duration, prefix = '', suffix = '' }) => {
-    const [count, setCount] = useState(start);
-    const countRef = useRef(null);
-    const [isVisible, setIsVisible] = useState(false);
-
-    useEffect(() => {
-      const observer = new IntersectionObserver(
-        ([entry]) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-          }
-        },
-        { threshold: 0.1 }
-      );
-
-      if (countRef.current) {
-        observer.observe(countRef.current);
-      }
-
-      return () => {
-        if (countRef.current) {
-          observer.unobserve(countRef.current);
-        }
-      };
-    }, []);
-
-    useEffect(() => {
-      if (!isVisible) return;
-
-      const steps = 60;
-      const stepDuration = duration / steps;
-      const stepValue = (end - start) / steps;
-      let current = start;
-      let step = 0;
-
-      const timer = setInterval(() => {
-        current += stepValue;
-        step += 1;
-
-        if (step === steps) {
-          setCount(end);
-          clearInterval(timer);
-        } else {
-          setCount(Math.floor(current));
-        }
-      }, stepDuration);
-
-      return () => clearInterval(timer);
-    }, [start, end, duration, isVisible]);
-
-    return (
-      <div ref={countRef} className="counter-value">
-        {prefix}{count.toLocaleString()}{suffix}
-      </div>
-    );
-  };
-
   const sliderSettings = {
     dots: true,
     infinite: true,
@@ -377,42 +366,115 @@ const Home = () => {
     ]
   };
 
-  useEffect(() => {
-    let interval;
-    if (autoSlide && reviews.length > 1) {
-      interval = setInterval(() => {
-        if (!isTransitioning) {
-          nextReview();
-        }
-      }, 5000);
+  const [currentReview, setCurrentReview] = useState(0);
+  const [slideDirection, setSlideDirection] = useState('');
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const reviewsData = [
+    {
+      name: "Jawad Bath",
+      title: "Local Guide",
+      content: "Nav Accounts was amazing. I had such a great experience. Made me feel at ease with great results. Professional, accurate, knowledgeable, and friendly. I would highly recommend to anyone that asks, knowing they would be in good hands.",
+      rating: 5,
+      relativeTime: "1 week ago"
+    },
+    {
+      name: "Charanjit Sidhu",
+      title: "Client",
+      content: "She is Very Friendly Cooperative And responsible. She File My Yearly tax. She Is Good 👍 I Highly Recommend Her",
+      rating: 5,
+      relativeTime: "1 week ago"
+    },
+    {
+      name: "Sofia Ahmed",
+      title: "Local Guide",
+      content: "I am extremely satisfied with the exceptional services provided by NAV accounts Yuba city. They handle my bookkeeping, payroll, and tax return with utmost professionalism and efficiency. Their punctuality is commendable.",
+      rating: 5,
+      relativeTime: "11 months ago"
+    },
+    {
+      name: "Manpreet singh",
+      title: "Client",
+      content: "From the moment I walked in, I was greeted by the most humble and friendly team. Their language-friendly approach made me feel comfortable and valued as a customer.",
+      rating: 5,
+      relativeTime: "11 months ago"
+    },
+    {
+      name: "Fateh Singh",
+      title: "Client",
+      content: "She is really Good doing all and she knows how to take care of all your tax stuff. So nice people, highly recommend.",
+      rating: 5,
+      relativeTime: "2 years ago"
+    },
+    {
+      name: "Ramandeep Shergill",
+      title: "Client",
+      content: "She's good at her job. She takes care of all the work; you don't need to worry or stress about anything.",
+      rating: 5,
+      relativeTime: "2 years ago"
+    },
+    {
+      name: "Robin Sharma",
+      title: "Client",
+      content: "Very professional and it's great working with her 👍🏻",
+      rating: 5,
+      relativeTime: "10 months ago"
+    },
+    {
+      name: "J S",
+      title: "Client",
+      content: "NO.1 TAX SERVICES IN YUBA CITY. THEY ARE VERY PROFESSIONAL & GOOD ADVISORS TO FILE ALL TAXES.",
+      rating: 5,
+      relativeTime: "1 year ago"
     }
-    return () => clearInterval(interval);
-  }, [autoSlide, isTransitioning]);
+  ];
 
-  const changeSlide = (direction) => {
+  useEffect(() => {
+    setReviews(reviewsData);
+  }, []);
+
+  const nextReview = () => {
     if (isTransitioning) return;
-
-    setAutoSlide(false); // Pause auto-slide on manual navigation
     setIsTransitioning(true);
-    setSlideDirection(direction);
-
+    setSlideDirection('left');
     setTimeout(() => {
-      if (direction === 'left') {
-        setCurrentReview((prev) => (prev + 1) % reviews.length);
-      } else {
-        setCurrentReview((prev) => (prev - 1 + reviews.length) % reviews.length);
-      }
-
+      setCurrentReview((prev) => (prev + 1) % reviewsData.length);
       setTimeout(() => {
-        setSlideDirection('');
         setIsTransitioning(false);
-        setAutoSlide(true); // Resume auto-slide after transition
-      }, 50);
-    }, 500);
+        setSlideDirection('');
+      }, 300);
+    }, 300);
   };
 
-  const prevReview = () => changeSlide('right');
-  const nextReview = () => changeSlide('left');
+  const prevReview = () => {
+    if (isTransitioning) return;
+    setIsTransitioning(true);
+    setSlideDirection('right');
+    setTimeout(() => {
+      setCurrentReview((prev) => (prev - 1 + reviewsData.length) % reviewsData.length);
+      setTimeout(() => {
+        setIsTransitioning(false);
+        setSlideDirection('');
+      }, 300);
+    }, 300);
+  };
+
+  useEffect(() => {
+    let slideInterval;
+    const slideDelay = 5000; // Change slide every 5 seconds
+
+    if (!isTransitioning) {
+      slideInterval = setInterval(() => {
+        nextReview();
+      }, slideDelay);
+    }
+
+    return () => {
+      if (slideInterval) {
+        clearInterval(slideInterval);
+      }
+    };
+  }, [isTransitioning]);
 
   return (
     <>
@@ -472,61 +534,39 @@ const Home = () => {
           </Row>
         </section>
 
-        <section style={{ padding: '80px 0' }}>
-          <div style={{ maxWidth: '1200px', margin: '0', padding: '0 20px' }}>
-            <Row gutter={[48, 48]}>
-              <Col xs={24} md={12} style={{ display: 'flex', justifyContent: 'flex-start' }}>
-                <div style={{
-                  height: '786.41px',
-                  backgroundColor: '#002E6D',
-                  color: 'white',
-                  padding: '40px',
-                  borderRadius: '10px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                }}>
-                  <Typography.Paragraph style={{
-                    fontSize: '1.50rem',
-                    lineHeight: '1.8',
-                    margin: '0 0 20px 0',
-                    color: 'white'
-                  }}>
-                    Nav Accounts is owned by Navrisham Khaira as a solopreneur. She is passionate about helping individuals and businesses navigate the complexities of tax laws to maximize savings and ensure long-term financial success, along with sharing tech-associated compliance with small business owners for data protection.
-                  </Typography.Paragraph>
-                  <Typography.Paragraph style={{
-                    fontSize: '1.50rem',
-                    lineHeight: '1.8',
-                    margin: '20px 0 0 0',
-                    color: 'white'
-                  }}>
-                    We talk only when we had achieved for real. That makes countable for your opportunities to assist you with our business solution with our commitment to serve as best of our understanding. These numbers are based on year 2022 to 2024.
-                  </Typography.Paragraph>
-                </div>
-              </Col>
-              <Col xs={24} md={12}>
-                <div style={{ position: 'relative' }}>
-                  <img src="https://localhost:8443/uploads/acc.png" style={{ width: '100%', height: 'auto', objectFit: 'cover', borderRadius: '10px' }} />
-                  <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none' }}>
-                    <div style={{ position: 'absolute', top: '32%', right: '-1%', display: 'flex', alignItems: 'center' }}>
-                      <span style={{ fontSize: '46.5px', color: '#1A1B1E', fontFamily: 'Magnolia Script' }}>$</span>
-                      <Counter start={10000} end={200000} duration={2000} suffix="+" style={{ fontSize: '46.5px', fontFamily: 'Magnolia Script' }} />
-                    </div>
-                    <div style={{ position: 'absolute', top: '48.5%', right: '1.5%', display: 'flex', alignItems: 'center' }}>
-                      <Counter start={10} end={200} duration={2000} suffix="+" style={{ fontSize: '46.5px', fontFamily: 'Magnolia Script' }} />
-                    </div>
-                    <div style={{ position: 'absolute', top: '65.2%', right: '-2%', display: 'flex', alignItems: 'center' }}>
-                      <Counter start={1} end={3} duration={2000} suffix=" yrs" style={{ fontSize: '46.5px', fontFamily: 'Magnolia Script' }} />
-                    </div>
-                    <div style={{ position: 'absolute', top: '83%', right: '-2.8%', display: 'flex', alignItems: 'center' }}>
-                      <Counter start={1} end={7} duration={2000} suffix=" yrs" style={{ fontSize: '46.5px', fontFamily: 'Magnolia Script' }} />
-                    </div>
-                  </div>
-                </div>
-              </Col>
-            </Row>
+        <section style={{ padding: '80px 0', justifyContent: 'center !important', zIndex: 99, minWidth: '1200px' }}>
+          <div style={{ padding: '0 20px', justifyContent: 'center' }}>
+            <Title level={2} className="section-title" style={{ textAlign: 'center', width: '500px' }}>Who We are</Title>
+            <div style={{
+              height: '300px',
+              backgroundColor: '#ffffff',
+              color: '#002E6D',
+              padding: '40px',
+              borderRadius: '10px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+            }}>
+              <Typography.Paragraph style={{
+                fontSize: '1.50rem',
+                lineHeight: '1.8',
+                margin: '0 0 20px 0',
+                color: '#002E6D'
+              }}>
+                Nav Accounts is owned by Navrisham Khaira as a solopreneur. She is passionate about helping individuals and businesses navigate the complexities of tax laws to maximize savings and ensure long-term financial success, along with sharing tech-associated compliance with small business owners for data protection.
+              </Typography.Paragraph>
+              <Typography.Paragraph style={{
+                fontSize: '1.50rem',
+                lineHeight: '1.8',
+                margin: '20px 0 0 0',
+                color: '#002E6D'
+              }}>
+                We talk only when we had achieved for real. That makes countable for your opportunities to assist you with our business solution with our commitment to serve as best of our understanding. These numbers are based on year 2022 to 2024.
+              </Typography.Paragraph>
+            </div>
           </div>
         </section>
-        <section className="reliable-section">
+        <section className="reliable-section" style={{ justifyContent: 'center !important', alignItems: 'center !important', textAlign: 'center !important' }}>
           <div className="container">
             <h2 className="section-title" style={{ textAlign: 'center', marginBottom: '40px', width: '60%' }}>What Makes Us Reliable</h2>
             <div className="reliable-container">
@@ -629,95 +669,96 @@ const Home = () => {
           </Row>
         </section>
 
-        {/* Google Reviews Section */}
+        {/* Reviews Section */}
         <section className="review-section">
-          <Title level={2} className="section-title" style={{ textAlign: 'center' }}>What people say about us</Title>
-          {reviewsLoading ? (
-            <div className="review-loading">
-              <Spin size="large" />
-            </div>
-          ) : reviews.length > 0 ? (
-            <div className="review-container">
-              <button
-                className="review-nav-button review-nav-prev"
-                onClick={prevReview}
-                style={{ display: reviews.length > 1 ? 'flex' : 'none' }}
-              >
-                ←
-              </button>
-              <div className={`review-content ${isTransitioning ? 'fade' : ''}`}>
-                <div className="review-rating">
-                  {[...Array(reviews[currentReview].rating)].map((_, i) => (
-                    <StarFilled key={i} style={{ color: '#FFD700' }} />
-                  ))}
-                </div>
-                <p className={`review-text ${slideDirection ? `slide-${slideDirection}` : ''}`}>
-                  {reviews[currentReview].content}
-                </p>
-                <div className={`reviewer-info ${slideDirection ? `slide-${slideDirection}` : ''}`}>
-                  <img
-                    src={reviews[currentReview].profileUrl}
-                    alt={reviews[currentReview].name}
-                    className="reviewer-image"
-                    onError={(e) => {
-                      e.target.src = `${process.env.REACT_APP_API_URL}/uploads/default-avatar.jpg`;
-                    }}
-                  />
-                  <h3 className="reviewer-name">{reviews[currentReview].name}</h3>
-                  <p className="reviewer-title">{reviews[currentReview].relativeTime}</p>
-                </div>
+          <Title level={2} className="section-title" style={{ textAlign: 'center', marginBottom: '40px' }}>What Our Clients Say</Title>
+          <div className="review-container">
+            <button
+              className="review-nav-button review-nav-prev"
+              onClick={prevReview}
+              style={{ display: reviewsData.length > 1 ? 'flex' : 'none' }}
+            >
+              ←
+            </button>
+            <div className={`review-content ${isTransitioning ? 'fade' : ''}`}>
+              <div className="review-rating">
+                {[...Array(reviewsData[currentReview].rating)].map((_, i) => (
+                  <StarFilled key={i} style={{ color: '#FFD700' }} />
+                ))}
               </div>
-              <button
-                className="review-nav-button review-nav-next"
-                onClick={nextReview}
-                style={{ display: reviews.length > 1 ? 'flex' : 'none' }}
-              >
-                →
-              </button>
+              <p className={`review-text ${slideDirection ? `slide-${slideDirection}` : ''}`}>
+                "{reviewsData[currentReview].content}"
+              </p>
+              <div className={`reviewer-info ${slideDirection ? `slide-${slideDirection}` : ''}`}>
+                <h3 className="reviewer-name">{reviewsData[currentReview].name}</h3>
+                <p className="reviewer-title">{reviewsData[currentReview].title}</p>
+                <p className="review-time">{reviewsData[currentReview].relativeTime}</p>
+              </div>
             </div>
-          ) : (
-            <div className="no-reviews">
-              <p>{reviewsError || 'No reviews available at the moment.'}</p>
-            </div>
-          )}
+            <button
+              className="review-nav-button review-nav-next"
+              onClick={nextReview}
+              style={{ display: reviewsData.length > 1 ? 'flex' : 'none' }}
+            >
+              →
+            </button>
+          </div>
         </section>
 
-        <GetStartedSteps />
+        <GetStartedSteps style={{  }}/>
         <VirtualMeetingSection />
 
-        {/* CEO Quote Section */}
-        <Row className="content-row" style={{ marginTop: '2rem', textAlign: 'center', marginBottom: '2rem', zIndex: 9 }}>
-          <Col xs={24}>
-            <Card style={{
-              padding: '2rem',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-              borderRadius: '8px',
-              maxWidth: '80%',
-              margin: '0 auto', // Center the card
-              background: '#36a6e6',
-              backgroundSize: 'cover',
-              backgroundPosition: 'center',
-            }}>
-              <div style={{
-                fontStyle: 'italic',
-                fontSize: '2rem',
-                lineHeight: '1.6',
-                color: '#000000 !important',
-                fontWeight: 'bold',
-              }}>
-                <p style={{ marginBottom: '1rem', fontSize: '1.5rem', color: '#000000' }}>"Doctors get paid when you're sick,
-                  lawyers get paid when you're in trouble,
-                  but accountants get paid when you're successful."</p>
-                <p style={{
-                  marginTop: '1rem',
-                  fontWeight: 'bold',
-                  color: '#000000',
-                  marginBottom: '-0.1rem'
-                }}>-Navrisham Khaira CEO-</p>
+        {/* Accomplishments Section */}
+        <div className="acc-section">
+          <h2 className="acc-title">Our Accomplishments</h2>
+          <div className="acc-grid">
+            <div className="acc-item">
+              <div className="acc-icon-circle">
+                <CalculatorOutlined className="acc-icon" />
               </div>
-            </Card>
-          </Col>
-        </Row>
+              <div>
+                <div className="acc-number">
+                  <Counter start={0} end={200000} duration={2000} suffix="+" />
+                </div>
+                <div className="acc-label">Tax Saved</div>
+              </div>
+            </div>
+            <div className="acc-item">
+              <div className="acc-icon-circle">
+                <TeamOutlined className="acc-icon" />
+              </div>
+              <div>
+                <div className="acc-number">
+                  <Counter start={0} end={200} duration={2000} suffix="+" />
+                </div>
+                <div className="acc-label">Of our clients recommend us</div>
+              </div>
+            </div>
+            <div className="acc-item">
+              <div className="acc-icon-circle">
+                <StarFilled className="acc-icon" />
+              </div>
+              <div>
+                <div className="acc-number">
+                  <Counter start={0} end={3} duration={1500} suffix="+" />
+                </div>
+                <div className="acc-label">Year in operations</div>
+              </div>
+            </div>
+            <div className="acc-item">
+              <div className="acc-icon-circle">
+                <TrophyOutlined className="acc-icon" />
+              </div>
+              <div>
+                <div className="acc-number">
+                  <Counter start={0} end={7} duration={1500} suffix="+" />
+                </div>
+                <div className="acc-label">Licensed as IRS Enrolled Agent</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <FrontFooter />
       </Layout>
     </>

@@ -191,7 +191,8 @@ const taskRoutes = require("./routes/taskRoutes");
 const userRoutes = require("./routes/userRoutes");
 const dashboardConfigRoutes = require("./routes/dashboardConfigRoutes");
 const contactRoutes = require("./routes/contactRoutes");
-const googleReviewsRoutes = require("./routes/api/google-reviews");
+const googleReviewsRoutes = require("./routes/googleReviews");
+const reviewsRoutes = require("./routes/reviews");
 
 // Mount API routes
 app.use("/api/admin", adminRoutes);
@@ -211,7 +212,8 @@ app.use("/api/users", userRoutes);
 app.use("/api", componentRoutes);
 app.use("/api/dashboard-management", dashboardConfigRoutes);
 app.use("/api/contact", contactRoutes);
-app.use("/api/google-reviews", googleReviewsRoutes);
+app.use("/api", googleReviewsRoutes);
+app.use("/api/reviews", reviewsRoutes);
 
 // Uploads Directory Configuration
 const uploadsDir = path.join(__dirname, "uploads");

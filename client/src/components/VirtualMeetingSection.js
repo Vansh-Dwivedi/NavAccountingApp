@@ -7,7 +7,7 @@ const { Title } = Typography;
 
 const VirtualMeetingSection = () => {
   return (
-    <div className="virtual-meeting-section" style={{ backgroundColor: '#2d9cdd', width: '800px', margin: '0 auto', padding: '60px 20px' }}>
+    <div className="virtual-meeting-section" style={{ backgroundColor: '#1677ff', width: '800px', margin: '0 auto', padding: '60px 20px' }}>
       <div className="meeting-content">
         <Title level={2} style={{ color: "#000080" }}>Schedule a Meeting</Title>
         <p style={{ color: "#000080 !important" }}>Book a virtual consultation with our experts to discuss your needs</p>

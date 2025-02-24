@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Typography, Row, Col, Image } from 'antd';
+import { Layout, Typography, Row, Col, Image, Card } from 'antd';
 import {
   BankOutlined,
   TeamOutlined,
@@ -522,6 +522,40 @@ const About = () => {
               </div>
             </div>
             <GetStartedSteps />
+
+            {/* CEO Quote Section */}
+            <Row className="content-row" style={{ marginTop: '2rem', textAlign: 'center', marginBottom: '2rem', zIndex: 9 }}>
+              <Col xs={24}>
+                <Card style={{
+                  padding: '2rem',
+                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                  borderRadius: '8px',
+                  maxWidth: '80%',
+                  margin: '0 auto', // Center the card
+                  background: '#36a6e6',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}>
+                  <div style={{
+                    fontStyle: 'italic',
+                    fontSize: '2rem',
+                    lineHeight: '1.6',
+                    color: '#000000 !important',
+                    fontWeight: 'bold',
+                  }}>
+                    <p style={{ marginBottom: '1rem', fontSize: '1.5rem', color: '#000000', fontWeight: '700' }}>"Doctors get paid when you're sick,
+                      lawyers get paid when you're in trouble,
+                      but accountants get paid when you're successful."</p>
+                    <p style={{
+                      marginTop: '1rem',
+                      fontWeight: 'bold',
+                      color: '#000000',
+                      marginBottom: '-0.1rem'
+                    }}>-Navrisham Khaira CEO-</p>
+                  </div>
+                </Card>
+              </Col>
+            </Row>
           </div>
         </div>
       </Content>

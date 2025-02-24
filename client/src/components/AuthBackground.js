@@ -28,7 +28,7 @@ const Container = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
-  background: #B3E3FF;
+  background: ${props => (props.greenbg ? '#89E4B8' : '#B3E3FF')};
   overflow: hidden;
   z-index: -1;
 `;
@@ -63,9 +63,9 @@ const Shape = styled.div`
   }
 `;
 
-const AuthBackground = () => {
+const AuthBackground = ({ greenbg }) => {
   return (
-    <Container>
+    <Container greenbg={greenbg}>
       <Shape className="shape1">
         <svg width="150" height="150" viewBox="0 0 100 100">
           <path fill="#002E6D" d="M50 0 L100 50 L50 100 L0 50 Z" />

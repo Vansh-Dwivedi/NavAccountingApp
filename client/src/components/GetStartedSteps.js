@@ -5,13 +5,19 @@ import './components.css';
 const GetStartedSteps = () => {
   return (
     <div className="get-started-section" style={{ zIndex: 9 }}>
-      <h2>Get Started - Our 3 step process</h2>
-      <p className="get-started-description">
-        We've designed a streamlined 3-step process to ensure that we dedicate our time and expertise to individuals who are qualified and
-        genuinely interested in implementing their tailored trust structure.
-      </p>
+      <h2 style={{ 
+        color: '#ffffff', 
+        fontWeight: 600, 
+        marginBottom: '40px', 
+        textAlign: 'center', 
+        backgroundColor: '#000000', 
+        margin: '0 auto', 
+        width: 'calc(100% - 55vw)' 
+      }}>
+        Get Started - Our 3 step process
+      </h2>
 
-      <div className="steps-container" style={{ justifyContent: 'center !important' }}>
+      <div className="steps-container" style={{ justifyContent: 'center !important', alignContent: 'center !important', alignItems: 'center !important', margin: '0 auto' }}>
         <div className="step-card">
           <h4>Connect</h4>
           <p>
