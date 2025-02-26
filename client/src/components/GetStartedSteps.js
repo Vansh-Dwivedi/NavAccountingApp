@@ -6,15 +6,16 @@ const GetStartedSteps = () => {
   return (
     <div className="get-started-section" style={{ zIndex: 9 }}>
       <h2 style={{ 
-        color: '#ffffff', 
-        fontWeight: 600, 
+        color: '#002E6D', 
+        fontWeight: 500, 
         marginBottom: '40px', 
         textAlign: 'center', 
-        backgroundColor: '#000000', 
         margin: '0 auto', 
-        width: 'calc(100% - 55vw)' 
+        width: 'calc(100% - 55vw)',
+        // mangolia script
+        fontFamily: 'Magnolia Script'
       }}>
-        Get Started - Our 3 step process
+        Our Workflow
       </h2>
 
       <div className="steps-container" style={{ justifyContent: 'center !important', alignContent: 'center !important', alignItems: 'center !important', margin: '0 auto' }}>

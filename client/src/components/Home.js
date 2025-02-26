@@ -671,7 +671,7 @@ const Home = () => {
 
         {/* Reviews Section */}
         <section className="review-section">
-          <Title level={2} className="section-title" style={{ textAlign: 'center', marginBottom: '40px' }}>What Our Clients Say</Title>
+          <Title level={2} className="section-title" style={{ textAlign: 'center', marginBottom: '40px' }}>What People Say About Us</Title>
           <div className="review-container">
             <button
               className="review-nav-button review-nav-prev"

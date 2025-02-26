@@ -64,7 +64,6 @@ const Resources = () => {
       links: [
         { text: "Interview Form - Individual Taxes", url: "https://drive.google.com/file/d/1dIVJSDMdQnbr6EdhJ8RKwD7JpxSSl_rT/view", icon: <FileOutlined /> },
         { text: "Interview Form - Buisness Entity Taxes", url: "https://drive.google.com/file/d/1EkYTaKSoJhY0BW98Nbm0Tt8mMy3kQiox/view", icon: <FileOutlined /> },
-        { text: "Services Proposal", url: "https://drive.google.com/file/d/1r85x0Pu_2bIBC8LWiUj-_gMGYvFaZnUk/view", icon: <FileOutlined /> },
         { text: "2024 Tax Rates & Limits", url: "https://drive.google.com/file/d/1Y4PUzIX_uBb3cfnxe9AkuwpK-cOpN_tj/view", icon: <FileOutlined /> },
         { text: "Business Formation", url: "https://drive.google.com/file/d/1DR7Z2vROYC1hinHpn_fbVCFxUiUOPaOV/view?usp=sharing", icon: <FileOutlined /> },
         { text: "Trucking Business Expenses Sheet", url: "https://drive.google.com/file/d/1G5GWmwb9ZLLv68lvI4ac8CVYkKqUA8VZ/view", icon: <FileOutlined /> },

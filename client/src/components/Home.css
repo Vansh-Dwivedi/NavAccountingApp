@@ -1716,13 +1716,13 @@ body {
 
 h2.section-title {
   font-size: 42px !important;
-  color: #ffffff !important;
-  font-weight: 600 !important;
+  color: #002E6D !important;
+  font-weight: 350 !important;
   margin-bottom: 40px !important;
   text-align: center !important;
-  background-color: #000000 !important;
   margin: 0 auto;
   width: calc(100% - 30vw);
+  font-family: Magnolia Script;
 }
 
 .review-section {
@@ -2038,12 +2038,11 @@ h2.section-title {
 .services-title {
   font-family: 'Magnolia Script', serif;
   font-size: 48px;
-  color: #ffffff;
+  color: #002E6D;
   text-align: center;
   margin-bottom: 20px;
   letter-spacing: 2px;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-  background-color: #000000 !important;
   width: 25vw;
   margin: 0 auto;
 }

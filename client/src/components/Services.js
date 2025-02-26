@@ -129,87 +129,92 @@ const Services = () => {
 
   const servicesData = {
     'accounting-payroll': {
-      title: 'Accounting & Payroll',
-      description: 'Comprehensive financial management and payroll solutions for your business',
+      title: 'Accounting & Payroll Services',
+      description: 'Comprehensive accounting and payroll management solutions for your business',
       sections: {
         'Accounting': {
-          'Record Keeping': 'Accurate and systematic tracking of financial transactions',
-          'Technology Integration': 'Utilizing software for efficient and accurate accounting processes',
-          'Solution Oriented Financial Statements': 'Detailed financial reports for informed decision-making',
-          'Strategic Financial Planning': 'Forward-thinking financial strategies for growth',
-          'Financial Education': 'Empowering clients with financial knowledge'
+          'Bookkeeping': 'Monthly, Quarterly, and Annual bookkeeping services',
+          'Financial Statement Preparation': 'Professional preparation of financial statements',
+          'Cash Flow Management & Budgeting': 'Strategic financial planning and budgeting',
+          'Accounting System Setup & Cleanup': 'Implementation and optimization of accounting systems',
         },
         'Payroll': {
-          'Online Platform with Data Management': 'Secure digital payroll management system',
-          'Convenient Payroll Calculations': 'Automated and accurate payroll processing',
-          'Electronic Direct Deposit': 'Fast and secure payment transfers',
-          'Payroll Tax Reporting assistance': 'Compliant tax documentation and filing',
-          'New Hire Enrollment Package': 'Streamlined onboarding process',
-          'Worker Comp Audit Assistance': 'Expert guidance for compliance',
-          'Year End Tax Document assistance': 'Comprehensive tax preparation support'
+          'Payroll Processing': 'Weekly, Bi-weekly, and Monthly payroll processing',
+          'Payroll Tax Filings': '941, 940, DE9, DE9C, and other tax filings',
+          'Direct Deposits & Paycheck Preparation': 'Efficient payment processing',
+          'Employee & Contractor Payments': 'W-2 & 1099 Processing',
+          'New Hire Reporting & Compliance': 'Complete onboarding compliance',
+          'Payroll Tax Calculation & Withholding': 'Accurate tax management',
+          'Payroll Audit Support & Compliance': 'Expert audit assistance',
+          'Workers\' Compensation Reporting': 'Comprehensive workers\' comp management',
+          'Year-End Payroll Reporting': 'W-2s and 1099s preparation and filing'
         }
       }
     },
     'taxation': {
       title: 'Taxation',
-      description: 'Expert tax services for businesses and individuals',
-      items: {
-        'Sales Tax Reporting': 'Accurate sales tax calculations and filing',
-        'Payroll tax Reporting': 'Timely payroll tax management',
-        'Tax income Reporting': 'Comprehensive income tax preparation',
-        'Tax Planning Assistance': 'Strategic tax optimization guidance',
-        'Tax Representation assistance': 'Professional tax advocacy services'
+      description: 'Expert tax services and compliance solutions',
+      sections: {
+        'Individual Tax Services': {
+          '1040 Preparation & Filing': 'Including 1040NR, 1040X, 1040SR',
+          'Tax Planning & Projections': 'Strategic tax planning and forecasting',
+          'Amended Tax Returns': 'Correction and filing of amended returns',
+          'IRS Representation & Audits': 'Professional representation and support',
+          'Tax Resolution Services': 'Offer in Compromise, Installment Agreements, Penalty Abatement',
+          'Foreign Income & FBAR Compliance': 'International tax compliance'
+        },
+        'Business Tax Services': {
+          'Self-Employed & Freelancers Tax Preparation': 'Specialized tax services for independent contractors',
+          'Corporate Tax Filing': '1120 and 1120S preparation and filing',
+          'Partnership Tax Returns': '1065 preparation and filing',
+          'LLC & Sole Proprietor Tax Compliance': 'Complete business tax compliance',
+          'Quarterly Estimated Tax Payments': 'Tax planning and payment scheduling',
+          'State & Local Business Tax Filings': 'Multi-jurisdiction tax compliance'
+        }
       }
     },
     'compliance': {
       title: 'Compliance',
-      description: 'Ensuring your business meets all regulatory requirements',
+      description: 'Industry-specific compliance and regulatory solutions',
       sections: {
-        'Business Entity Focus': {
-          'Business Entity Selection': 'Strategic entity structure guidance',
-          'Business Entity Formation': 'Complete formation assistance',
-          'Annually Licensing Renewals': 'Timely license management',
-          'Updating Ownerships & Contact Reporting': 'Accurate ownership documentation',
-          'Dissolution of Business Entity': 'Professional closure support',
-          'BOI Reporting': 'Beneficial ownership compliance',
-          'Corporation Meeting Minutes': 'Corporate record maintenance'
+        'Retail Industry Focus': {
+          'Business Entity Formation': 'Complete formation and setup services',
+          'Business Licenses & Permits': 'State, County, and City licensing',
+          'Sellers Permit & Resale Certificate': 'Sales tax compliance',
+          'Alcohol & Tobacco License': 'Specialized retail licensing',
+          'FDA & Health Code Compliance': 'Food & beverage retailer compliance'
         },
-        'Business Activity Focus': {
-          'Description': 'From Obtaining license, monthly/quarterly reporting and annual renewals',
-          'Categories': {
-            'retail-food': {
-              'Sales Tax Reporting': 'Regular tax compliance',
-              'ABC License': 'Alcohol beverage licensing',
-              'EBT License': 'Electronic benefits transfer setup',
-              'Seller Permit License': 'State selling authorization',
-              'Merchant Platform Assistance': 'Payment processing setup'
-            },
-            'transportation': {
-              'USDOT Certification': 'Department of Transportation compliance',
-              'MC Number': 'Motor carrier authorization',
-              'IFTA Certification': 'Fuel tax agreement compliance',
-              'Clean Carb Vehicle Certification': 'Environmental compliance',
-              'Road Tax Account Certification': 'Transportation tax management',
-              'CA number': 'California operating authority',
-              'MCP Number': 'Motor carrier permit',
-              'EPN Number': 'Employer pull notice program',
-              'Surety Bonds & etc.': 'Financial guarantee management'
-            }
-          }
+        'Logistics & Trucking Focus': {
+          'DOT & FMCSA Compliance': 'Transportation regulatory compliance',
+          'DOT Number & MC Authority': 'Transportation licensing and permits',
+          'Unified Carrier Registration': 'UCR compliance and filing',
+          'Biennial DOT Updates': 'MCS-150 maintenance',
+          'FMCSA Compliance & Safety Audits': 'Safety regulation compliance',
+          'Drug & Alcohol Testing Program': 'DOT Consortium compliance',
+          'Driver Qualification Management': 'Complete DQ file management',
+          'EPN & Clearing House': 'Employment screening compliance',
+          'IFTA & Fuel Tax Compliance': 'Fuel tax management and reporting'
         }
       }
     },
-    'business-insight-advisory': {
-      title: 'Business Insight & Advisory',
-      description: 'Strategic business guidance for growth and success',
-      items: {
-        'Business Tax Planning': 'Strategic tax optimization strategies',
-        'Budgeting & Forecasting': 'Financial planning and projections',
-        'Staff Control Decisions': 'Workforce management guidance',
-        'Internal Control Planning': 'Risk management and controls',
-        'Loan & Insurance assistance Financial Reporting': 'Financial documentation support',
-        'Preliminary Business Plan analysis': 'Business strategy evaluation',
-        'Business Valuation Analysis': 'Asset and business worth assessment'
+    'business-advisory': {
+      title: 'Business Insight & Advisory Services',
+      description: 'Strategic business planning and growth solutions',
+      sections: {
+        'Financial Advisory': {
+          'Financial Planning & Analysis': 'Comprehensive financial planning',
+          'Cash Flow & Profitability Analysis': 'Performance optimization',
+          'Budgeting & Forecasting': 'Strategic financial projections',
+          'Business Valuation': 'Growth strategies and valuation',
+          'Cost Reduction & Efficiency': 'Operational optimization'
+        },
+        'Strategic Planning': {
+          'Tax Strategy & Planning': 'Tax optimization strategies',
+          'Entity Selection & Structuring': 'LLC, S-Corp, C-Corp consultation',
+          'Multi-State & Federal Compliance': 'Cross-jurisdiction advisory',
+          'IRS Audit Support': 'Tax resolution services',
+          'Business Grants': 'Grant application assistance'
+        }
       }
     }
   };
