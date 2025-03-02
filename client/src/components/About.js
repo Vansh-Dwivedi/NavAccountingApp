@@ -528,11 +528,9 @@ const About = () => {
               <Col xs={24}>
                 <Card style={{
                   padding: '2rem',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
                   borderRadius: '8px',
                   maxWidth: '80%',
-                  margin: '0 auto', // Center the card
-                  background: '#36a6e6',
+                  margin: '0 auto',
                   backgroundSize: 'cover',
                   backgroundPosition: 'center',
                 }}>

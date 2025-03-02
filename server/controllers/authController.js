@@ -14,6 +14,10 @@ exports.register = async (req, res) => {
       return res.status(400).json({ error: "User already exists" });
     }
 
+    // Generate a unique account number
+    const randomNum = Math.floor(10000000 + Math.random() * 90000000);
+    const accountNumber = `R-${randomNum}`;
+
     // Create a new user with additional fields
     const user = await User.create({
       username,
@@ -21,6 +25,7 @@ exports.register = async (req, res) => {
       password,
       firmId,
       pin,
+      accountNumber,
       role: "client",
     });
 
@@ -208,12 +213,17 @@ exports.googleAuth = async (req, res) => {
     }
 
     if (!user && mode === 'register') {
+      // Generate a unique account number
+      const randomNum = Math.floor(10000000 + Math.random() * 90000000);
+      const accountNumber = `G-${randomNum}`;
+      
       user = await User.create({
         username: name,
         email,
         googleId,
         profilePic: picture,
         role: 'client',
+        accountNumber, // Add the unique account number
         password: crypto.randomBytes(20).toString('hex') // Random password for Google users
       });
     }

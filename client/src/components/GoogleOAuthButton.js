@@ -71,8 +71,8 @@ const GoogleOAuthButton = ({ mode }) => {
   };
 
   return (
-    <div style={{ marginTop: '16px', textAlign: 'center' }}>
-      <div className="custom-google-button">
+    <div style={{ marginTop: '16px', textAlign: 'center', margin: '0 auto' }}>
+      <div className="custom-google-button" style={{ display: 'inline-block' }}>
         <GoogleLogin
           onSuccess={handleGoogleSuccess}
           onError={() => {

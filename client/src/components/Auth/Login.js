@@ -131,7 +131,7 @@ const Login = () => {
       alignItems: 'center',
       padding: '20px'
     }}>
-      <AuthBackground greenbg />
+      <AuthBackground />
       <Card
         style={{
           width: '100%',
