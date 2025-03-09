@@ -267,9 +267,9 @@ const About = () => {
             }}
           />
           <div className={classes.container}>
-            <section style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+            <section className="flex-responsive">
               {/* Slider Section */}
-              <div style={{ width: '100%', maxWidth: '800px', margin: '0 auto' }}>
+              <div className="slider-responsive">
                 <Slider
                   dots={true}
                   infinite={true}
@@ -287,13 +287,7 @@ const About = () => {
                     <Image
                       src={`${process.env.REACT_APP_API_URL}/uploads/open-for-virtual-about.png`}
                       alt="Virtual Meeting"
-                      style={{
-                        width: '800px',
-                        height: '1000px',
-                        objectFit: 'contain',
-                        backgroundColor: '#f5f5f5',
-                        backgroundColor: '#f5f5f5 !important'
-                      }}
+                      className="img-res"
                       preview={false}
                     />
                   </div>
@@ -302,13 +296,7 @@ const About = () => {
                       <Image
                         src={`${process.env.REACT_APP_API_URL}/uploads/${img}`}
                         alt={`Slide ${index + 1}`}
-                        style={{
-                          width: '800px',
-                          height: '1000px',
-                          objectFit: 'contain',
-                          backgroundColor: '#f5f5f5',
-                          backgroundColor: '#f5f5f5 !important'
-                        }}
+                        className="img-res"
                         preview={false}
                       />
                     </div>
@@ -364,10 +352,10 @@ const About = () => {
                   She is passionate about helping individuals and businesses navigate the complexities of tax laws to maximize savings and ensure long-term financial success, along with sharing tech associated compliance with small business owners data protection.
                 </Text>
                 <Text className={classes.aboutText} style={{ backgroundColor: '#f5f5f5 !important' }}>
-                  Specializing in personal and business taxes, payroll reporting, sales taxes, and tax resolution, Nav has successfully saved her clients up to $50,000 in tax letters over the past two years. She works closely with local clients, focusing on uplifting the community, especially empowering the youth.
+                  Specializing in personal and business taxes, payroll reporting, sales taxes, and tax resolution.
                 </Text>
                 <Text className={classes.aboutText} style={{ backgroundColor: '#f5f5f5 !important' }}>
-                  Since 2020 Due to her passion and devotion to her profession, Navrisham Khaira has been handing in everything by herself. We're a relatively young firm, founded in 2022, and have become a member of Yuba City Chamber of Commerce. We're excited to see what the future awaits.
+                  We're a relatively young firm, founded in 2022, and have become a member of Yuba City Chamber of Commerce. We're excited to see what the future awaits.
                 </Text>
               </div>
             </section>

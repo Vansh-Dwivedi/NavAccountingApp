@@ -1,9 +1,13 @@
 .virtual-meeting-section {
+  width: 100%;
+  max-width: 800px;
+  margin: 60px auto;
   padding: 60px 20px;
-  margin-top: 60px;
   text-align: center;
   z-index: 9;
-  margin-bottom: 60px !important;
+  background-color: #1677ff;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .meeting-content {
@@ -53,22 +57,4 @@
 .meeting-buttons .ant-btn-primary:hover {
   background: #004aad;
   border-color: #004aad;
-}
-
-@media (max-width: 768px) {
-  .virtual-meeting-section {
-    padding: 40px 20px;
-  }
-
-  .meeting-content p {
-    font-size: 16px;
-  }
-
-  .meeting-buttons {
-    flex-direction: column;
-  }
-
-  .meeting-buttons .ant-btn {
-    width: 100%;
-  }
 }

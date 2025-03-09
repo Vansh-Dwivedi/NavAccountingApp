@@ -101,6 +101,160 @@
   }
 }
 
+/* Enhanced Responsive Styles for Resources.css */
+@media (max-width: 1200px) {
+  .resources-grid {
+    margin: 30px 0;
+  }
+  
+  .resource-description {
+    font-size: 1.3rem;
+  }
+  
+  .resource-link {
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 992px) {
+  .resources-content {
+    padding-right: 24px;
+  }
+  
+  .resources-text {
+    font-size: 1.7rem;
+  }
+  
+  .resource-icon {
+    font-size: 48px;
+  }
+  
+  .resource-description {
+    font-size: 1.2rem;
+  }
+  
+  .resource-link {
+    font-size: 1rem;
+  }
+  
+  .accordion {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .resources-content {
+    padding-right: 0;
+    text-align: center;
+  }
+  
+  .resources-text {
+    font-size: 1.5rem;
+  }
+  
+  .resources-section {
+    margin-top: 40px;
+    padding-top: 20px;
+  }
+  
+  .section-title {
+    margin-bottom: 32px !important;
+  }
+  
+  .resource-icon {
+    font-size: 40px;
+  }
+  
+  .resource-card {
+    margin-bottom: 24px;
+  }
+  
+  .resource-description {
+    font-size: 1.1rem;
+    margin-bottom: 1.2rem;
+  }
+  
+  .resource-header h3.ant-typography {
+    font-size: 1.3rem;
+  }
+  
+  .resource-link {
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .resources-content {
+    padding: 0 12px;
+  }
+  
+  .resources-text {
+    font-size: 1.3rem;
+    margin-bottom: 16px;
+  }
+  
+  .resources-section {
+    margin-top: 30px;
+    padding-top: 15px;
+  }
+  
+  .resource-icon {
+    font-size: 36px;
+  }
+  
+  .resource-header {
+    margin-bottom: 0.7rem;
+  }
+  
+  .resource-header h3.ant-typography {
+    font-size: 1.2rem;
+  }
+  
+  .resource-description {
+    font-size: 1rem;
+    margin-bottom: 1rem;
+  }
+  
+  .resource-link {
+    font-size: 0.9rem;
+  }
+  
+  .resource-card {
+    border-radius: 8px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  }
+  
+  .accordion {
+    gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .resources-text {
+    font-size: 1.2rem;
+  }
+  
+  .resource-icon {
+    font-size: 32px;
+  }
+  
+  .resource-header h3.ant-typography {
+    font-size: 1.1rem;
+  }
+  
+  .resource-description {
+    font-size: 0.9rem;
+  }
+  
+  .resource-link {
+    font-size: 0.85rem;
+  }
+  
+  .resource-card {
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  }
+}
+
 /* Animation Classes */
 .slide-in-left {
   animation: slideInLeft 0.6s ease-out;

@@ -420,7 +420,7 @@ exports.handleChatbotMessage = async (req, res) => {
       'hi': "Hello! How can I assist you today?",
       'hello': "Hello there! How can I assist you today?",
       'hey': "Hey there! How can I assist you today?",
-      'who are you': "I'm Sunny, your trusted partner for accounting, tax, and business services. How may I assist you today?",
+      'who are you': "I'm Ivy, your trusted partner for accounting, tax, and business services. How may I assist you today?",
 
       // Greetings
       'greetings': "Greetings. Welcome to Nav Accounts. How may I be of assistance to you today?",

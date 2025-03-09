@@ -1,8 +1,8 @@
 // Core Node modules
 const fs = require("fs");
 const http = require("http");
-const https = require("https");
 const path = require("path");
+const https = require("https");
 
 // External dependencies
 const cors = require("cors");
@@ -21,25 +21,21 @@ console.log("Environment variables:");
 console.log("MONGODB_URI:", process.env.MONGODB_URI);
 console.log("PORT:", process.env.PORT);
 
-// SSL Certificate configuration
-const privateKey = fs.readFileSync('certificates/privatekey.pem', 'utf8');
-const certificate = fs.readFileSync('certificates/certificate.pem', 'utf8');
-const credentials = { 
-  key: privateKey, 
-  cert: certificate,
-};
-
 // Initialize Express app
 const app = express();
 
 // CORS configuration
 const corsOptions = {
   origin: function (origin, callback) {
-    const allowedOrigins = ['https://localhost:8443', 'http://localhost:3000'];
+    const corsOrigin = process.env.CORS_ORIGIN || 'https://localhost:3000';
+    const allowedOrigins = corsOrigin.split(',');
+    
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
       callback(null, true);
     } else {
+      console.log('CORS blocked origin:', origin);
+      console.log('Allowed origins:', allowedOrigins);
       callback(new Error('Not allowed by CORS'));
     }
   },
@@ -113,9 +109,9 @@ app.use(express.static(path.join(__dirname, '../client/build')));
 
 // Serve uploads directory
 app.use('/uploads', (req, res, next) => {
-  // Allow both origins
+  // Allow origin
   const origin = req.headers.origin;
-  if (origin === 'http://localhost:3000' || origin === 'https://localhost:8443') {
+  if (origin === 'https://localhost:3000' || origin === 'https://localhost:8443') {
     res.setHeader('Access-Control-Allow-Origin', origin);
   }
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
@@ -228,12 +224,17 @@ app.get('*', (req, res) => {
   }
 });
 
-// Initialize socket.io with HTTP and HTTPS
-const httpServer = http.createServer(app);
-const httpsServer = https.createServer(credentials, app);
+// SSL Certificate configuration
+const sslOptions = {
+  key: fs.readFileSync(path.join(__dirname, 'certificates', 'privatekey.pem')),
+  cert: fs.readFileSync(path.join(__dirname, 'certificates', 'certificate.pem'))
+};
 
-const io = initializeSocket(httpServer);
-const httpsIo = initializeSocket(httpsServer);
+// Initialize HTTPS server
+const server = https.createServer(sslOptions, app);
+
+// Initialize socket.io with HTTPS
+const io = initializeSocket(server);
 app.set("io", io);
 
 // Error Handling
@@ -241,5 +242,5 @@ app.use("*", (req, res) => {
   res.status(404).json({ error: "Route not found" });
 });
 
-// Export servers and app
-module.exports = { app, server: httpServer, httpsServer, io };
+// Export server and app
+module.exports = { app, server, io };

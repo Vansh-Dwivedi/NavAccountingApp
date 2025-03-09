@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AppInstaller
+    xmlns="http://schemas.microsoft.com/appx/appinstaller/2018"
+    Version="0.8.4.3"
+    Uri="https://packages.streamwithmeld.com/MeldStudio.appinstaller">
+
+    <MainPackage
+        Name="MeldStudioInc.MeldStudio"
+        Publisher="CN=&quot;Meld Studio, Inc.&quot;, O=&quot;Meld Studio, Inc.&quot;, S=New York, C=US, OID.2.5.4.15=Private Organization, OID.1.3.6.1.4.1.311.60.2.1.2=Delaware, OID.1.3.6.1.4.1.311.60.2.1.3=US, SERIALNUMBER=6313558"
+        Version="0.8.4.3"
+        ProcessorArchitecture="x64"
+        Uri="https://packages.streamwithmeld.com/MeldStudio-0.8.4.3.msix"
+    />
+
+    <UpdateSettings>
+        <OnLaunch 
+            HoursBetweenUpdateChecks="0"
+            UpdateBlocksActivation="true"
+            ShowPrompt="true"
+        />
+        <AutomaticBackgroundTask />
+        <ForceUpdateFromAnyVersion>true</ForceUpdateFromAnyVersion>
+    </UpdateSettings>
+</AppInstaller>

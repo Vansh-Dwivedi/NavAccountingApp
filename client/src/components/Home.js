@@ -490,12 +490,13 @@ const Home = () => {
             muted
             playsInline
             style={{
-              width: '70%',
+              width: '80%',
               height: 'auto',
               objectFit: 'contain',
               display: 'block',
               margin: '0 auto',
-              imageRendering: 'crisp-edges'
+              imageRendering: 'crisp-edges',
+              marginTop: '-50px',
             }}
           >
             <source src={`${process.env.REACT_APP_API_URL}/uploads/home-banner.mp4`} type="video/mp4" />
@@ -534,41 +535,23 @@ const Home = () => {
           </Row>
         </section>
 
-        <section style={{ padding: '80px 0', justifyContent: 'center !important', zIndex: 99, minWidth: '1200px' }}>
-          <div style={{ padding: '0 20px', justifyContent: 'center' }}>
-            <Title level={2} className="section-title" style={{ textAlign: 'center', width: '500px' }}>Who We are</Title>
-            <div style={{
-              height: '300px',
-              backgroundColor: '#ffffff',
-              color: '#002E6D',
-              padding: '40px',
-              borderRadius: '10px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-            }}>
-              <Typography.Paragraph style={{
-                fontSize: '1.50rem',
-                lineHeight: '1.8',
-                margin: '0 0 20px 0',
-                color: '#002E6D'
-              }}>
+        <section className="who-we-are-section">
+          <div className="who-we-are-container">
+            <Title level={2} className="section-title who-we-are-title">Who We are</Title>
+            <div className="who-we-are-content">
+              <Typography.Paragraph className="who-we-are-paragraph">
                 Nav Accounts is owned by Navrisham Khaira as a solopreneur. She is passionate about helping individuals and businesses navigate the complexities of tax laws to maximize savings and ensure long-term financial success, along with sharing tech-associated compliance with small business owners for data protection.
               </Typography.Paragraph>
-              <Typography.Paragraph style={{
-                fontSize: '1.50rem',
-                lineHeight: '1.8',
-                margin: '20px 0 0 0',
-                color: '#002E6D'
-              }}>
+              <Typography.Paragraph className="who-we-are-paragraph-second">
                 We talk only when we had achieved for real. That makes countable for your opportunities to assist you with our business solution with our commitment to serve as best of our understanding. These numbers are based on year 2022 to 2024.
               </Typography.Paragraph>
             </div>
           </div>
         </section>
-        <section className="reliable-section" style={{ justifyContent: 'center !important', alignItems: 'center !important', textAlign: 'center !important' }}>
+
+        <section className="reliable-section">
           <div className="container">
-            <h2 className="section-title" style={{ textAlign: 'center', marginBottom: '40px', width: '60%' }}>What Makes Us Reliable</h2>
+            <h2 className="services-title">What Makes Us Reliable</h2>
             <div className="reliable-container">
               {reliablePoints.map((point, index) => (
                 <div className="reliable-item" key={index}>
@@ -586,9 +569,9 @@ const Home = () => {
         </section>
 
         {/* Our Services Section */}
-        <section id="services" style={{ padding: '80px 0', zIndex: 1 }}>
-          <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-            <h2 className="services-title" style={{ textAlign: 'center' }}>Our Services</h2>
+        <section id="services" className="services-section">
+          <div className="services-section-container">
+            <h2 className="section-title">Our Services</h2>
             <div className="services-tabs-container">
               <div className="services-tabs">
                 <div className="service-tab-row">
@@ -694,6 +677,27 @@ const Home = () => {
                 <p className="reviewer-title">{reviewsData[currentReview].title}</p>
                 <p className="review-time">{reviewsData[currentReview].relativeTime}</p>
               </div>
+              <div className="review-dots">
+                {reviewsData.map((_, index) => (
+                  <span 
+                    key={index} 
+                    className={`review-dot ${index === currentReview ? 'active' : ''}`}
+                    onClick={() => {
+                      if (index !== currentReview) {
+                        setSlideDirection(index > currentReview ? 'left' : 'right');
+                        setIsTransitioning(true);
+                        setTimeout(() => {
+                          setCurrentReview(index);
+                          setTimeout(() => {
+                            setIsTransitioning(false);
+                            setSlideDirection('');
+                          }, 300);
+                        }, 300);
+                      }
+                    }}
+                  />
+                ))}
+              </div>
             </div>
             <button
               className="review-nav-button review-nav-next"
@@ -704,7 +708,6 @@ const Home = () => {
             </button>
           </div>
         </section>
-
         <GetStartedSteps style={{  }}/>
         <VirtualMeetingSection />
 

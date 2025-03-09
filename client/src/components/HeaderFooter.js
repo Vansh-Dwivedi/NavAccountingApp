@@ -175,7 +175,7 @@ const FrontHeader = ({ activeKey }) => {
       <Header className={`front-header ${isScrolled ? 'scrolled' : ''}`} style={{
         position: 'fixed',
         width: '100%',
-        zIndex: 9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999n,
+        zIndex: 99,
         top: 50,
         padding: '15px 50px',
         background: isScrolled ? 'transparent' : 'transparent',

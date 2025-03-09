@@ -124,7 +124,7 @@ const ChatButton = () => {
             alt="App Logo"
             style={{ height: '24px', width: 'auto' }}
           />
-          <h3 style={{ margin: 0, color: 'white' }}>Chat with Sunny</h3>
+          <h3 style={{ margin: 0, color: 'white' }}>Chat with Ivy</h3>
         </div>
         <Button
           type="text"

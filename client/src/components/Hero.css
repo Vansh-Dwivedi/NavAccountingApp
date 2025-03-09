@@ -59,6 +59,110 @@
   }
 }
 
+/* Enhanced Responsive Styles for Hero.css */
+@media (max-width: 1200px) {
+  .showcase-container {
+    min-height: 55vh;
+    margin-top: 160px !important;
+  }
+  
+  .showcase-heading {
+    font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+  }
+  
+  .showcase-description {
+    font-size: clamp(0.9rem, 1.8vw, 1.3rem);
+    max-width: 700px;
+  }
+}
+
+@media (max-width: 992px) {
+  .showcase-container {
+    min-height: 50vh;
+    margin-top: 140px !important;
+  }
+  
+  .showcase-wrapper {
+    padding: 1.8rem;
+  }
+  
+  .showcase-heading {
+    font-size: clamp(2rem, 4vw, 3rem);
+    margin-bottom: 1.2rem;
+  }
+  
+  .showcase-description {
+    font-size: clamp(0.9rem, 1.6vw, 1.2rem);
+    max-width: 600px;
+  }
+}
+
+@media (max-width: 768px) {
+  .showcase-container {
+    min-height: 45vh;
+    margin-top: 120px !important;
+    padding-top: 80px;
+  }
+  
+  .showcase-wrapper {
+    padding: 1.5rem;
+  }
+  
+  .showcase-heading {
+    font-size: clamp(1.8rem, 3.5vw, 2.5rem);
+    margin-bottom: 1rem;
+  }
+  
+  .showcase-description {
+    font-size: clamp(0.85rem, 1.5vw, 1.1rem);
+    max-width: 500px;
+  }
+}
+
+@media (max-width: 576px) {
+  .showcase-container {
+    min-height: 40vh;
+    margin-top: 100px !important;
+    padding-top: 70px;
+  }
+  
+  .showcase-wrapper {
+    padding: 1.2rem;
+  }
+  
+  .showcase-heading {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    margin-bottom: 0.8rem;
+  }
+  
+  .showcase-description {
+    font-size: clamp(0.8rem, 1.4vw, 1rem);
+    max-width: 400px;
+  }
+}
+
+@media (max-width: 480px) {
+  .showcase-container {
+    min-height: 35vh;
+    margin-top: 90px !important;
+    padding-top: 60px;
+  }
+  
+  .showcase-wrapper {
+    padding: 1rem;
+  }
+  
+  .showcase-heading {
+    font-size: clamp(1.4rem, 2.8vw, 2rem);
+    margin-bottom: 0.7rem;
+  }
+  
+  .showcase-description {
+    font-size: clamp(0.75rem, 1.3vw, 0.9rem);
+    max-width: 350px;
+  }
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .showcase-container {

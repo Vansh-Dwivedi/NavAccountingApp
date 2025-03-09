@@ -1,10 +1,9 @@
 require('dotenv').config();
-const { app, server, httpsServer } = require('./server');
+const { app, server } = require('./server');
 
-const PORT = 5000;
-const HTTPS_PORT = 8443;
+const PORT = process.env.PORT || 8443;
 
-httpsServer.listen(HTTPS_PORT, () => {
-  console.log(`HTTPS server is running on https://localhost:8443`);
+server.listen(PORT, () => {
+  console.log(`HTTPS server is running on https://localhost:${PORT}`);
   console.log(`Environment: ${process.env.NODE_ENV}`);
 });
